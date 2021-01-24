@@ -29,25 +29,10 @@ namespace RoomServer.Server
 
         private object _readyLock;
 
-        private bool _roomManagerRdy;
-        public bool RoomManagerReady
-        {
-            set
-            {
-                lock (_readyLock)
-                {
-                    CLog.I("RoomManager is ready.");
-                    _roomManagerRdy = true;
-                    CheckReady();
-                }
-            }
-        }
-
         public AppServer(uint instanceId) : base(instanceId, Assembly.GetExecutingAssembly().GetName().Name, Assembly.GetExecutingAssembly().GetName().Version.ToString(), TICKS_PER_SECOND)
         {
             _readyLock = new object();
-            _roomManagerRdy = false;
-
+            
             _connectedSessions = new List<WeakReference<ClientSession>>();
         }
 
@@ -89,18 +74,7 @@ namespace RoomServer.Server
 
             string lbServerIP = GetConfig("lbServerAddress", "127.0.0.1");
             int lbServerPort = int.Parse(GetConfig("lbServerPort", "11510"));
-        }
 
-        protected void CheckReady()
-        {
-            if (_roomManagerRdy)
-            {
-                Ready();
-            }
-        }
-
-        protected void Ready()
-        {
             CLog.I("Server capacity: {0} players.", Capacity);
             CLog.I("Public IP: {0}", PublicIP);
             CLog.I("Public Port: {0}", PublicPort);

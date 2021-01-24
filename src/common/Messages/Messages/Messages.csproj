@@ -67,6 +67,7 @@
 
 if $(ConfigurationName) == DebugClient (
    COPY /Y /B *.* ..\..\..\..\..\..\bin\common\lib\client
+   COPY /Y /B Messages.dll ..\..\..\..\..\client\Skyon2D\Assets\Scripts\Engine\Plugin
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>
