@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "MapServer": {
+      "commandName": "Project",
+      "commandLineArgs": "1",
+      "workingDirectory": "D:\\Skyon\\project\\bin\\server\\mapserver"
+    }
+  }
+}

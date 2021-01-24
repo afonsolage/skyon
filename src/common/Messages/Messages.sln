@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Messages\Messages.csproj", "{B1510504-EC4D-4C64-87AD-9C11727A2F2D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		DebugClient|Any CPU = DebugClient|Any CPU
+		DebugServer|Any CPU = DebugServer|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1510504-EC4D-4C64-87AD-9C11727A2F2D}.DebugClient|Any CPU.ActiveCfg = DebugClient|Any CPU
+		{B1510504-EC4D-4C64-87AD-9C11727A2F2D}.DebugClient|Any CPU.Build.0 = DebugClient|Any CPU
+		{B1510504-EC4D-4C64-87AD-9C11727A2F2D}.DebugServer|Any CPU.ActiveCfg = DebugServer|Any CPU
+		{B1510504-EC4D-4C64-87AD-9C11727A2F2D}.DebugServer|Any CPU.Build.0 = DebugServer|Any CPU
+		{B1510504-EC4D-4C64-87AD-9C11727A2F2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1510504-EC4D-4C64-87AD-9C11727A2F2D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D06EEB14-AF0C-4F8E-8155-A3A82F779467}
+	EndGlobalSection
+EndGlobal
