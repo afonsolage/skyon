@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "MapServer": {
+      "commandName": "Project",
+      "commandLineArgs": "3",
+      "workingDirectory": "D:\\Skyon\\project\\bin\\server\\proceduralserver"
+    }
+  }
+}

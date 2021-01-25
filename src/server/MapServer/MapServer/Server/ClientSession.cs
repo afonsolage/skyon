@@ -4,7 +4,7 @@ using CommonLib.Messaging.Base;
 using CommonLib.Networking;
 using CommonLib.Util;
 
-namespace RoomServer.Server
+namespace MapServer.Server
 {
     class ClientSession : ClientConnection
     {

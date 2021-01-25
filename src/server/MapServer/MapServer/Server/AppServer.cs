@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Xml.Linq;
 
-namespace RoomServer.Server
+namespace MapServer.Server
 {
     internal partial class AppServer : GameLoopServer
     {
@@ -18,6 +18,9 @@ namespace RoomServer.Server
 
         private DatabaseClient _dbClient;
         public DatabaseClient DBClient { get => _dbClient; }
+
+        private ProcedualClient _pcClient;
+        public ProcedualClient PCClient { get => _pcClient; }
 
         public int Capacity { get; private set; }
         public string PublicIP { get; private set; }
@@ -72,8 +75,11 @@ namespace RoomServer.Server
             _dbClient = new DatabaseClient(this, dbServerIP, dbServerPort);
             _dbClient.Start();
 
-            string lbServerIP = GetConfig("lbServerAddress", "127.0.0.1");
-            int lbServerPort = int.Parse(GetConfig("lbServerPort", "11510"));
+            string pcServerIP = GetConfig("pcServerAddress", "127.0.0.1");
+            int pcServerPort = int.Parse(GetConfig("pcServerPort", "11410"));
+
+            _pcClient = new ProcedualClient(this, pcServerIP, pcServerPort);
+            _pcClient.Start();
 
             CLog.I("Server capacity: {0} players.", Capacity);
             CLog.I("Public IP: {0}", PublicIP);
