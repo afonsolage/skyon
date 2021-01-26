@@ -8,6 +8,14 @@ namespace CommonLib.Util.Math
         {
             return val < min ? min : val > max ? max : val;
         }
+        // Calculates the ::ref::Lerp parameter between of two values.
+        public static float InverseLerp(float a, float b, float value)
+        {
+            if (a != b)
+                return Clamp(0, 1, (value - a) / (b - a));
+            else
+                return 0.0f;
+        }
     }
 
     public struct Vec2
@@ -201,6 +209,16 @@ namespace CommonLib.Util.Math
             return new Vec2i(lhs.x + rhs.x, lhs.y + rhs.y);
         }
 
+        public static Vec2i operator /(Vec2i lhs, int rhs)
+        {
+            return new Vec2i(lhs.x / rhs, lhs.y / rhs);
+        }
+
+        public static Vec2i operator *(Vec2i lhs, int rhs)
+        {
+            return new Vec2i(lhs.x * rhs, lhs.y * rhs);
+        }
+
         public override string ToString()
         {
             return "[" + x + "," + y + "]";
@@ -364,7 +382,56 @@ namespace CommonLib.Util.Math
         {
             return beg.IsValid() && end.IsValid();
         }
+
+        public bool Contains(Vec2 point)
+        {
+            return beg.x > point.x && beg.y > point.y && end.x < point.y && end.y < point.y;
+        }
     }
 
+    public struct Rect2i
+    {
+        public static readonly Rect2i INVALID = new Rect2i(Vec2i.INVALID, Vec2i.INVALID);
+
+        public Vec2i start;
+        public Vec2i end;
+        public Vec2i center;
+
+        public Rect2i(int x, int y, int width, int height) : this(new Vec2i(x, y), new Vec2i(x + width, y + height))
+        {
+        }
+
+        public Rect2i(Vec2i start, Vec2i end)
+        {
+            this.start = start;
+            this.end = end;
+            this.center = start + (end - start) / 2;
+        }
+
+        public bool IsValid()
+        {
+            return start.IsValid() || start.IsValid();
+        }
+
+        public bool Contains(Vec2i point)
+        {
+            return start.x <= point.x && start.y <= point.y && end.x >= point.y && end.y >= point.y;
+        }
+
+        public Rect2i Expand(int scale)
+        {
+            return new Rect2i(start.x - scale, start.y - scale, end.x - start.x + scale, end.y - start.y + scale);
+        }
+
+        public int Width()
+        {
+            return end.x - start.x;
+        }
+
+        public int Height()
+        {
+            return end.y - start.y;
+        }
+    }
 
 }

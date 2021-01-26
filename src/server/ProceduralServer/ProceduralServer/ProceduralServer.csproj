@@ -6,8 +6,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="CommonLib">
       <HintPath>..\..\..\..\bin\common\lib\server\CommonLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Eto">
+      <HintPath>..\..\..\..\bin\common\lib\server\Eto.dll</HintPath>
+    </Reference>
+    <Reference Include="FastNoiseLite">
+      <HintPath>..\..\..\..\bin\common\lib\server\FastNoiseLite.dll</HintPath>
     </Reference>
     <Reference Include="Messages">
       <HintPath>..\..\..\..\bin\common\lib\server\Messages.dll</HintPath>
