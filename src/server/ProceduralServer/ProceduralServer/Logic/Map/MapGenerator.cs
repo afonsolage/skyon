@@ -52,6 +52,7 @@ namespace ProceduralServer.Logic.Map
         private byte[] _tileType;
 
         public float[] HeightBuffer { get => _heightMap; }
+        public byte[] TileBuffer { get => _tileType; }
 
         public void SetHeight(int x, int y, float height)
         {
@@ -166,7 +167,7 @@ namespace ProceduralServer.Logic.Map
             var connections = new List<Vec2i>();
             for (var i = 0; i < allDirs.Length; i++)
             {
-                if (!firstConnection || new Random().Next(0, 100) > 30)
+                if (!firstConnection || new Random().Next(0, 100) >= 30)
                 {
                     firstConnection = true;
                     connections.Add(currentDir);

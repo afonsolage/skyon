@@ -1,6 +1,5 @@
 ﻿using CommonLib.GridEngine;
 using CommonLib.Util.Math;
-using CommonLib.Messaging.Common;
 using CommonLib.Server;
 using CommonLib.Util;
 using System;
@@ -9,6 +8,7 @@ using ProceduralServer.Logic.Map;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using CommonLib.Messaging.Server;
 
 namespace ProceduralServer.Server
 {
@@ -54,6 +54,7 @@ namespace ProceduralServer.Server
 
         private void ProcessGenerateMap(string[] command)
         {
+            //generate map 1 1 10 2 0,21 0,3
             if (command.Length < 2)
             {
                 CLog.W("Generate map command syntax: generate map <x> <y> <frequency> <ftOctaves> <ftLacunarity> <ftGain>");
@@ -78,7 +79,7 @@ namespace ProceduralServer.Server
 
                 borderSize = (int)(1024 * 0.05f),
                 borderThickness = 0.05f,
-                borderMontains = false,
+                borderMontains = true,
 
                 borderConnectionSize = (int)(1024 * 0.05f),
             };
@@ -95,15 +96,34 @@ namespace ProceduralServer.Server
                 }
             }
 
-            bitmap.Save("output.bmp");
-            new Process
+            //bitmap.Save("output.bmp");
+            //new Process
+            //{
+            //    StartInfo = new ProcessStartInfo(@"output.bmp")
+            //    {
+            //        UseShellExecute = true,
+            //        WindowStyle = ProcessWindowStyle.Normal,
+            //    }
+            //}.Start();
+
+            var tmp = CompressionHelper.CompressWithLossy2Precision(tileMap.HeightBuffer);
+
+            DBClient.Send(new PB_NFY_UPSERT_MAP()
             {
-                StartInfo = new ProcessStartInfo(@"output.bmp")
+                tileMap = new CommonLib.Messaging.Server.TileMap()
                 {
-                    UseShellExecute = true,
-                    WindowStyle = ProcessWindowStyle.Normal,
+                    x = 1,
+                    y = 1,
+                    heightMap = CompressionHelper.Compress(tmp),
+                    tileType = CompressionHelper.Compress(tileMap.TileBuffer),
                 }
-            }.Start();
+            });
+
+            //var tileCompressed = CompressionHelper.Compress(tileMap.TileBuffer);
+            //var uncompressedTile = tileMap.TileBuffer.Length;
+            //var compressedTile = tileCompressed.Length;
+
+            //var i = 0;
         }
 
         private Color GetTileColor(TileType tile)

@@ -1,10 +1,25 @@
-﻿using CommonLib.Messaging.Common;
-using ProtoBuf;
+﻿using ProtoBuf;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace CommonLib.Messaging.Base
+namespace CommonLib.Messaging.Common
 {
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
+    public interface IMessage
+    {
+        MessageType MsgType { get; }
+    }
+
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
+    public class TypeOnlyMessage : IMessage
+    {
+        public MessageType MsgType { get; set; }
+    }
+
     public class RawMessage
     {
         public MessageType MsgType;

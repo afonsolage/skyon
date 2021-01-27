@@ -1,5 +1,4 @@
-﻿using CommonLib.Messaging.Base;
-using CommonLib.Messaging.Common;
+﻿using CommonLib.Messaging.Common;
 using CommonLib.Util;
 using System;
 using System.Collections.Generic;
@@ -310,7 +309,7 @@ namespace CommonLib.Networking
             catch (Exception) { }
 
             if (_thread != null)
-                _thread.Abort();
+                _thread.Interrupt();
         }
 
         /// <summary>

@@ -9,9 +9,6 @@
     <Reference Include="CommonLib">
       <HintPath>..\..\..\..\bin\common\lib\server\CommonLib.dll</HintPath>
     </Reference>
-    <Reference Include="Messages">
-      <HintPath>..\..\..\..\bin\common\lib\server\Messages.dll</HintPath>
-    </Reference>
     <Reference Include="Npgsql">
       <HintPath>..\..\..\..\bin\common\lib\server\Npgsql.dll</HintPath>
     </Reference>

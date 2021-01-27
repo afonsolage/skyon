@@ -251,7 +251,7 @@ namespace CommonLib.Util
 
         public static void Catch(Exception e)
         {
-            Write(CLogType.Error, "Exception {0} caught. Error: {1}", e.GetType().Name, e.Message);
+            Write(CLogType.Error, "Exception {0} caught. Error: {1} At: {2}\n", e.GetType().Name, e.Message, e.StackTrace);
 
             if (EnableLogOnFile)
             {

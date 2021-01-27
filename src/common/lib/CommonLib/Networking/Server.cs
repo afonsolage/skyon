@@ -1,6 +1,5 @@
 ﻿#if _SERVER
 
-using CommonLib.Messaging.Base;
 using CommonLib.Messaging.Common;
 using CommonLib.Util;
 using System;
@@ -136,7 +135,7 @@ namespace CommonLib.Networking
 
             if (_thread?.ManagedThreadId != Thread.CurrentThread.ManagedThreadId)
             {
-                _thread.Abort();
+                _thread.Interrupt();
             }
 
             _running = false;

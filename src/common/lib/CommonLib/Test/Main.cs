@@ -67,9 +67,6 @@ class TestMain
             Console.WriteLine(formattedMessage);
         };
 
-        var test = new TesticuloServer(1, "Testiculo Server", "0.0.0.0", 64);
-        test.Init();
-        test.Start();
 
         return 0;
     }

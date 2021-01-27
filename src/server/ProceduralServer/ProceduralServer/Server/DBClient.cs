@@ -1,5 +1,5 @@
 ﻿using CommonLib.Messaging;
-using CommonLib.Messaging.Base;
+using CommonLib.Messaging.Common;
 using CommonLib.Networking;
 using CommonLib.Util;
 
@@ -24,7 +24,6 @@ namespace ProceduralServer.Server
         public override void Handle(Packet packet)
         {
             var rawMessage = new RawMessage(packet.buffer);
-
             switch (rawMessage.MsgType)
             {
                 default:
