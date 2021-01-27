@@ -1,6 +1,6 @@
 ﻿using System;
 using CommonLib.Messaging;
-using CommonLib.Messaging.Base;
+using CommonLib.Messaging.Common;
 using CommonLib.Networking;
 using CommonLib.Util;
 
@@ -47,15 +47,6 @@ namespace MapServer.Server
         public override void Handle(Packet packet)
         {
             var rawMessage = new RawMessage(packet.buffer);
-
-            CLog.D("Received packet {0} from {1}", rawMessage.MsgType, _socket.RemoteEndPoint);
-
-            if (!_authenticated && rawMessage.MsgType != MessageType.CX_TOKEN_REQ)
-            {
-                CLog.W("Received message without beign authenticated first. Closing connection.");
-                Close();
-                return;
-            }
 
             switch (rawMessage.MsgType)
             {

@@ -36,10 +36,12 @@ namespace CommonLib.Messaging.Common
 
 #if _SERVER  // From here on there are only server messages, so let's remove'em from client.
 
-        // Procedural Server to DB Server messages
+        // Procedural Server <-> DB Server messages
         PB_NFY_UPSERT_MAP,
 
-        // 
+        // Map Server <-> DB Server
+        MD_REQ_MAP_INFO,
+        DM_RES_MAP_INFO,
 
 #endif
 

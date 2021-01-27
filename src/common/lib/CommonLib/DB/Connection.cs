@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CommonLib.DB
 {
-    public abstract class ConnectionFactory
+    public static class ConnectionFactory
     {
         private static readonly Dictionary<string, string> _connStringMap = new Dictionary<string, string>();
 
@@ -39,6 +39,19 @@ namespace CommonLib.DB
         {
             var connectionString = _connStringMap[name];
             return new NpgsqlConnection(connectionString);
+        }
+
+        [ThreadStatic]
+        private static byte[] _temp;
+        public static byte[] GetByteArray(this NpgsqlDataReader reader, int ordinal)
+        {
+            if (_temp == null)
+                 _temp = new byte[1024 * 1024]; //1MB
+
+            var readLen = reader.GetBytes(ordinal, 0, _temp, 0, _temp.Length);
+            var res = new byte[readLen];
+            Array.Copy(_temp, res, readLen);
+            return res;
         }
     }
 

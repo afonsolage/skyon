@@ -1,5 +1,5 @@
 ﻿using CommonLib.Messaging;
-using CommonLib.Messaging.Base;
+using CommonLib.Messaging.Common;
 using CommonLib.Networking;
 using CommonLib.Util;
 
