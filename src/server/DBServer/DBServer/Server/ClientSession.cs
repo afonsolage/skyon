@@ -19,8 +19,8 @@ namespace DBServer.Server
             var rawMessage = new RawMessage(packet.buffer);
             switch (rawMessage.MsgType)
             {
-                case MessageType.PB_NFY_UPSERT_MAP:
-                    ProceduralServer.NfyUpsertMap(rawMessage.To<PB_NFY_UPSERT_MAP>(), this);
+                case MessageType.PD_NFY_UPSERT_MAP:
+                    ProceduralServer.NfyUpsertMap(rawMessage.To<PD_NFY_UPSERT_MAP>(), this);
                     break;
                 case MessageType.MD_REQ_MAP_INFO:
                     MapServer.ReqMapInfo(rawMessage.To<MD_REQ_MAP_INFO>(), this);

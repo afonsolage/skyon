@@ -11,7 +11,7 @@ namespace DBServer.Query
     {
         private const string CONNECTION_NAME = "general";
 
-        internal static void NfyUpsertMap(PB_NFY_UPSERT_MAP req, ClientSession session)
+        internal static void NfyUpsertMap(PD_NFY_UPSERT_MAP req, ClientSession session)
         {
             using (var conn = new DBConnection(CONNECTION_NAME))
             {

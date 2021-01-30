@@ -53,6 +53,8 @@ namespace MapServer.Server
         {
             var rawMessage = new RawMessage(packet.buffer);
 
+            CLog.D("Received from client {0}: {1}", ID, rawMessage.MsgType);
+
             switch (rawMessage.MsgType)
             {
                 case MessageType.CM_REQ_JOIN_MAP:
@@ -75,7 +77,7 @@ namespace MapServer.Server
 
             if (instance == null)
             {
-                CLog.E("Map instance not loaded: {0}, {1}, {2}", req.x, req.y, req.channel);
+                CLog.E("Map instance not loaded: {0}, {1}, {2}. Requesting load", req.x, req.y, req.channel);
                 App.MapInstanceManager.LoadMap(req.x, req.y, req.channel);
                 Send(new MC_RES_JOIN_MAP() { });
                 return;

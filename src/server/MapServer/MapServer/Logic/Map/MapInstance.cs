@@ -132,13 +132,15 @@ namespace MapServer.Logic.Map
             var player = new Player(session);
             _players[session.ID] = player;
 
-            player.Session.Send(new MC_RES_JOIN_MAP()
+            var res = new MC_RES_JOIN_MAP()
             {
                 tileMap = new TileMapSimple()
                 {
-                    tileType = Map.TileType.Cast<byte>().ToArray(),
+                    tileType = CompressionHelper.Compress(Map.TileType.Cast<byte>().ToArray()),
                 }
-            }); ;
+            };
+
+            player.Session.Send(res); ;
         }
     }
 }

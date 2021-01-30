@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 namespace CommonLib.Messaging.Server
 {
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-    public class PB_NFY_UPSERT_MAP : IMessage
+    public class PD_NFY_UPSERT_MAP : IMessage
     {
-        public PB_NFY_UPSERT_MAP() { MsgType = MessageType.PB_NFY_UPSERT_MAP; }
+        public PD_NFY_UPSERT_MAP() { MsgType = MessageType.PD_NFY_UPSERT_MAP; }
         public MessageType MsgType { get; }
 
         public TileMapData tileMap;
@@ -27,7 +27,7 @@ namespace CommonLib.Messaging.Server
 
         public int x;
         public int y;
-        public ushort channel;
+        public int channel;
     }
 
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
@@ -37,7 +37,7 @@ namespace CommonLib.Messaging.Server
         public MessageType MsgType { get; }
 
         public TileMapData tileMap;
-        public ushort channel;
+        public int channel;
     }
 }
 #endif

@@ -27,6 +27,9 @@ namespace MapServer.Server
 
             switch (rawMessage.MsgType)
             {
+                case MessageType.PM_RES_MAP_GEN:
+                    App.MapInstanceManager.Handle(packet);
+                    break;
                 default:
                     CLog.W("Unrecognized procedural message type: {0}.", rawMessage.MsgType);
                     break;

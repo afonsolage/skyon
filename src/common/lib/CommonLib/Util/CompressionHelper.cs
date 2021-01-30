@@ -33,7 +33,7 @@ namespace CommonLib.Util
         public static ushort[] CompressWithLossy4Precision(float[] data)
         {
             var res = new ushort[data.Length];
-            for(var i = 0; i < data.Length; i++)
+            for (var i = 0; i < data.Length; i++)
             {
                 res[i] = (ushort)(data[i] * 10000);
             }
@@ -67,9 +67,11 @@ namespace CommonLib.Util
                 return null;
 
             using (var outputStream = new MemoryStream())
-            using (var zipStream = new GZipStream(outputStream, CompressionLevel.Optimal))
             {
-                zipStream.Write(data, 0, data.Length);
+                using (var zipStream = new GZipStream(outputStream, CompressionLevel.Optimal))
+                {
+                    zipStream.Write(data, 0, data.Length);
+                }
                 return outputStream.ToArray();
             }
         }
@@ -80,9 +82,14 @@ namespace CommonLib.Util
                 return null;
 
             using (var outputStream = new MemoryStream())
-            using (var zipStream = new DeflateStream(outputStream, CompressionLevel.Optimal))
             {
-                zipStream.Write(data, 0, data.Length);
+                using (var compressedStream = new MemoryStream(data))
+                {
+                    using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
+                    {
+                        zipStream.CopyTo(outputStream);
+                    }
+                }
                 return outputStream.ToArray();
             }
         }

@@ -93,6 +93,8 @@ namespace ProceduralServer.Server
 
         private void OnClientSessionConnected(ClientSession session)
         {
+            session.Setup(this);
+
             lock (_connectedSessions)
             {
                 _connectedSessions.Add(new WeakReference<ClientSession>(session));

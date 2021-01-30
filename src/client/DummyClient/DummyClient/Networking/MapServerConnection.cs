@@ -1,9 +1,11 @@
-﻿using CommonLib.Messaging.Client;
+﻿using CommonLib.Logic.Map;
+using CommonLib.Messaging.Client;
 using CommonLib.Messaging.Common;
 using CommonLib.Networking;
 using CommonLib.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DummyClient.Networking
@@ -37,7 +39,8 @@ namespace DummyClient.Networking
             }
             else
             {
-                CLog.I("Received map size: {0}", res.tileMap.tileType.Length);
+                var tilesType = CompressionHelper.Decompress(res.tileMap.tileType).Cast<TileType>().ToArray();
+                CLog.I("Received map size: {0}", tilesType.Length);
             }
         }
     }

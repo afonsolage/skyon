@@ -72,6 +72,18 @@ namespace MapServer.Server
                         SetMapInfo(rawMessage.To<DM_RES_MAP_INFO>());
                     }
                     break;
+                case MessageType.PM_RES_MAP_GEN:
+                    {
+                        var res = rawMessage.To<PM_RES_MAP_GEN>();
+                        CLog.I("Map {0},{1} generated. Loading", res.x, res.y);
+                        _app.DBClient.Send(new MD_REQ_MAP_INFO()
+                        {
+                            x = res.x,
+                            y = res.y,
+                            channel = res.channel,
+                        });
+                    }
+                    break;
                 default:
                     CLog.W("Unrecognized client message type: {0}.", rawMessage.MsgType);
                     break;
@@ -80,22 +92,42 @@ namespace MapServer.Server
 
         private void SetMapInfo(DM_RES_MAP_INFO res)
         {
+            if (res.tileMap.heightMap == null)
+            {
+                CLog.I("Map {0},{1} doesn't exists. Asking Procedural Server for a new one", res.tileMap.x, res.tileMap.y);
+                RequestMapGeneration(res.tileMap.x, res.tileMap.y, res.channel);
+                return;
+            }
+
             var id = new MapInstanceID()
             {
                 position = new Vec2(res.tileMap.x, res.tileMap.y),
-                channel = res.channel,
+                channel = (ushort)res.channel,
             };
 
             if (!_mapInstanceDict.TryGetValue(id, out var instance))
             {
-                CLog.E("Failed to get map {0}", id);
+                CLog.I("Failed to get map {0}", id);
                 return;
             }
+
             var heightMap = CompressionHelper.Decompress(res.tileMap.heightMap);
             var tilesType = CompressionHelper.Decompress(res.tileMap.tileType).Cast<TileType>().ToArray();
 
             instance.Map = new TileMap(id.position, heightMap, tilesType);
             instance.Start();
+
+            CLog.I("Map {0},{1}[{2}] loaded!", res.tileMap.x, res.tileMap.y, res.channel);
+        }
+
+        private void RequestMapGeneration(int x, int y, int channel)
+        {
+            _app.PCClient.Send(new MP_REQ_MAP_GEN()
+            {
+                x = x,
+                y = y,
+                channel = channel,
+            });
         }
 
         public bool IsMapLoaded(int x, int y, int channel)
