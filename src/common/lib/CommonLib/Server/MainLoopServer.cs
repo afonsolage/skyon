@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace CommonLib.Server
 {
-    public interface ITickable
+    public interface ITickable : IDisposable
     {
         void Tick(float delta);
         string Name { get; }
@@ -21,7 +21,7 @@ namespace CommonLib.Server
 
     delegate void OnTick(float delta);
 
-    class LoopWorker
+    class LoopWorker : IDisposable
     {
         private static readonly TimeSpan DISABLED = new TimeSpan(-1);
         private static readonly TimeSpan NOW = new TimeSpan(0);
@@ -87,9 +87,9 @@ namespace CommonLib.Server
             ScheduleNextRun();
         }
 
-        public void Deactive()
+        public void Dispose()
         {
-            active = false;
+            timer.Dispose();
         }
     }
 
@@ -133,7 +133,7 @@ namespace CommonLib.Server
                 if (_workers.TryGetValue(work.Name.GetHashCode(), out LoopWorker item))
                 {
                     _workers.Remove(item.uid);
-                    item.Deactive();
+                    item.Dispose();
                 }
             }
         }
@@ -156,6 +156,18 @@ namespace CommonLib.Server
 
         protected abstract void OnStart();
         public abstract void Tick(float delta);
+
+        public void Dispose()
+        {
+            lock (_workers)
+            {
+                foreach (var pair in _workers)
+                {
+                    pair.Value.Dispose();
+                }
+                _workers.Clear();
+            }
+        }
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using CommonLib.Util.Math;
+﻿#if _SERVER
+using CommonLib.Util.Math;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,26 +13,26 @@ namespace CommonLib.GridEngine
     {
         class BFSNode
         {
-            public Vec2 pos;
+            public Vec2u pos;
             public int depth;
             public int greedy;
         }
 
         private readonly GridMap _map;
-        private readonly Dictionary<Vec2, BFSNode> _nodeMap = new Dictionary<Vec2, BFSNode>();
+        private readonly Dictionary<Vec2u, BFSNode> _nodeMap = new Dictionary<Vec2u, BFSNode>();
         private readonly List<BFSNode> _queue = new List<BFSNode>();
-        private readonly Vec2[] _dirs;
+        private readonly Vec2u[] _dirs;
 
-        public AStarFinder(GridMap map, Vec2[] dirs)
+        public AStarFinder(GridMap map, Vec2u[] dirs)
         {
             _map = map;
             _dirs = dirs;
         }
 
-        public virtual List<Vec2> FindShortestPath(Vec2 origin, Vec2 dest, Func<GridCell, bool> canPass)
+        public virtual List<Vec2u> FindShortestPath(Vec2u origin, Vec2u dest, Func<GridCell, bool> canPass)
         {
             if (!origin.IsValid() || !dest.IsValid() || canPass == null || origin == dest)
-                return new List<Vec2>();
+                return new List<Vec2u>();
 
             _nodeMap.Clear();
             _queue.Clear();
@@ -77,16 +78,16 @@ namespace CommonLib.GridEngine
             _queue.AddRange(_nodeMap.Values);
 
             if (_queue.Count == 0)
-                return new List<Vec2>();
+                return new List<Vec2u>();
 
             SortQueue();
 
             return Backtrace(_queue[0]);
         }
 
-        private List<Vec2> Backtrace(BFSNode node)
+        private List<Vec2u> Backtrace(BFSNode node)
         {
-            var res = new List<Vec2>
+            var res = new List<Vec2u>
             {
                 node.pos
             };
@@ -139,3 +140,4 @@ namespace CommonLib.GridEngine
         }
     }
 }
+#endif

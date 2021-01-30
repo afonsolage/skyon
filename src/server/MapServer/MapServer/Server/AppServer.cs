@@ -30,13 +30,13 @@ namespace MapServer.Server
         private Timer _clearSessionsTimer;
         private Timer _checkClosedSessionsTimer;
 
-        private object _readyLock;
+        public MapInstanceManager MapInstanceManager { get; private set; }
 
         public AppServer(uint instanceId) : base(instanceId, Assembly.GetExecutingAssembly().GetName().Name, Assembly.GetExecutingAssembly().GetName().Version.ToString(), TICKS_PER_SECOND)
         {
-            _readyLock = new object();
-            
             _connectedSessions = new List<WeakReference<ClientSession>>();
+
+            MapInstanceManager = new MapInstanceManager(this);
         }
 
         public override bool Init()

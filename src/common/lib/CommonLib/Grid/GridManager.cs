@@ -1,4 +1,5 @@
-﻿using CommonLib.Util;
+﻿#if _SERVER
+using CommonLib.Util;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -78,3 +79,4 @@ namespace CommonLib.GridEngine
         }
     }
 }
+#endif

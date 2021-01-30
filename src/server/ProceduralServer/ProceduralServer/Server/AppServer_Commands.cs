@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using CommonLib.Messaging.Server;
+using CommonLib.Logic.Map;
 
 namespace ProceduralServer.Server
 {
@@ -86,6 +87,8 @@ namespace ProceduralServer.Server
 
             var tileMap = MapGenerator.Generate(settings);
 
+            
+
             var bitmap = new Bitmap(1024, 1024, PixelFormat.Format32bppRgb);
             for (var px = 0; px < 1024; px++)
             {
@@ -96,28 +99,26 @@ namespace ProceduralServer.Server
                 }
             }
 
-            //bitmap.Save("output.bmp");
-            //new Process
-            //{
-            //    StartInfo = new ProcessStartInfo(@"output.bmp")
-            //    {
-            //        UseShellExecute = true,
-            //        WindowStyle = ProcessWindowStyle.Normal,
-            //    }
-            //}.Start();
-
-            var tmp = CompressionHelper.CompressWithLossy2Precision(tileMap.HeightBuffer);
-
-            DBClient.Send(new PB_NFY_UPSERT_MAP()
+            bitmap.Save("output.bmp");
+            new Process
             {
-                tileMap = new CommonLib.Messaging.Server.TileMap()
+                StartInfo = new ProcessStartInfo(@"output.bmp")
                 {
-                    x = 1,
-                    y = 1,
-                    heightMap = CompressionHelper.Compress(tmp),
-                    tileType = CompressionHelper.Compress(tileMap.TileBuffer),
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Normal,
                 }
-            });
+            }.Start();
+
+            //DBClient.Send(new PB_NFY_UPSERT_MAP()
+            //{
+            //    tileMap = new TileMapData()
+            //    {
+            //        x = 1,
+            //        y = 1,
+            //        heightMap = CompressionHelper.Compress(tileMap.HeightBuffer),
+            //        tileType = CompressionHelper.Compress(tileMap.TileBuffer),
+            //    }
+            //});
 
             //var tileCompressed = CompressionHelper.Compress(tileMap.TileBuffer);
             //var uncompressedTile = tileMap.TileBuffer.Length;

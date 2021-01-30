@@ -1,4 +1,5 @@
-﻿using CommonLib.Messaging.Common;
+﻿#if _SERVER
+using CommonLib.Messaging.Common;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace CommonLib.Messaging.Server
         public PB_NFY_UPSERT_MAP() { MsgType = MessageType.PB_NFY_UPSERT_MAP; }
         public MessageType MsgType { get; }
 
-        public TileMap tileMap;
+        public TileMapData tileMap;
 
     }
 
@@ -26,6 +27,7 @@ namespace CommonLib.Messaging.Server
 
         public int x;
         public int y;
+        public ushort channel;
     }
 
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
@@ -34,7 +36,8 @@ namespace CommonLib.Messaging.Server
         public DM_RES_MAP_INFO() { MsgType = MessageType.DM_RES_MAP_INFO; }
         public MessageType MsgType { get; }
 
-        public TileMap tileMap;
+        public TileMapData tileMap;
+        public ushort channel;
     }
 }
-
+#endif

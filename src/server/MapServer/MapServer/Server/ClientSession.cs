@@ -1,8 +1,11 @@
 ﻿using System;
 using CommonLib.Messaging;
+using CommonLib.Messaging.Client;
 using CommonLib.Messaging.Common;
 using CommonLib.Networking;
 using CommonLib.Util;
+using MapServer.Logic;
+using MapServer.Logic.Map;
 
 namespace MapServer.Server
 {
@@ -22,6 +25,8 @@ namespace MapServer.Server
 
         protected AppServer _app;
         public AppServer App { get => _app; }
+
+        private MapInstance _mapInstance;
 
         public virtual bool RemoteDisconnection { get => !_closeRequested; }
 
@@ -50,10 +55,34 @@ namespace MapServer.Server
 
             switch (rawMessage.MsgType)
             {
+                case MessageType.CM_REQ_JOIN_MAP:
+                    {
+                        JoinMapInstance(rawMessage);
+                    }
+                    break;
                 default:
-                    CLog.W("Unrecognized client message type: {0}.", rawMessage.MsgType);
+                    {
+                        _mapInstance.Post(this, rawMessage);
+                    }
                     break;
             }
+        }
+
+        private void JoinMapInstance(RawMessage rawMsg)
+        {
+            var req = rawMsg.To<CM_REQ_JOIN_MAP>();
+            var instance = App.MapInstanceManager.GetMapInstance(req.x, req.y, req.channel);
+
+            if (instance == null)
+            {
+                CLog.E("Map instance not loaded: {0}, {1}, {2}", req.x, req.y, req.channel);
+                App.MapInstanceManager.LoadMap(req.x, req.y, req.channel);
+                Send(new MC_RES_JOIN_MAP() { });
+                return;
+            }
+
+            _mapInstance = instance;
+            instance.Post(this, rawMsg);
         }
 
         protected override void Close()

@@ -11,18 +11,24 @@ namespace DBServer.Query
     {
         private const string CONNECTION_NAME = "general";
 
-        internal static void NfyUpsertMap(MD_REQ_MAP_INFO req, ClientSession session)
+        internal static void ReqMapInfo(MD_REQ_MAP_INFO req, ClientSession session)
         {
             using (var conn = new DBConnection(CONNECTION_NAME))
             {
                 var resultSet = conn.Query("SELECT height_map, tile_type FROM tile_map WHERE x = @p1 and y = @p2", req.x, req.y);
+                var exists = resultSet.Read();
 
-                var res = new DM_RES_MAP_INFO();
-                res.tileMap.x = req.x;
-                res.tileMap.y = req.y;
-                res.tileMap.heightMap = resultSet.GetByteArray(0);
-                res.tileMap.heightMap = resultSet.GetByteArray(1);
-
+                var res = new DM_RES_MAP_INFO()
+                {
+                    channel = req.channel,
+                    tileMap = new TileMapData()
+                    {
+                        x = req.x,
+                        y = req.y,
+                        heightMap = resultSet.GetByteArray(0),
+                        tileType = resultSet.GetByteArray(1),
+                    }
+                };
                 session.Send(res);
             }
         }

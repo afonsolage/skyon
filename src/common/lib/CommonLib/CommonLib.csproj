@@ -76,6 +76,9 @@
     <Compile Include="Grid\AStarFinder.cs" />
     <Compile Include="Grid\GridManager.cs" />
     <Compile Include="Grid\ObjectTypes.cs" />
+    <Compile Include="Logic\Map\TileType.cs" />
+    <Compile Include="Messaging\Client\Common.cs" />
+    <Compile Include="Messaging\Client\MapServer.cs" />
     <Compile Include="Messaging\Common\MessageType.cs" />
     <Compile Include="Messaging\Common\Serializer.cs" />
     <Compile Include="Messaging\Server\Common.cs" />

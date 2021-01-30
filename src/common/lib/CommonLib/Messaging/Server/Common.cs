@@ -1,4 +1,5 @@
-﻿using CommonLib.Util.Math;
+﻿#if _SERVER
+using CommonLib.Util.Math;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 namespace CommonLib.Messaging.Server
 {
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-    public class TileMap
+    public class TileMapData
     {
         public int x;
         public int y;
@@ -17,3 +18,5 @@ namespace CommonLib.Messaging.Server
         public byte[] tileType;
     }
 }
+
+#endif

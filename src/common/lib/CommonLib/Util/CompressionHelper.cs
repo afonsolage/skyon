@@ -10,14 +10,22 @@ namespace CommonLib.Util
 {
     public class CompressionHelper
     {
-
-
-        public static byte[] CompressWithLossy2Precision(float[] data)
+        public static byte[] CompressLossy2Precision(float[] data)
         {
             var res = new byte[data.Length];
             for (var i = 0; i < data.Length; i++)
             {
                 res[i] = (byte)(data[i] * 100);
+            }
+            return res;
+        }
+
+        public static float[] DecompressLossy2Precision(byte[] data)
+        {
+            var res = new float[data.Length];
+            for (var i = 0; i < data.Length; i++)
+            {
+                res[i] = data[i] / 100.0f;
             }
             return res;
         }
@@ -60,6 +68,19 @@ namespace CommonLib.Util
 
             using (var outputStream = new MemoryStream())
             using (var zipStream = new GZipStream(outputStream, CompressionLevel.Optimal))
+            {
+                zipStream.Write(data, 0, data.Length);
+                return outputStream.ToArray();
+            }
+        }
+
+        public static byte[] Decompress(byte[] data)
+        {
+            if (data == null)
+                return null;
+
+            using (var outputStream = new MemoryStream())
+            using (var zipStream = new DeflateStream(outputStream, CompressionLevel.Optimal))
             {
                 zipStream.Write(data, 0, data.Length);
                 return outputStream.ToArray();

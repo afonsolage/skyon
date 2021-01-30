@@ -1,20 +1,11 @@
-﻿using CommonLib.Util.Math;
+﻿using CommonLib.Logic.Map;
+using CommonLib.Util;
+using CommonLib.Util.Math;
 using System;
 using System.Collections.Generic;
 
 namespace ProceduralServer.Logic.Map
 {
-    enum TileType
-    {
-        Grass,
-        Rock,
-        Sand,
-        Dirt,
-        Snow,
-        DeepWater,
-        Water,
-    }
-
     struct TileMapSettings
     {
         public int size;
@@ -39,7 +30,7 @@ namespace ProceduralServer.Logic.Map
         {
             _size = size;
             _tileType = new byte[size * size];
-            _heightMap = new float[size * size];
+            _heightMap = new byte[size * size];
         }
 
         private readonly int _size;
@@ -48,13 +39,13 @@ namespace ProceduralServer.Logic.Map
             get => _size;
         }
 
-        private float[] _heightMap;
+        public byte[] _heightMap;
         private byte[] _tileType;
 
-        public float[] HeightBuffer { get => _heightMap; }
+        public byte[] HeightBuffer { get => _heightMap; }
         public byte[] TileBuffer { get => _tileType; }
 
-        public void SetHeight(int x, int y, float height)
+        public void SetHeight(int x, int y, byte height)
         {
             _heightMap[x + y * _size] = height;
         }
@@ -64,7 +55,7 @@ namespace ProceduralServer.Logic.Map
             return _heightMap[x + y * _size];
         }
 
-        public void SetHeight(Vec2 pos, float height)
+        public void SetHeight(Vec2 pos, byte height)
         {
             _heightMap[pos.x + pos.y * _size] = height;
         }
@@ -74,7 +65,7 @@ namespace ProceduralServer.Logic.Map
             return _heightMap[pos.x + pos.y * _size];
         }
 
-        public int ToIndex(Vec2i pos)
+        public int ToIndex(Vec2 pos)
         {
             return pos.x + pos.y * _size;
         }
@@ -105,9 +96,13 @@ namespace ProceduralServer.Logic.Map
         {
             var tileMap = new TileMap(settings.size);
 
-            GenerateHeightMap(settings, tileMap);
-            GenerateBorder(settings, tileMap);
-            GenerateConnections(settings, tileMap);
+            var tmp = new float[settings.size * settings.size];
+
+            GenerateHeightMap(settings, tmp);
+            GenerateBorder(settings, tmp);
+            GenerateConnections(settings, tmp);
+
+            tileMap._heightMap = CompressionHelper.CompressLossy2Precision(tmp);
 
             ComputeTileType(settings, tileMap);
 
@@ -124,27 +119,27 @@ namespace ProceduralServer.Logic.Map
 
                     var h = tileMap.GetHeight(x, y);
 
-                    if (h < 0.1f)
+                    if (h <= 10)
                     {
                         tileMap[x, y] = TileType.DeepWater;
                     }
-                    else if (h < 0.2f)
+                    else if (h <= 20)
                     {
                         tileMap[x, y] = TileType.Water;
                     }
-                    else if (h < 0.45f)
+                    else if (h <= 45)
                     {
                         tileMap[x, y] = TileType.Sand;
                     }
-                    else if (h < 0.55f)
+                    else if (h <= 55)
                     {
                         tileMap[x, y] = TileType.Dirt;
                     }
-                    else if (h < 0.8f)
+                    else if (h <= 80)
                     {
                         tileMap[x, y] = TileType.Grass;
                     }
-                    else if (h < 0.9f)
+                    else if (h <= 90)
                     {
                         tileMap[x, y] = TileType.Rock;
                     }
@@ -156,15 +151,15 @@ namespace ProceduralServer.Logic.Map
             }
         }
 
-        private static void GenerateConnections(TileMapSettings settings, TileMap tileMap)
+        private static void GenerateConnections(TileMapSettings settings, float[] heightMap)
         {
             var firstConnection = false;
-            var allDirs = new Vec2i[] { new Vec2i(1, 0), new Vec2i(0, 1), new Vec2i(-1, 0), new Vec2i(0, -1) };
+            var allDirs = new Vec2[] { new Vec2(1, 0), new Vec2(0, 1), new Vec2(-1, 0), new Vec2(0, -1) };
 
             var dirIdx = new Random().Next(0, allDirs.Length);
             var currentDir = allDirs[dirIdx];
 
-            var connections = new List<Vec2i>();
+            var connections = new List<Vec2>();
             for (var i = 0; i < allDirs.Length; i++)
             {
                 if (!firstConnection || new Random().Next(0, 100) >= 30)
@@ -185,16 +180,16 @@ namespace ProceduralServer.Logic.Map
                 var x = (int)(connectionDir.x == 0 ? rnd : (connectionDir.x == -1 ? 0 : settings.size - settings.borderConnectionSize - 1));
                 var y = (int)(connectionDir.y == 0 ? rnd : (connectionDir.y == -1 ? 0 : settings.size - settings.borderConnectionSize - 1));
 
-                CreateSquare(tileMap, x, y, settings.borderConnectionSize, settings.borderConnectionSize, true);
+                CreateSquare(settings, heightMap, x, y, settings.borderConnectionSize, settings.borderConnectionSize, true);
             }
 
         }
 
-        private static void CreateSquare(TileMap tileMap, int x, int y, int width, int height, bool softBorders)
+        private static void CreateSquare(TileMapSettings settings, float[] heightMap, int x, int y, int width, int height, bool softBorders)
         {
             var rect = new Rect2i(x, y, width, height);
             var halfRect = rect.end - rect.start;
-            var mapRect = new Rect2i(0, 0, tileMap.Size, tileMap.Size);
+            var mapRect = new Rect2i(0, 0, settings.size, settings.size);
 
             if (!mapRect.Contains(rect.start) || !mapRect.Contains(rect.end))
                 return;
@@ -203,25 +198,25 @@ namespace ProceduralServer.Logic.Map
             {
                 for (var py = rect.start.y; py < rect.end.y; py++)
                 {
-                    var p = new Vec2i(px, py);
+                    var p = new Vec2(px, py);
 
                     if (!mapRect.Contains(p))
                         continue;
 
-                    var h = tileMap.GetHeight(px, py);
+                    var h = heightMap[px + py * settings.size];
                     var dist = (float)(p - rect.center).Magnitude();
                     var diff = (halfRect.Magnitude() - dist) / halfRect.Magnitude();
                     var diff_h = h - 0.5f;
                     h -= diff_h * diff;
 
-                    tileMap.SetHeight(px, py, h);
+                    heightMap[x + y * settings.size] = h;
                 }
             }
 
-            var allDirs = new Vec2i[] { new Vec2i(1, 0), new Vec2i(0, 1), new Vec2i(-1, 0), new Vec2i(0, -1) };
+            var allDirs = new Vec2[] { new Vec2(1, 0), new Vec2(0, 1), new Vec2(-1, 0), new Vec2(0, -1) };
 
-            var heightBufferBak = new float[tileMap.Size * tileMap.Size];
-            Array.Copy(tileMap.HeightBuffer, heightBufferBak, heightBufferBak.Length);
+            var heightBufferBak = new float[settings.size * settings.size];
+            Array.Copy(heightMap, heightBufferBak, heightBufferBak.Length);
 
             var borderThickness = (int)(width * 0.25f);
             var borderRect = rect.Expand(borderThickness);
@@ -236,7 +231,7 @@ namespace ProceduralServer.Logic.Map
             {
                 if (mapRect.Contains(point))
                 {
-                    SmoothPixel(tileMap, point, heightBufferBak);
+                    SmoothPixel(settings, heightMap, point, heightBufferBak);
                 }
 
                 walkLeft -= 1;
@@ -255,7 +250,7 @@ namespace ProceduralServer.Logic.Map
 
         }
 
-        private static void SmoothPixel(TileMap tileMap, Vec2i point, float[] heightBufferBak)
+        private static void SmoothPixel(TileMapSettings settings, float[] heightMap, Vec2 point, float[] heightBufferBak)
         {
             var h = 0.0f;
             var count = 0;
@@ -264,8 +259,8 @@ namespace ProceduralServer.Logic.Map
             {
                 for (var k = -2; k < 3; k++)
                 {
-                    var px = new Vec2i(point.x + i, point.y + k);
-                    var idx = tileMap.ToIndex(px);
+                    var px = new Vec2(point.x + i, point.y + k);
+                    var idx = px.x + px.y * settings.size;
 
                     if (idx < 0 || idx >= heightBufferBak.Length)
                         continue;
@@ -277,10 +272,10 @@ namespace ProceduralServer.Logic.Map
             }
 
             if (count > 0)
-                tileMap.SetHeight(point, h / count);
+                heightMap[point.x + point.y * settings.size] = (h / count);
         }
 
-        private static void GenerateBorder(TileMapSettings settings, TileMap tileMap)
+        private static void GenerateBorder(TileMapSettings settings, float[] heightMap)
         {
             var borderLeft = settings.borderSize;
             var borderUp = settings.borderSize;
@@ -308,7 +303,7 @@ namespace ProceduralServer.Logic.Map
                     else if (y > borderDown)
                         borderThicknessY = y - borderDown;
 
-                    var h = tileMap.GetHeight(x, y);
+                    var h = heightMap[x + y * settings.size];
                     var maxThickness = Math.Max(borderThicknessX, borderThicknessY);
                     var rate = maxThickness * 1.3f / (float)settings.borderSize;
 
@@ -323,12 +318,12 @@ namespace ProceduralServer.Logic.Map
                         h -= h * rate;
                     }
 
-                    tileMap.SetHeight(x, y, h);
+                    heightMap[x + y * settings.size] = h;
                 }
             }
         }
 
-        private static void GenerateHeightMap(TileMapSettings settings, TileMap tileMap)
+        private static void GenerateHeightMap(TileMapSettings settings, float[] heightMap)
         {
             FastNoiseLite fastNoise = new FastNoiseLite();
             fastNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
@@ -348,7 +343,7 @@ namespace ProceduralServer.Logic.Map
                 for (var y = 0; y < settings.size; y++)
                 {
                     var height = fastNoise.GetNoise(x / (float)settings.size, y / (float)settings.size);
-                    tileMap.SetHeight(x, y, height);
+                    heightMap[x + y * settings.size] = height;
 
                     if (height < min)
                     {
@@ -365,7 +360,7 @@ namespace ProceduralServer.Logic.Map
             {
                 for (var y = 0; y < settings.size; y++)
                 {
-                    tileMap.SetHeight(x, y, GMath.InverseLerp(min, max, tileMap.GetHeight(x, y)));
+                    heightMap[x + y * settings.size] = GMath.InverseLerp(min, max, heightMap[x + y * settings.size]);
                 }
             }
         }

@@ -45,6 +45,9 @@ namespace CommonLib.DB
         private static byte[] _temp;
         public static byte[] GetByteArray(this NpgsqlDataReader reader, int ordinal)
         {
+            if (!reader.IsOnRow)
+                return null;
+
             if (_temp == null)
                  _temp = new byte[1024 * 1024]; //1MB
 

@@ -146,6 +146,10 @@ namespace CommonLib.Networking
                         if (_socket.Connected)
                         {
                             CLog.E("Invalid packet received. Closing connection.");
+#if _SERVER
+                            Reconnect(); //On server, we want to reconnect, even if the server socket disconnect us.
+                            continue;
+#endif
                         }
                         else if (_running)
                         {

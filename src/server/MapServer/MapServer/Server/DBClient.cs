@@ -28,7 +28,7 @@ namespace MapServer.Server
             switch (rawMessage.MsgType)
             {
                 default:
-                    CLog.W("Unrecognized db message type: {0}.", rawMessage.MsgType);
+                    App.MapInstanceManager.Handle(packet);
                     break;
             }
 

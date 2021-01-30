@@ -1,4 +1,5 @@
-﻿using CommonLib.Messaging;
+﻿#if _SERVER
+using CommonLib.Messaging;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -10,3 +11,4 @@ namespace CommonLib.Messaging.Server
 {
 
 }
+#endif

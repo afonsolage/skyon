@@ -1,4 +1,5 @@
-﻿using CommonLib.Util.Math;
+﻿#if _SERVER
+using CommonLib.Util.Math;
 using CommonLib.Util;
 using System;
 using System.Collections.Generic;
@@ -71,7 +72,7 @@ namespace CommonLib.GridEngine
             }
         }
 
-        public static GridCell Deserialize(byte rawByte, Vec2 pos)
+        public static GridCell Deserialize(byte rawByte, Vec2u pos)
         {
             return new GridCell((CellType)rawByte, pos);
         }
@@ -95,8 +96,8 @@ namespace CommonLib.GridEngine
         }
 
         private readonly List<GridObject> _objects;
-        private readonly Vec2 _pos;
-        public Vec2 Pos
+        private readonly Vec2u _pos;
+        public Vec2u Pos
         {
             get
             {
@@ -104,7 +105,7 @@ namespace CommonLib.GridEngine
             }
         }
 
-        public GridCell(CellType type, Vec2 pos)
+        public GridCell(CellType type, Vec2u pos)
         {
             _objects = new List<GridObject>();
             _pos = pos;
@@ -181,8 +182,8 @@ namespace CommonLib.GridEngine
             }
         }
 
-        protected readonly Vec2 _mapSize;
-        public Vec2 MapSize
+        protected readonly Vec2u _mapSize;
+        public Vec2u MapSize
         {
             get
             {
@@ -196,8 +197,8 @@ namespace CommonLib.GridEngine
             get { return _cells; }
         }
 
-        protected readonly Vec2 _centerOffset;
-        public Vec2 CenterOffset
+        protected readonly Vec2u _centerOffset;
+        public Vec2u CenterOffset
         {
             get
             {
@@ -217,8 +218,8 @@ namespace CommonLib.GridEngine
 #if _SERVER
         protected GridObject[] _spawnSlots;
 #endif
-        protected Vec2[] _spawnPlaces;
-        public Vec2[] SpawnPlaces
+        protected Vec2u[] _spawnPlaces;
+        public Vec2u[] SpawnPlaces
         {
             get
             {
@@ -326,8 +327,8 @@ namespace CommonLib.GridEngine
         {
             _uid = uid;
             _cellSize = cellSize;
-            _mapSize = new Vec2(width, height);
-            _centerOffset = new Vec2(width / 2, height / 2);
+            _mapSize = new Vec2u(width, height);
+            _centerOffset = new Vec2u(width / 2, height / 2);
 
             _cells = new GridCell[width * height];
             _activeObjects = new List<GridObject>();
@@ -343,7 +344,7 @@ namespace CommonLib.GridEngine
 
             // Check how many places there are on this mapa.
             var playersSlots = buffer[i++];
-            _spawnPlaces = new Vec2[playersSlots];
+            _spawnPlaces = new Vec2u[playersSlots];
 #if _SERVER
             _spawnSlots = new GridObject[playersSlots];
 #endif
@@ -352,7 +353,7 @@ namespace CommonLib.GridEngine
             // Read spawn places
             for (; k < playersSlots; k++)
             {
-                _spawnPlaces[k] = new Vec2(buffer[i++], buffer[i++]);
+                _spawnPlaces[k] = new Vec2u(buffer[i++], buffer[i++]);
             }
 
             // Read map data
@@ -388,7 +389,7 @@ namespace CommonLib.GridEngine
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public virtual Vec2 GetSpawnPos(GridObject obj)
+        public virtual Vec2u GetSpawnPos(GridObject obj)
         {
             for (var i = 0; i < _spawnSlots.Length; i++)
             {
@@ -402,7 +403,7 @@ namespace CommonLib.GridEngine
                 }
             }
 
-            return Vec2.INVALID;
+            return Vec2u.INVALID;
         }
 
         /// <summary>
@@ -538,14 +539,14 @@ namespace CommonLib.GridEngine
             return (x * _mapSize.y) + y;
         }
 
-        public virtual int ToIndex(Vec2 pos)
+        public virtual int ToIndex(Vec2u pos)
         {
             return (pos.x * _mapSize.y) + pos.y;
         }
 
-        public virtual Vec2 FromIndex(int index)
+        public virtual Vec2u FromIndex(int index)
         {
-            return new Vec2(index / _mapSize.y, index % _mapSize.y);
+            return new Vec2u(index / _mapSize.y, index % _mapSize.y);
         }
 
         protected List<GridObject> _toAddObjects = new List<GridObject>();
@@ -678,13 +679,13 @@ namespace CommonLib.GridEngine
                 _cells[idx] = val;
         }
 
-        public virtual Vec2 WorldToGrid(Vec2f world)
+        public virtual Vec2u WorldToGrid(Vec2f world)
         {
             var zeroOriginPos = world + new Vec2f(_centerOffset.x * _cellSize, _centerOffset.y * _cellSize);
-            return new Vec2((int)(zeroOriginPos.x / _cellSize + _cellSize / 2), (int)(zeroOriginPos.y / _cellSize + _cellSize / 2));
+            return new Vec2u((int)(zeroOriginPos.x / _cellSize + _cellSize / 2), (int)(zeroOriginPos.y / _cellSize + _cellSize / 2));
         }
 
-        public virtual Vec2f GridToWorld(Vec2 grid)
+        public virtual Vec2f GridToWorld(Vec2u grid)
         {
             var worldOffset = new Vec2f(_centerOffset.x * _cellSize, _centerOffset.y * _cellSize);
             var worldPos = new Vec2f(grid.x * _cellSize, grid.y * _cellSize);
@@ -742,10 +743,10 @@ namespace CommonLib.GridEngine
         /// <param name="canPass">Function to check if we can pass through the given position.</param>
         /// <param name="dirs">An array of directions, used to avoid predictable movement pattern. If null, Vec2.ALL_DIRS will be used</param>
         /// <returns>The list of positions that forms the path.</returns>
-        public List<Vec2> PathFind(Vec2 origin, Vec2 dest, Func<GridCell, bool> canPass, Vec2[] dirs = null)
+        public List<Vec2u> PathFind(Vec2u origin, Vec2u dest, Func<GridCell, bool> canPass, Vec2u[] dirs = null)
         {
             if (dirs == null)
-                dirs = Vec2.ALL_DIRS;
+                dirs = Vec2u.ALL_DIRS;
 
             var finder = new AStarFinder(this, dirs);
             return finder.FindShortestPath(origin, dest, canPass);
@@ -759,21 +760,21 @@ namespace CommonLib.GridEngine
         /// <param name="canPass">Function to check if we can pass through the given position.</param>
         /// <param name="dirs">An array of directions, used to avoid predictable movement pattern. If null, Vec2.ALL_DIRS will be used</param>
         /// <returns>A valid position if we were able to find one. An invalid position (Vec2.INVALID) otherwise</returns>
-        public Vec2 FindClosestPos(Vec2 origin, int maxRange, Predicate<GridCell> checkCell, Predicate<GridCell> canPass, Vec2[] dirs = null)
+        public Vec2u FindClosestPos(Vec2u origin, int maxRange, Predicate<GridCell> checkCell, Predicate<GridCell> canPass, Vec2u[] dirs = null)
         {
             if (dirs == null)
-                dirs = Vec2.ALL_DIRS;
+                dirs = Vec2u.ALL_DIRS;
 
             var range = System.Math.Min(System.Math.Max(MapSize.x, MapSize.y), maxRange);
             //Just keep the track of what positions we already verified to avoid eternal loop.
-            var verifiedPos = new HashSet<Vec2>();
+            var verifiedPos = new HashSet<Vec2u>();
 
             //Since we are working with a max range, we can have enought buckets as our range.
-            var queues = new Queue<Vec2>[range + 1];
+            var queues = new Queue<Vec2u>[range + 1];
 
             for (var i = 0; i < queues.Length; i++)
             {
-                queues[i] = new Queue<Vec2>(10); //Init with an avarage amount of "slots" to aviod memory alloc on loop.
+                queues[i] = new Queue<Vec2u>(10); //Init with an avarage amount of "slots" to aviod memory alloc on loop.
             }
 
             var currentDist = 0;
@@ -829,12 +830,12 @@ namespace CommonLib.GridEngine
                 }
             }
 
-            return Vec2.INVALID;
+            return Vec2u.INVALID;
         }
 
         private struct PosRanking
         {
-            public Vec2 Pos;
+            public Vec2u Pos;
             public int Ranking;
         }
 
@@ -848,18 +849,18 @@ namespace CommonLib.GridEngine
         /// <param name="canPass">Function to check if we can pass through the given position.</param>
         /// <param name="dirs">An array of directions, used to avoid predictable movement pattern. If null, Vec2.ALL_DIRS will be used</param>
         /// <returns>A valid position if we were able to find one. An invalid position (Vec2.INVALID) otherwise</returns>
-        public Vec2 FindBestPos(Vec2 origin, int maxRange, Func<GridCell, int> calcRanking, Predicate<GridCell> checkCell, Predicate<GridCell> canPass, Vec2[] dirs = null)
+        public Vec2u FindBestPos(Vec2u origin, int maxRange, Func<GridCell, int> calcRanking, Predicate<GridCell> checkCell, Predicate<GridCell> canPass, Vec2u[] dirs = null)
         {
             if (dirs == null)
-                dirs = Vec2.ALL_DIRS;
+                dirs = Vec2u.ALL_DIRS;
 
             var range = System.Math.Min(System.Math.Max(MapSize.x, MapSize.y), maxRange);
 
             //Just keep the track of what positions we already verified to avoid eternal loop.
-            var verifiedPos = new HashSet<Vec2>();
+            var verifiedPos = new HashSet<Vec2u>();
             var candidates = new List<PosRanking>();
 
-            var queue = new Queue<Vec2>();
+            var queue = new Queue<Vec2u>();
             queue.Enqueue(origin);
 
             while (queue.Count > 0)
@@ -905,8 +906,9 @@ namespace CommonLib.GridEngine
             }
             else
             {
-                return Vec2.INVALID;
+                return Vec2u.INVALID;
             }
         }
     }
 }
+#endif

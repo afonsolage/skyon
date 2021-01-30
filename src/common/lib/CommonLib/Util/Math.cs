@@ -4,6 +4,8 @@ namespace CommonLib.Util.Math
 {
     public static class GMath
     {
+        private static readonly int[] PRIMES = new int[] { 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67};
+
         public static float Clamp(float min, float max, float val)
         {
             return val < min ? min : val > max ? max : val;
@@ -16,36 +18,151 @@ namespace CommonLib.Util.Math
             else
                 return 0.0f;
         }
+
+        public static int ComputeHash(params int[] numbers)
+        {
+            var cnt = 0;
+            var hash = PRIMES[cnt++];
+
+            foreach (var i in numbers)
+            {
+                hash = hash * PRIMES[cnt++ % PRIMES.Length] + i;
+            }
+
+            return hash;
+        }
     }
 
-    public struct Vec2
+    public struct Vec2u
     {
         public static readonly ushort INVALID_AXIS = UInt16.MaxValue;
 
-        public static readonly Vec2 ZERO = new Vec2(0, 0);
-        public static readonly Vec2 INVALID = new Vec2(INVALID_AXIS, INVALID_AXIS);
+        public static readonly Vec2u ZERO = new Vec2u(0, 0);
+        public static readonly Vec2u INVALID = new Vec2u(INVALID_AXIS, INVALID_AXIS);
 
-        public static readonly Vec2 UP = new Vec2(0, 1);
-        public static readonly Vec2 RIGHT = new Vec2(1, 0);
-        public static readonly Vec2 DOWN = new Vec2(0, -1);
-        public static readonly Vec2 LEFT = new Vec2(-1, 0);
+        public static readonly Vec2u UP = new Vec2u(0, 1);
+        public static readonly Vec2u RIGHT = new Vec2u(1, 0);
+        public static readonly Vec2u DOWN = new Vec2u(0, -1);
+        public static readonly Vec2u LEFT = new Vec2u(-1, 0);
 
-        public static readonly Vec2[] ALL_DIRS = new Vec2[] { UP, RIGHT, DOWN, LEFT };
-        public static readonly Vec2[][] RND_DIRS = new Vec2[][]
+        public static readonly Vec2u[] ALL_DIRS = new Vec2u[] { UP, RIGHT, DOWN, LEFT };
+        public static readonly Vec2u[][] RND_DIRS = new Vec2u[][]
         {
-            new Vec2[]{ UP, RIGHT, DOWN, LEFT },
-            new Vec2[]{ LEFT, UP, RIGHT, DOWN },
-            new Vec2[]{ RIGHT, DOWN, LEFT, UP },
-            new Vec2[]{ DOWN, LEFT, UP, RIGHT },
+            new Vec2u[]{ UP, RIGHT, DOWN, LEFT },
+            new Vec2u[]{ LEFT, UP, RIGHT, DOWN },
+            new Vec2u[]{ RIGHT, DOWN, LEFT, UP },
+            new Vec2u[]{ DOWN, LEFT, UP, RIGHT },
         };
 
         public ushort x;
         public ushort y;
 
-        public Vec2(int x, int y)
+        public Vec2u(int x, int y)
         {
             this.x = (ushort)x;
             this.y = (ushort)y;
+        }
+
+        public bool IsValid()
+        {
+            return x != INVALID_AXIS && y != INVALID_AXIS;
+        }
+
+        public bool IsOnBounds(int boundX, int boundY)
+        {
+            return x < boundX && y < boundY;
+        }
+
+        public float Magnitude()
+        {
+            return (float)System.Math.Sqrt(x * x + y * y);
+        }
+
+        public Vec2f Normalize()
+        {
+            var mag = Magnitude();
+            return new Vec2f(x / mag, y / mag);
+        }
+
+        public override bool Equals(object o)
+        {
+            if (o == null || !(o is Vec2u))
+                return false;
+
+            return this == (Vec2u)o;
+        }
+
+        public bool Equals(Vec2u v)
+        {
+            return (x == v.x) && (y == v.y);
+        }
+
+        public override int GetHashCode()
+        {
+            return (x ^ 7) ^ (y ^ 13);
+        }
+
+        public int Distance(Vec2u other)
+        {
+            var distance = (Vec2)this - (Vec2)other;
+            return (int)distance.Magnitude();
+        }
+
+        public static bool operator ==(Vec2u lhs, Vec2u rhs)
+        {
+            return lhs.x == rhs.x && lhs.y == rhs.y;
+        }
+
+        public static bool operator !=(Vec2u lhs, Vec2u rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        public static Vec2u operator -(Vec2u lhs, Vec2u rhs)
+        {
+            return new Vec2u(lhs.x - rhs.x, lhs.y - rhs.y);
+        }
+
+        public static Vec2u operator +(Vec2u lhs, Vec2u rhs)
+        {
+            return new Vec2u(lhs.x + rhs.x, lhs.y + rhs.y);
+        }
+
+        public static Vec2u operator *(Vec2u v, int i)
+        {
+            return new Vec2u(v.x * i, v.y * i);
+        }
+
+        public override string ToString()
+        {
+            return "[" + x + "," + y + "]";
+        }
+
+        public static implicit operator Vec2u(Vec2f other)
+        {
+            return new Vec2u((int)other.x, (int)other.y);
+        }
+
+        public static implicit operator Vec2u(Vec2 other)
+        {
+            return new Vec2u((int)other.x, (int)other.y);
+        }
+    }
+
+    public struct Vec2 : IComparable<Vec2>
+    {
+        public static readonly short INVALID_AXIS = Int16.MaxValue;
+
+        public static readonly Vec2 ZERO = new Vec2(0, 0);
+        public static readonly Vec2 INVALID = new Vec2(INVALID_AXIS, INVALID_AXIS);
+
+        public short x;
+        public short y;
+
+        public Vec2(int x, int y)
+        {
+            this.x = (short)x;
+            this.y = (short)y;
         }
 
         public bool IsValid()
@@ -84,13 +201,7 @@ namespace CommonLib.Util.Math
 
         public override int GetHashCode()
         {
-            return (x ^ 7) ^ (y ^ 13);
-        }
-
-        public int Distance(Vec2 other)
-        {
-            var distance = (Vec2i)this - (Vec2i)other;
-            return (int)distance.Magnitude();
+            return GMath.ComputeHash(x, y);
         }
 
         public static bool operator ==(Vec2 lhs, Vec2 rhs)
@@ -113,125 +224,34 @@ namespace CommonLib.Util.Math
             return new Vec2(lhs.x + rhs.x, lhs.y + rhs.y);
         }
 
-        public static Vec2 operator *(Vec2 v, int i)
+        public static Vec2 operator /(Vec2 lhs, int rhs)
         {
-            return new Vec2(v.x * i, v.y * i);
+            return new Vec2(lhs.x / rhs, lhs.y / rhs);
+        }
+
+        public static Vec2 operator *(Vec2 lhs, int rhs)
+        {
+            return new Vec2(lhs.x * rhs, lhs.y * rhs);
         }
 
         public override string ToString()
         {
             return "[" + x + "," + y + "]";
+        }
+
+        public int CompareTo(Vec2 other)
+        {
+            return GetHashCode().CompareTo(other.GetHashCode());
         }
 
         public static implicit operator Vec2(Vec2f other)
         {
-            return new Vec2((int)other.x, (int)other.y);
+            return new Vec2((short)other.x, (short)other.y);
         }
 
-        public static implicit operator Vec2(Vec2i other)
+        public static implicit operator Vec2(Vec2u other)
         {
-            return new Vec2((int)other.x, (int)other.y);
-        }
-    }
-
-    public struct Vec2i
-    {
-        public static readonly short INVALID_AXIS = Int16.MaxValue;
-
-        public static readonly Vec2i ZERO = new Vec2i(0, 0);
-        public static readonly Vec2i INVALID = new Vec2i(INVALID_AXIS, INVALID_AXIS);
-
-        public short x;
-        public short y;
-
-        public Vec2i(int x, int y)
-        {
-            this.x = (short)x;
-            this.y = (short)y;
-        }
-
-        public bool IsValid()
-        {
-            return x != INVALID_AXIS && y != INVALID_AXIS;
-        }
-
-        public bool IsOnBounds(int boundX, int boundY)
-        {
-            return x < boundX && y < boundY;
-        }
-
-        public float Magnitude()
-        {
-            return (float)System.Math.Sqrt(x * x + y * y);
-        }
-
-        public Vec2f Normalize()
-        {
-            var mag = Magnitude();
-            return new Vec2f(x / mag, y / mag);
-        }
-
-        public override bool Equals(object o)
-        {
-            if (o == null || !(o is Vec2i))
-                return false;
-
-            return this == (Vec2i)o;
-        }
-
-        public bool Equals(Vec2i v)
-        {
-            return (x == v.x) && (y == v.y);
-        }
-
-        public override int GetHashCode()
-        {
-            return (x ^ 7) ^ (y ^ 13);
-        }
-
-        public static bool operator ==(Vec2i lhs, Vec2i rhs)
-        {
-            return lhs.x == rhs.x && lhs.y == rhs.y;
-        }
-
-        public static bool operator !=(Vec2i lhs, Vec2i rhs)
-        {
-            return !(lhs == rhs);
-        }
-
-        public static Vec2i operator -(Vec2i lhs, Vec2i rhs)
-        {
-            return new Vec2i(lhs.x - rhs.x, lhs.y - rhs.y);
-        }
-
-        public static Vec2i operator +(Vec2i lhs, Vec2i rhs)
-        {
-            return new Vec2i(lhs.x + rhs.x, lhs.y + rhs.y);
-        }
-
-        public static Vec2i operator /(Vec2i lhs, int rhs)
-        {
-            return new Vec2i(lhs.x / rhs, lhs.y / rhs);
-        }
-
-        public static Vec2i operator *(Vec2i lhs, int rhs)
-        {
-            return new Vec2i(lhs.x * rhs, lhs.y * rhs);
-        }
-
-        public override string ToString()
-        {
-            return "[" + x + "," + y + "]";
-        }
-
-        public static implicit operator Vec2i(Vec2f other)
-        {
-            return new Vec2i((short)other.x, (short)other.y);
-        }
-
-        public static implicit operator Vec2i(Vec2 other)
-        {
-            return new Vec2i(other.x, other.y);
+            return new Vec2(other.x, other.y);
         }
     }
 
@@ -354,12 +374,12 @@ namespace CommonLib.Util.Math
             return "[" + x + "," + y + "]";
         }
 
-        public static implicit operator Vec2f(Vec2i other)
+        public static implicit operator Vec2f(Vec2 other)
         {
             return new Vec2f(other.x, other.y);
         }
 
-        public static implicit operator Vec2f(Vec2 other)
+        public static implicit operator Vec2f(Vec2u other)
         {
             return new Vec2f(other.x, other.y);
         }
@@ -367,12 +387,12 @@ namespace CommonLib.Util.Math
 
     public struct Rang2
     {
-        public static readonly Rang2 INVALID = new Rang2(Vec2.INVALID, Vec2.INVALID);
+        public static readonly Rang2 INVALID = new Rang2(Vec2u.INVALID, Vec2u.INVALID);
 
-        public Vec2 beg;
-        public Vec2 end;
+        public Vec2u beg;
+        public Vec2u end;
 
-        public Rang2(Vec2 beg, Vec2 end)
+        public Rang2(Vec2u beg, Vec2u end)
         {
             this.beg = beg;
             this.end = end;
@@ -383,7 +403,7 @@ namespace CommonLib.Util.Math
             return beg.IsValid() && end.IsValid();
         }
 
-        public bool Contains(Vec2 point)
+        public bool Contains(Vec2u point)
         {
             return beg.x > point.x && beg.y > point.y && end.x < point.y && end.y < point.y;
         }
@@ -391,17 +411,17 @@ namespace CommonLib.Util.Math
 
     public struct Rect2i
     {
-        public static readonly Rect2i INVALID = new Rect2i(Vec2i.INVALID, Vec2i.INVALID);
+        public static readonly Rect2i INVALID = new Rect2i(Vec2.INVALID, Vec2.INVALID);
 
-        public Vec2i start;
-        public Vec2i end;
-        public Vec2i center;
+        public Vec2 start;
+        public Vec2 end;
+        public Vec2 center;
 
-        public Rect2i(int x, int y, int width, int height) : this(new Vec2i(x, y), new Vec2i(x + width, y + height))
+        public Rect2i(int x, int y, int width, int height) : this(new Vec2(x, y), new Vec2(x + width, y + height))
         {
         }
 
-        public Rect2i(Vec2i start, Vec2i end)
+        public Rect2i(Vec2 start, Vec2 end)
         {
             this.start = start;
             this.end = end;
@@ -413,7 +433,7 @@ namespace CommonLib.Util.Math
             return start.IsValid() || start.IsValid();
         }
 
-        public bool Contains(Vec2i point)
+        public bool Contains(Vec2 point)
         {
             return start.x <= point.x && start.y <= point.y && end.x >= point.y && end.y >= point.y;
         }
@@ -433,5 +453,7 @@ namespace CommonLib.Util.Math
             return end.y - start.y;
         }
     }
+
+
 
 }

@@ -15,7 +15,7 @@ namespace DBServer.Query
         {
             using (var conn = new DBConnection(CONNECTION_NAME))
             {
-                conn.Execute("INSERT INTO tile_map (x, y, height_map, tile_type) VALUES (@p1, @p2, @p3, @p4) ON CONFLICT(x, y) DO UPDATE SET height_map = @p3, tile_type = @p4", 
+                conn.Execute("INSERT INTO tile_map (x, y, height_map, tile_type) VALUES (@p1, @p2, @p3, @p4) ON CONFLICT(x, y) DO UPDATE SET height_map = @p3, tile_type = @p4",
                     req.tileMap.x,
                     req.tileMap.y,
                     req.tileMap.heightMap,

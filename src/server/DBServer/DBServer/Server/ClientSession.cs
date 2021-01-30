@@ -22,6 +22,9 @@ namespace DBServer.Server
                 case MessageType.PB_NFY_UPSERT_MAP:
                     ProceduralServer.NfyUpsertMap(rawMessage.To<PB_NFY_UPSERT_MAP>(), this);
                     break;
+                case MessageType.MD_REQ_MAP_INFO:
+                    MapServer.ReqMapInfo(rawMessage.To<MD_REQ_MAP_INFO>(), this);
+                    break;
                 default:
                     CLog.W("Unrecognized message type: {0}.", rawMessage.MsgType);
                     break;

@@ -1,4 +1,5 @@
-﻿namespace CommonLib.GridEngine
+﻿#if _SERVER
+namespace CommonLib.GridEngine
 {
     public enum ObjectType
     {
@@ -7,3 +8,4 @@
         POWERUP,
     }
 }
+#endif

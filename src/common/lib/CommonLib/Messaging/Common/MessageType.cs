@@ -29,8 +29,8 @@ namespace CommonLib.Messaging.Common
 
         // Client <-> MapServer - Should have CM prefix.
         // PS: For some reason, ProtoBuf won't serialize enum with value = 0, so set first value as 1.
-        CM_WELCOME_NFY = 1,
-
+        CM_REQ_JOIN_MAP,
+        MC_RES_JOIN_MAP,
 
 
 

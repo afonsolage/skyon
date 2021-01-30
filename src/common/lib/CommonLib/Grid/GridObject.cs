@@ -1,4 +1,5 @@
-﻿using CommonLib.Util.Math;
+﻿#if _SERVER
+using CommonLib.Util.Math;
 using CommonLib.Util;
 using System.Collections.Generic;
 using System;
@@ -108,32 +109,32 @@ namespace CommonLib.GridEngine
         {
             var extra = (addExtraBounds) ? 1 : 0;
             return new Rang2(
-                new Vec2(_obj.GridPos.x - 1, _obj.GridPos.y - extra),
-                new Vec2(_obj.GridPos.x - 1, _obj.GridPos.y + extra)
+                new Vec2u(_obj.GridPos.x - 1, _obj.GridPos.y - extra),
+                new Vec2u(_obj.GridPos.x - 1, _obj.GridPos.y + extra)
             );
         }
         public Rang2 RightRange(bool addExtraBounds = true)
         {
             var extra = (addExtraBounds) ? 1 : 0;
             return new Rang2(
-                new Vec2(_obj.GridPos.x + 1, _obj.GridPos.y - extra),
-                new Vec2(_obj.GridPos.x + 1, _obj.GridPos.y + extra)
+                new Vec2u(_obj.GridPos.x + 1, _obj.GridPos.y - extra),
+                new Vec2u(_obj.GridPos.x + 1, _obj.GridPos.y + extra)
             );
         }
         public Rang2 BottomRange(bool addExtraBounds = true)
         {
             var extra = (addExtraBounds) ? 1 : 0;
             return new Rang2(
-                new Vec2(_obj.GridPos.x - extra, _obj.GridPos.y - 1),
-                new Vec2(_obj.GridPos.x + extra, _obj.GridPos.y - 1)
+                new Vec2u(_obj.GridPos.x - extra, _obj.GridPos.y - 1),
+                new Vec2u(_obj.GridPos.x + extra, _obj.GridPos.y - 1)
             );
         }
         public Rang2 UpRange(bool addExtraBounds = true)
         {
             var extra = (addExtraBounds) ? 1 : 0;
             return new Rang2(
-                new Vec2(_obj.GridPos.x - extra, _obj.GridPos.y + 1),
-                new Vec2(_obj.GridPos.x + extra, _obj.GridPos.y + 1)
+                new Vec2u(_obj.GridPos.x - extra, _obj.GridPos.y + 1),
+                new Vec2u(_obj.GridPos.x + extra, _obj.GridPos.y + 1)
             );
         }
 
@@ -236,8 +237,8 @@ namespace CommonLib.GridEngine
             }
         }
 
-        protected Vec2 _gridPos;
-        virtual public Vec2 GridPos
+        protected Vec2u _gridPos;
+        virtual public Vec2u GridPos
         {
             get
             {
@@ -289,13 +290,13 @@ namespace CommonLib.GridEngine
             _type = type;
             _smartMove = smartMove;
 
-            _gridPos = Vec2.INVALID;
+            _gridPos = Vec2u.INVALID;
             _onMap = false;
 
             _surroundings = new GridObjectSurrounding(this);
         }
 
-        public virtual void UpdateGridCell(Vec2 previousGridPos)
+        public virtual void UpdateGridCell(Vec2u previousGridPos)
         {
             if (previousGridPos.IsValid())
             {
@@ -323,7 +324,7 @@ namespace CommonLib.GridEngine
         {
             _onMap = true;
             _map.AddObject(this);
-            UpdateGridCell(Vec2.INVALID);
+            UpdateGridCell(Vec2u.INVALID);
         }
 
         public virtual void LeaveMap()
@@ -339,7 +340,7 @@ namespace CommonLib.GridEngine
         /// <param name="fromPool">Indicates if this method was called whitin the Pool Object. You probably won't need to set that as true.</param>
         public virtual void Reset()
         {
-            _gridPos = Vec2.ZERO;
+            _gridPos = Vec2u.ZERO;
         }
 
         public virtual void Wrap(Vec2f worldPos)
@@ -521,11 +522,12 @@ namespace CommonLib.GridEngine
             _worldPos = dest;
         }
 
-        protected virtual Vec2f GetMoveDir(Vec2 newPos)
+        protected virtual Vec2f GetMoveDir(Vec2u newPos)
         {
-            return new Vec2i(newPos.x - _gridPos.x, newPos.y - _gridPos.y).Normalize();
+            return new Vec2(newPos.x - _gridPos.x, newPos.y - _gridPos.y).Normalize();
         }
 
         public virtual void Tick(float delta) { }
     }
 }
+#endif
