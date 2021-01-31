@@ -83,12 +83,10 @@ namespace ProceduralServer.Server
                 borderMontains = true,
 
                 borderConnectionSize = (int)(1024 * 0.05f),
+                surroundingConnections = new Vec2[] {new Vec2(100, 973), Vec2.INVALID, Vec2.INVALID, Vec2.INVALID}
             };
 
             var tileMap = MapGenerator.Generate(settings);
-
-            var test = CompressionHelper.Compress(tileMap.TileBuffer);
-            var uncompressed = CompressionHelper.Decompress(test);
 
             var bitmap = new Bitmap(1024, 1024, PixelFormat.Format32bppRgb);
             for (var px = 0; px < 1024; px++)

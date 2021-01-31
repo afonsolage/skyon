@@ -40,20 +40,6 @@ namespace CommonLib.Util.Math
         public static readonly Vec2u ZERO = new Vec2u(0, 0);
         public static readonly Vec2u INVALID = new Vec2u(INVALID_AXIS, INVALID_AXIS);
 
-        public static readonly Vec2u UP = new Vec2u(0, 1);
-        public static readonly Vec2u RIGHT = new Vec2u(1, 0);
-        public static readonly Vec2u DOWN = new Vec2u(0, -1);
-        public static readonly Vec2u LEFT = new Vec2u(-1, 0);
-
-        public static readonly Vec2u[] ALL_DIRS = new Vec2u[] { UP, RIGHT, DOWN, LEFT };
-        public static readonly Vec2u[][] RND_DIRS = new Vec2u[][]
-        {
-            new Vec2u[]{ UP, RIGHT, DOWN, LEFT },
-            new Vec2u[]{ LEFT, UP, RIGHT, DOWN },
-            new Vec2u[]{ RIGHT, DOWN, LEFT, UP },
-            new Vec2u[]{ DOWN, LEFT, UP, RIGHT },
-        };
-
         public ushort x;
         public ushort y;
 
@@ -102,12 +88,6 @@ namespace CommonLib.Util.Math
             return (x ^ 7) ^ (y ^ 13);
         }
 
-        public int Distance(Vec2u other)
-        {
-            var distance = (Vec2)this - (Vec2)other;
-            return (int)distance.Magnitude();
-        }
-
         public static bool operator ==(Vec2u lhs, Vec2u rhs)
         {
             return lhs.x == rhs.x && lhs.y == rhs.y;
@@ -149,12 +129,27 @@ namespace CommonLib.Util.Math
         }
     }
 
+    [Serializable]
     public struct Vec2 : IComparable<Vec2>
     {
         public static readonly short INVALID_AXIS = Int16.MaxValue;
 
         public static readonly Vec2 ZERO = new Vec2(0, 0);
         public static readonly Vec2 INVALID = new Vec2(INVALID_AXIS, INVALID_AXIS);
+
+        public static readonly Vec2 UP = new Vec2(0, 1);
+        public static readonly Vec2 RIGHT = new Vec2(1, 0);
+        public static readonly Vec2 DOWN = new Vec2(0, -1);
+        public static readonly Vec2 LEFT = new Vec2(-1, 0);
+
+        public static readonly Vec2[] ALL_DIRS = new Vec2[] { UP, RIGHT, DOWN, LEFT };
+        public static readonly Vec2[][] RND_DIRS = new Vec2[][]
+        {
+            new Vec2[]{ UP, RIGHT, DOWN, LEFT },
+            new Vec2[]{ LEFT, UP, RIGHT, DOWN },
+            new Vec2[]{ RIGHT, DOWN, LEFT, UP },
+            new Vec2[]{ DOWN, LEFT, UP, RIGHT },
+        };
 
         public short x;
         public short y;
@@ -204,6 +199,11 @@ namespace CommonLib.Util.Math
             return GMath.ComputeHash(x, y);
         }
 
+        public int Distance(Vec2 other)
+        {
+            var distance = this - other;
+            return (int)distance.Magnitude();
+        }
         public static bool operator ==(Vec2 lhs, Vec2 rhs)
         {
             return lhs.x == rhs.x && lhs.y == rhs.y;

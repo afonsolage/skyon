@@ -22,6 +22,8 @@ namespace ProceduralServer.Logic.Map
         public bool borderMontains;
 
         public int borderConnectionSize;
+
+        public Vec2[] surroundingConnections;
     }
 
     class TileMap
@@ -44,6 +46,7 @@ namespace ProceduralServer.Logic.Map
 
         public byte[] HeightBuffer { get => _heightMap; }
         public byte[] TileBuffer { get => _tileType; }
+        public Vec2[] Connections { get; internal set; }
 
         public void SetHeight(int x, int y, byte height)
         {
@@ -89,20 +92,21 @@ namespace ProceduralServer.Logic.Map
         }
     }
 
-
     class MapGenerator
     {
         public static TileMap Generate(TileMapSettings settings)
         {
+            var random = new Random(settings.position.GetHashCode());
             var tileMap = new TileMap(settings.size);
 
             var tmp = new float[settings.size * settings.size];
 
             GenerateHeightMap(settings, tmp);
             GenerateBorder(settings, tmp);
-            GenerateConnections(settings, tmp);
+            var connections = GenerateConnections(settings, tmp);
 
             tileMap._heightMap = CompressionHelper.CompressLossy2Precision(tmp);
+            tileMap.Connections = connections;
 
             ComputeTileType(settings, tileMap);
 
@@ -151,41 +155,53 @@ namespace ProceduralServer.Logic.Map
             }
         }
 
-        private static void GenerateConnections(TileMapSettings settings, float[] heightMap)
+        private static Vec2[] GenerateConnections(TileMapSettings settings, float[] heightMap)
         {
-            var firstConnection = false;
-            var allDirs = new Vec2[] { new Vec2(1, 0), new Vec2(0, 1), new Vec2(-1, 0), new Vec2(0, -1) };
+            var connectionCnt = 0;
+            var connections = new Vec2[Vec2.ALL_DIRS.Length];
 
-            var dirIdx = new Random().Next(0, allDirs.Length);
-            var currentDir = allDirs[dirIdx];
-
-            var connections = new List<Vec2>();
-            for (var i = 0; i < allDirs.Length; i++)
+            for (var i = 0; i < settings.surroundingConnections.Length; i++)
             {
-                if (!firstConnection || new Random().Next(0, 100) >= 30)
+                var exitingConnection = settings.surroundingConnections[i];
+
+                if (exitingConnection.IsValid())
                 {
-                    firstConnection = true;
-                    connections.Add(currentDir);
-                    dirIdx = (dirIdx + 1) % allDirs.Length;
-                    currentDir = allDirs[dirIdx];
+                    CreateSquare(settings, heightMap, exitingConnection.x, exitingConnection.y, settings.borderConnectionSize, settings.borderConnectionSize);
+                    connectionCnt++;
+                    connections[i] = exitingConnection;
+                }
+                else
+                {
+                    var rnd = new Random(settings.position.GetHashCode()).Next(0, 100);
+                    var rate = (connectionCnt == 0) ? (i * 15) + 50 : 50;
+
+                    if (rnd < rate)
+                    {
+                        var dir = Vec2.ALL_DIRS[i];
+                        connections[i] = GenerateConnection(settings, heightMap, dir);
+                        connectionCnt++;
+                    }
                 }
             }
 
-            var maxOffset = settings.size - (settings.borderConnectionSize * 2);
-
-            foreach (var connectionDir in connections)
-            {
-                var rnd = new Random().Next(0, maxOffset) + settings.borderConnectionSize;
-
-                var x = (int)(connectionDir.x == 0 ? rnd : (connectionDir.x == -1 ? 0 : settings.size - settings.borderConnectionSize - 1));
-                var y = (int)(connectionDir.y == 0 ? rnd : (connectionDir.y == -1 ? 0 : settings.size - settings.borderConnectionSize - 1));
-
-                CreateSquare(settings, heightMap, x, y, settings.borderConnectionSize, settings.borderConnectionSize, true);
-            }
-
+            return connections;
         }
 
-        private static void CreateSquare(TileMapSettings settings, float[] heightMap, int x, int y, int width, int height, bool softBorders)
+        private static Vec2 GenerateConnection(TileMapSettings settings, float[] heightMap, Vec2 connectionDir)
+        {
+            var maxOffset = settings.size - (settings.borderConnectionSize * 2);
+
+            var rnd = new Random(settings.position.GetHashCode()).Next(0, maxOffset) + settings.borderConnectionSize;
+
+            var cx = (int)(connectionDir.x == 0 ? rnd : (connectionDir.x == -1 ? 0 : settings.size - settings.borderConnectionSize));
+            var cy = (int)(connectionDir.y == 0 ? rnd : (connectionDir.y == -1 ? 0 : settings.size - settings.borderConnectionSize));
+
+            CreateSquare(settings, heightMap, cx, cy, settings.borderConnectionSize, settings.borderConnectionSize);
+
+            return new Vec2(cx, cy);
+        }
+
+        private static void CreateSquare(TileMapSettings settings, float[] heightMap, int x, int y, int width, int height)
         {
             var rect = new Rect2i(x, y, width, height);
             var halfRect = rect.end - rect.start;
@@ -209,11 +225,9 @@ namespace ProceduralServer.Logic.Map
                     var diff_h = h - 0.5f;
                     h -= diff_h * diff;
 
-                    heightMap[x + y * settings.size] = h;
+                    heightMap[px + py * settings.size] = h;
                 }
             }
-
-            var allDirs = new Vec2[] { new Vec2(1, 0), new Vec2(0, 1), new Vec2(-1, 0), new Vec2(0, -1) };
 
             var heightBufferBak = new float[settings.size * settings.size];
             Array.Copy(heightMap, heightBufferBak, heightBufferBak.Length);
@@ -223,8 +237,6 @@ namespace ProceduralServer.Logic.Map
 
             var point = borderRect.start;
             var walkLeft = borderRect.Width() - 1;
-            var dirCnt = 0;
-            var dir = allDirs[dirCnt];
             var dirMod = 0;
 
             while (true)
@@ -239,7 +251,7 @@ namespace ProceduralServer.Logic.Map
                 if (walkLeft <= 0)
                 {
                     dirMod += 1;
-                    dir = allDirs[dirMod % allDirs.Length];
+                    var dir = Vec2.ALL_DIRS[dirMod % Vec2.ALL_DIRS.Length];
                     walkLeft = borderRect.Width() - (int)(dirMod / 3) - 1;
                     if (walkLeft < 0)
                         break;
@@ -327,7 +339,7 @@ namespace ProceduralServer.Logic.Map
         {
             FastNoiseLite fastNoise = new FastNoiseLite();
             fastNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-            fastNoise.SetSeed(DateTime.Now.Second);
+            fastNoise.SetSeed(settings.position.GetHashCode());
 
             fastNoise.SetFrequency(settings.frequency);
             fastNoise.SetFractalOctaves(settings.fractalOctaves);

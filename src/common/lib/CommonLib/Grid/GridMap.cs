@@ -743,10 +743,10 @@ namespace CommonLib.GridEngine
         /// <param name="canPass">Function to check if we can pass through the given position.</param>
         /// <param name="dirs">An array of directions, used to avoid predictable movement pattern. If null, Vec2.ALL_DIRS will be used</param>
         /// <returns>The list of positions that forms the path.</returns>
-        public List<Vec2u> PathFind(Vec2u origin, Vec2u dest, Func<GridCell, bool> canPass, Vec2u[] dirs = null)
+        public List<Vec2> PathFind(Vec2 origin, Vec2 dest, Func<GridCell, bool> canPass, Vec2[] dirs = null)
         {
             if (dirs == null)
-                dirs = Vec2u.ALL_DIRS;
+                dirs = Vec2.ALL_DIRS;
 
             var finder = new AStarFinder(this, dirs);
             return finder.FindShortestPath(origin, dest, canPass);
@@ -760,21 +760,21 @@ namespace CommonLib.GridEngine
         /// <param name="canPass">Function to check if we can pass through the given position.</param>
         /// <param name="dirs">An array of directions, used to avoid predictable movement pattern. If null, Vec2.ALL_DIRS will be used</param>
         /// <returns>A valid position if we were able to find one. An invalid position (Vec2.INVALID) otherwise</returns>
-        public Vec2u FindClosestPos(Vec2u origin, int maxRange, Predicate<GridCell> checkCell, Predicate<GridCell> canPass, Vec2u[] dirs = null)
+        public Vec2 FindClosestPos(Vec2 origin, int maxRange, Predicate<GridCell> checkCell, Predicate<GridCell> canPass, Vec2[] dirs = null)
         {
             if (dirs == null)
-                dirs = Vec2u.ALL_DIRS;
+                dirs = Vec2.ALL_DIRS;
 
             var range = System.Math.Min(System.Math.Max(MapSize.x, MapSize.y), maxRange);
             //Just keep the track of what positions we already verified to avoid eternal loop.
-            var verifiedPos = new HashSet<Vec2u>();
+            var verifiedPos = new HashSet<Vec2>();
 
             //Since we are working with a max range, we can have enought buckets as our range.
-            var queues = new Queue<Vec2u>[range + 1];
+            var queues = new Queue<Vec2>[range + 1];
 
             for (var i = 0; i < queues.Length; i++)
             {
-                queues[i] = new Queue<Vec2u>(10); //Init with an avarage amount of "slots" to aviod memory alloc on loop.
+                queues[i] = new Queue<Vec2>(10); //Init with an avarage amount of "slots" to aviod memory alloc on loop.
             }
 
             var currentDist = 0;
@@ -830,7 +830,7 @@ namespace CommonLib.GridEngine
                 }
             }
 
-            return Vec2u.INVALID;
+            return Vec2.INVALID;
         }
 
         private struct PosRanking
@@ -849,18 +849,18 @@ namespace CommonLib.GridEngine
         /// <param name="canPass">Function to check if we can pass through the given position.</param>
         /// <param name="dirs">An array of directions, used to avoid predictable movement pattern. If null, Vec2.ALL_DIRS will be used</param>
         /// <returns>A valid position if we were able to find one. An invalid position (Vec2.INVALID) otherwise</returns>
-        public Vec2u FindBestPos(Vec2u origin, int maxRange, Func<GridCell, int> calcRanking, Predicate<GridCell> checkCell, Predicate<GridCell> canPass, Vec2u[] dirs = null)
+        public Vec2u FindBestPos(Vec2 origin, int maxRange, Func<GridCell, int> calcRanking, Predicate<GridCell> checkCell, Predicate<GridCell> canPass, Vec2[] dirs = null)
         {
             if (dirs == null)
-                dirs = Vec2u.ALL_DIRS;
+                dirs = Vec2.ALL_DIRS;
 
             var range = System.Math.Min(System.Math.Max(MapSize.x, MapSize.y), maxRange);
 
             //Just keep the track of what positions we already verified to avoid eternal loop.
-            var verifiedPos = new HashSet<Vec2u>();
+            var verifiedPos = new HashSet<Vec2>();
             var candidates = new List<PosRanking>();
 
-            var queue = new Queue<Vec2u>();
+            var queue = new Queue<Vec2>();
             queue.Enqueue(origin);
 
             while (queue.Count > 0)
