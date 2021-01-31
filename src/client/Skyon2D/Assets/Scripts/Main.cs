@@ -40,7 +40,7 @@ public class Main : MonoBehaviour
             Initialization();
 
             // Set Loading Stage, where will to load resources and check if has some update pending.
-            StageManager.ChangeStage(StageType.MapStage, "127.0.0.1", "9876");
+            StageManager.ChangeStage(StageType.MapStage, "127.0.0.1", "9876", 15, 15, 0);
         }
         catch (Exception e)
         {

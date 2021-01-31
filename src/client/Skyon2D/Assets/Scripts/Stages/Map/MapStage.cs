@@ -1,12 +1,21 @@
 using CommonLib.Util;
 using UnityEngine;
 using CommonLib.Messaging.Client;
+using Assets.Scripts.Stages.Map;
+using CommonLib.Logic.Map;
+using UnityEngine.Tilemaps;
 
 public class MapStage : BaseStage
 {
-    public int latency = 0;
+    public int X { get; set; }
+    public int Y { get; set; }
+    public int Channel { get; set; }
 
+
+    public int latency = 0;
     public CLogType logLevel = CLogType.Debug;
+
+    public TileMapRenderer TileMapRenderer { get; private set; }
 
     public RoomServerConnection ServerConnection
     {
@@ -52,12 +61,15 @@ public class MapStage : BaseStage
         }
     }
 
+    internal void SetTilesType(TileType[] tilesType)
+    {
+        TileMapRenderer.TilesType = tilesType;
+        TileMapRenderer.enabled = true;
+    }
+
     private void Start()
     {
-        ServerConnection.Send(new CX_TOKEN_REQ()
-        {
-            token = "teste token!",
-        });
+
     }
 
     public override void OnDispose()
@@ -70,6 +82,10 @@ public class MapStage : BaseStage
         var serverIp = args[0] as string;
         var port = int.Parse(args[1].ToString());
 
+        X = int.Parse(args[2].ToString());
+        Y = int.Parse(args[3].ToString());
+        Channel = int.Parse(args[4].ToString());
+
         _connection = new RoomServerConnection(this, serverIp, port)
         {
 #if _DEBUG
@@ -77,5 +93,26 @@ public class MapStage : BaseStage
 #endif
         };
         _connection.Start();
+        RequestJoinMap();
+
+        var tileMapObj = new GameObject();
+        tileMapObj.transform.parent = Main.Current.transform;
+
+        TileMapRenderer = tileMapObj.AddComponent<TileMapRenderer>();
+        TileMapRenderer.Radius = 25;
+        TileMapRenderer.Target = GameObject.Find("MainPlayer");
+        TileMapRenderer.enabled = false;
+
+        tileMapObj.name = $"TileMap {X},{Y}[{Channel}]";
+    }
+
+    public void RequestJoinMap()
+    {
+        _connection.Send(new CM_REQ_JOIN_MAP()
+        {
+            x = X,
+            y = Y,
+            channel = Channel,
+        });
     }
 }
