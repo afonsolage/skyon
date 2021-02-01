@@ -41,6 +41,11 @@ namespace DummyClient.Networking
             {
                 var tilesType = CompressionHelper.Decompress(res.tileMap.tileType).Cast<TileType>().ToArray();
                 CLog.I("Received map size: {0}", tilesType.Length);
+
+                if (App.ViewMap)
+                {
+                    App.Render(tilesType);
+                }
             }
         }
     }

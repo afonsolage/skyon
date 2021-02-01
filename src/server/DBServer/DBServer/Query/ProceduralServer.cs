@@ -70,6 +70,10 @@ namespace DBServer.Query
                     top_connection = Vec2.INVALID,
                     left_connection = Vec2.INVALID,
                     right_connection = Vec2.INVALID,
+                    has_top_connection = false,
+                    has_right_connection = false,
+                    has_down_connection = false,
+                    has_left_connection = false,
                 };
 
                 while (resultSet.Read())
@@ -81,16 +85,20 @@ namespace DBServer.Query
                     switch (side)
                     {
                         case "down":
-                            res.down_connection = new Vec2(x, y);
+                            res.top_connection = new Vec2(x, y);
+                            res.has_top_connection = true;
                             break;
                         case "top":
-                            res.top_connection = new Vec2(x, y);
+                            res.down_connection = new Vec2(x, y);
+                            res.has_down_connection = true;
                             break;
                         case "left":
-                            res.left_connection = new Vec2(x, y);
+                            res.right_connection = new Vec2(x, y);
+                            res.has_right_connection = true;
                             break;
                         case "right":
-                            res.right_connection = new Vec2(x, y);
+                            res.left_connection = new Vec2(x, y);
+                            res.has_left_connection = true;
                             break;
                         default:
                             CLog.E("Invalid side ({0}) returned on query surroundings of map {1}, {2}", side, req.x, req.y);

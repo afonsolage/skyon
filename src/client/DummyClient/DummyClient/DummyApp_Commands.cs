@@ -1,4 +1,5 @@
-﻿using CommonLib.Messaging.Client;
+﻿using CommonLib.Logic.Map;
+using CommonLib.Messaging.Client;
 using CommonLib.Util;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace DummyClient
         {
             if (command.Length < 2)
             {
-                CLog.W("Invalid map command usage: map <join>");
+                CLog.W("Invalid map command usage: map <join|view>");
                 return;
             }
 
@@ -35,11 +36,29 @@ namespace DummyClient
                 case "join":
                     ProcessMapJoinCommand(command);
                     break;
+                case "view":
+                    ProcessMapViewCommand(command);
+                    break;
                 default:
                     CLog.W("Invalid map command usage: map <join>");
                     break;
             }
         }
+
+        private void ProcessMapViewCommand(string[] command)
+        {
+            if (command.Length < 3 || (command[2] != "on" && command[3] != "off"))
+            {
+                CLog.W("Invalid map command usage: map view <on|off>");
+                return;
+            }
+
+            ViewMap = command[2] == "on";
+
+            CLog.I("Map viewing {0}", ViewMap ? "enabled" : "disabled");
+        }
+
+        
 
         private void ProcessMapJoinCommand(string[] command)
         {

@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="CommonLib">
       <HintPath>..\..\..\..\bin\common\lib\client\CommonLib.dll</HintPath>
     </Reference>

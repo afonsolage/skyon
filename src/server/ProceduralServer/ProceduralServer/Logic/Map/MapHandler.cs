@@ -42,6 +42,7 @@ namespace ProceduralServer.Logic.Map
                 borderMontains = true,
 
                 borderConnectionSize = (int)(1024 * 0.05f),
+                hasSurroundingConnections = new bool[] {res.has_top_connection, res.has_right_connection, res.has_down_connection, res.has_left_connection},
                 surroundingConnections = new Vec2[] {res.top_connection, res.right_connection, res.down_connection, res.left_connection},
             };
 
@@ -54,6 +55,10 @@ namespace ProceduralServer.Logic.Map
                     y = res.y,
                     heightMap = CompressionHelper.Compress(tileMap.HeightBuffer),
                     tileType = CompressionHelper.Compress(tileMap.TileBuffer),
+                    topConnection = tileMap.Connections[0],
+                    rightConnection = tileMap.Connections[1],
+                    downConnection = tileMap.Connections[2],
+                    leftConnection = tileMap.Connections[3]
                 }
             };
             dbSession.Send(upsert);

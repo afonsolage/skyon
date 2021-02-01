@@ -40,8 +40,12 @@ namespace CommonLib.Messaging.Server
         public int y;
         public Vec2 top_connection;
         public Vec2 left_connection;
-        public Vec2 right_connection;
         public Vec2 down_connection;
+        public Vec2 right_connection;
+        public bool has_top_connection;
+        public bool has_left_connection;
+        public bool has_down_connection;
+        public bool has_right_connection;
     }
 
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]

@@ -1,8 +1,12 @@
-﻿using CommonLib.Util;
+﻿using CommonLib.Logic.Map;
+using CommonLib.Util;
 using DummyClient.Networking;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Threading;
 
 namespace DummyClient
@@ -12,6 +16,8 @@ namespace DummyClient
         protected bool _running;
         protected bool _closeRequested;
         protected bool _logPaused;
+
+        public bool ViewMap { get; set; } = false;
 
         protected Dictionary<int, string> _pendingStatusUpdate;
         protected ConcurrentBag<Tuple<ConsoleColor, string>> _pendingLogs;
@@ -265,6 +271,52 @@ namespace DummyClient
             }
 
             Environment.Exit(0);
+        }
+
+        internal void Render(TileType[] tilesType)
+        {
+            var bitmap = new Bitmap(1024, 1024, PixelFormat.Format32bppRgb);
+            for (var px = 0; px < 1024; px++)
+            {
+                for (var py = 0; py < 1024; py++)
+                {
+                    var tile = tilesType[px + py * 1024];
+                    bitmap.SetPixel(px, 1023 - py, GetTileColor(tile)); //We need to flip-y because bitmap uses Y-top-down approach
+                }
+            }
+
+            bitmap.Save($"output.bmp");
+            new Process
+            {
+                StartInfo = new ProcessStartInfo(@"output.bmp")
+                {
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Normal,
+                }
+            }.Start();
+        }
+
+        private Color GetTileColor(TileType tile)
+        {
+            switch (tile)
+            {
+                case TileType.Grass:
+                    return Color.Green;
+                case TileType.Rock:
+                    return Color.Gray;
+                case TileType.Sand:
+                    return Color.Yellow;
+                case TileType.Dirt:
+                    return Color.Brown;
+                case TileType.Snow:
+                    return Color.White;
+                case TileType.DeepWater:
+                    return Color.DarkBlue;
+                case TileType.Water:
+                    return Color.Blue;
+                default:
+                    return Color.Black;
+            }
         }
     }
 }

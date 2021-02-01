@@ -23,6 +23,7 @@ namespace ProceduralServer.Logic.Map
 
         public int borderConnectionSize;
 
+        public bool[] hasSurroundingConnections;
         public Vec2[] surroundingConnections;
     }
 
@@ -158,19 +159,35 @@ namespace ProceduralServer.Logic.Map
         private static Vec2[] GenerateConnections(TileMapSettings settings, float[] heightMap)
         {
             var connectionCnt = 0;
-            var connections = new Vec2[Vec2.ALL_DIRS.Length];
+            var connections = new Vec2[] { Vec2.INVALID, Vec2.INVALID, Vec2.INVALID, Vec2.INVALID };
 
             for (var i = 0; i < settings.surroundingConnections.Length; i++)
             {
                 var exitingConnection = settings.surroundingConnections[i];
+                var hasExistingConnections = settings.hasSurroundingConnections[i];
 
-                if (exitingConnection.IsValid())
+                if (hasExistingConnections && exitingConnection.IsValid())
                 {
+                    var maxOffset = (short)(settings.size - settings.borderConnectionSize);
+
+                    //Since the existing info is from neighbors map, we need to reverse it in order to use 
+                    //left connection on left map is my right connection
+
+                    if (exitingConnection.x == 0)
+                        exitingConnection.x = maxOffset;
+                    else if (exitingConnection.x == maxOffset)
+                        exitingConnection.x = 0;
+
+                    if (exitingConnection.y == 0)
+                        exitingConnection.y = maxOffset;
+                    else if (exitingConnection.y == maxOffset)
+                        exitingConnection.y = 0;
+
                     CreateSquare(settings, heightMap, exitingConnection.x, exitingConnection.y, settings.borderConnectionSize, settings.borderConnectionSize);
                     connectionCnt++;
                     connections[i] = exitingConnection;
                 }
-                else
+                else if(!hasExistingConnections)
                 {
                     var rnd = new Random(settings.position.GetHashCode()).Next(0, 100);
                     var rate = (connectionCnt == 0) ? (i * 15) + 50 : 50;
