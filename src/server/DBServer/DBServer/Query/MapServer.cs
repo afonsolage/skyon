@@ -20,7 +20,6 @@ namespace DBServer.Query
 
                 var res = new DM_RES_MAP_INFO()
                 {
-                    channel = req.channel,
                     tileMap = new TileMapData()
                     {
                         x = req.x,

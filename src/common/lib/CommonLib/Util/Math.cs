@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
 
 namespace CommonLib.Util.Math
 {
@@ -33,6 +34,7 @@ namespace CommonLib.Util.Math
         }
     }
 
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
     public struct Vec2u
     {
         public static readonly ushort INVALID_AXIS = UInt16.MaxValue;
@@ -129,7 +131,7 @@ namespace CommonLib.Util.Math
         }
     }
 
-    [Serializable]
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
     public struct Vec2 : IComparable<Vec2>
     {
         public static readonly short INVALID_AXIS = Int16.MaxValue;
@@ -255,6 +257,7 @@ namespace CommonLib.Util.Math
         }
     }
 
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
     public struct Vec2f
     {
         public static readonly float EPSILON = 0.00001f;
@@ -385,6 +388,7 @@ namespace CommonLib.Util.Math
         }
     }
 
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
     public struct Rang2
     {
         public static readonly Rang2 INVALID = new Rang2(Vec2u.INVALID, Vec2u.INVALID);
@@ -409,6 +413,7 @@ namespace CommonLib.Util.Math
         }
     }
 
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
     public struct Rect2i
     {
         public static readonly Rect2i INVALID = new Rect2i(Vec2.INVALID, Vec2.INVALID);

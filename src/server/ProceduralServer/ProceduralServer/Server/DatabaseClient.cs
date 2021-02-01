@@ -1,7 +1,9 @@
 ﻿using CommonLib.Messaging;
 using CommonLib.Messaging.Common;
+using CommonLib.Messaging.Server;
 using CommonLib.Networking;
 using CommonLib.Util;
+using ProceduralServer.Logic.Map;
 
 namespace ProceduralServer.Server
 {
@@ -26,6 +28,9 @@ namespace ProceduralServer.Server
             var rawMessage = new RawMessage(packet.buffer);
             switch (rawMessage.MsgType)
             {
+                case MessageType.DP_RES_SURROUNDING_CONNECTIONS:
+                    MapHandler.ResSurroundingConnections(rawMessage.To<DP_RES_SURROUNDING_CONNECTIONS>(), this);
+                    break;
                 default:
                     CLog.W("Unrecognized db message type: {0}.", rawMessage.MsgType);
                     break;

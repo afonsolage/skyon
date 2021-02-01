@@ -77,8 +77,8 @@ namespace MapServer.Server
 
             if (instance == null)
             {
-                CLog.E("Map instance not loaded: {0}, {1}, {2}. Requesting load", req.x, req.y, req.channel);
-                App.MapInstanceManager.LoadMap(req.x, req.y, req.channel);
+                CLog.E("Map not loaded: {0}, {1}. Requesting load", req.x, req.y);
+                App.MapInstanceManager.LoadMap(req.x, req.y);
                 Send(new MC_RES_JOIN_MAP() { });
                 return;
             }

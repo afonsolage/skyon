@@ -17,7 +17,6 @@ namespace CommonLib.Messaging.Server
         public MessageType MsgType { get; }
         public int x;
         public int y;
-        public int channel;
     }
 
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
@@ -27,7 +26,6 @@ namespace CommonLib.Messaging.Server
         public MessageType MsgType { get; }
         public int x;
         public int y;
-        public int channel;
     }
 }
 #endif

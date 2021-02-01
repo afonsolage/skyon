@@ -22,6 +22,9 @@ namespace DBServer.Server
                 case MessageType.PD_NFY_UPSERT_MAP:
                     ProceduralServer.NfyUpsertMap(rawMessage.To<PD_NFY_UPSERT_MAP>(), this);
                     break;
+                case MessageType.PD_REQ_SURROUNDING_CONNECTIONS:
+                    ProceduralServer.ReqSurroundingConnections(rawMessage.To<PD_REQ_SURROUNDING_CONNECTIONS>(), this);
+                    break;
                 case MessageType.MD_REQ_MAP_INFO:
                     MapServer.ReqMapInfo(rawMessage.To<MD_REQ_MAP_INFO>(), this);
                     break;

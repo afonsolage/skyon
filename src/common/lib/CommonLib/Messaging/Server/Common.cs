@@ -16,6 +16,10 @@ namespace CommonLib.Messaging.Server
         public int y;
         public byte[] heightMap;
         public byte[] tileType;
+        public Vec2 topConnection;
+        public Vec2 rightConnection;
+        public Vec2 downConnection;
+        public Vec2 leftConnection;
     }
 }
 

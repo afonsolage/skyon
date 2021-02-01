@@ -38,6 +38,8 @@ namespace CommonLib.Messaging.Common
 
         // Procedural Server <-> DB Server messages
         PD_NFY_UPSERT_MAP,
+        PD_REQ_SURROUNDING_CONNECTIONS,
+        DP_RES_SURROUNDING_CONNECTIONS,
 
         // Map Server <-> DB Server
         MD_REQ_MAP_INFO,

@@ -17,10 +17,13 @@ namespace MapServer.Server
     {
         private readonly AppServer _app;
         private readonly ConcurrentDictionary<MapInstanceID, MapInstance> _mapInstanceDict;
+        private readonly ConcurrentDictionary<Vec2, TileMap> _maps;
+
         public MapInstanceManager(AppServer app)
         {
             _app = app;
             _mapInstanceDict = new ConcurrentDictionary<MapInstanceID, MapInstance>();
+            _maps = new ConcurrentDictionary<Vec2, TileMap>();
         }
 
         internal MapInstance GetMapInstance(int x, int y, int channel)
@@ -31,33 +34,53 @@ namespace MapServer.Server
                 channel = (ushort)channel,
             };
 
-            if (!_mapInstanceDict.TryGetValue(id, out var result))
-                return null;
-            else
+            if (_mapInstanceDict.TryGetValue(id, out var result))
+            {
                 return result;
+            }
+            else
+            {
+                return TryCreateMapInstance(id);
+            }
         }
 
-        public void LoadMap(int x, int y, int channel)
+        private MapInstance TryCreateMapInstance(MapInstanceID id)
         {
-            var id = new MapInstanceID()
+            if (_maps.TryGetValue(id.position, out var tileMap))
             {
-                position = new Vec2(x, y),
-                channel = (ushort)channel,
-            };
+                var mapInstance = new MapInstance(_app, id)
+                {
+                    Map = tileMap,
+                };
 
-            if (_mapInstanceDict.ContainsKey(id))
+                mapInstance.Start();
+
+                if (!_mapInstanceDict.TryAdd(id, mapInstance))
+                {
+                    CLog.E("Failed to create map instance {0},{1}. Unable to add to map dict.", id.position.x, id.position.y);
+                    return null;
+                }
+
+                return mapInstance;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public void LoadMap(int x, int y)
+        {
+            if (_maps.ContainsKey(new Vec2(x, y)))
+            {
+                CLog.W("Map was already loaded: {0},{1}", x, y);
                 return;
-
-            var mapInstance = new MapInstance(_app, id);
-
-            if (!_mapInstanceDict.TryAdd(id, mapInstance))
-                return;
+            }
 
             _app.DBClient.Send(new MD_REQ_MAP_INFO()
             {
-                x = id.position.x,
-                y = id.position.y,
-                channel = id.channel,
+                x = x,
+                y = y,
             });
         }
 
@@ -80,7 +103,6 @@ namespace MapServer.Server
                         {
                             x = res.x,
                             y = res.y,
-                            channel = res.channel,
                         });
                     }
                     break;
@@ -95,38 +117,31 @@ namespace MapServer.Server
             if (res.tileMap.heightMap == null)
             {
                 CLog.I("Map {0},{1} doesn't exists. Asking Procedural Server for a new one", res.tileMap.x, res.tileMap.y);
-                RequestMapGeneration(res.tileMap.x, res.tileMap.y, res.channel);
-                return;
-            }
-
-            var id = new MapInstanceID()
-            {
-                position = new Vec2(res.tileMap.x, res.tileMap.y),
-                channel = (ushort)res.channel,
-            };
-
-            if (!_mapInstanceDict.TryGetValue(id, out var instance))
-            {
-                CLog.I("Failed to get map {0}", id);
+                RequestMapGeneration(res.tileMap.x, res.tileMap.y);
                 return;
             }
 
             var heightMap = CompressionHelper.Decompress(res.tileMap.heightMap);
             var tilesType = CompressionHelper.Decompress(res.tileMap.tileType).Cast<TileType>().ToArray();
 
-            instance.Map = new TileMap(id.position, heightMap, tilesType);
-            instance.Start();
+            var tileMap = new TileMap(new Vec2(res.tileMap.x, res.tileMap.y), heightMap, tilesType);
 
-            CLog.I("Map {0},{1}[{2}] loaded!", res.tileMap.x, res.tileMap.y, res.channel);
+            if (!_maps.TryAdd(tileMap.Position, tileMap))
+            {
+                CLog.E("Failed to add Map {0},{1}!", res.tileMap.x, res.tileMap.y);
+            }
+            else
+            {
+                CLog.I("Map {0},{1} loaded!", res.tileMap.x, res.tileMap.y);
+            }
         }
 
-        private void RequestMapGeneration(int x, int y, int channel)
+        private void RequestMapGeneration(int x, int y)
         {
             _app.PCClient.Send(new MP_REQ_MAP_GEN()
             {
                 x = x,
                 y = y,
-                channel = channel,
             });
         }
 

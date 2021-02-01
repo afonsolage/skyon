@@ -108,16 +108,20 @@ namespace ProceduralServer.Server
                 }
             }.Start();
 
-            //DBClient.Send(new PB_NFY_UPSERT_MAP()
-            //{
-            //    tileMap = new TileMapData()
-            //    {
-            //        x = 1,
-            //        y = 1,
-            //        heightMap = CompressionHelper.Compress(tileMap.HeightBuffer),
-            //        tileType = CompressionHelper.Compress(tileMap.TileBuffer),
-            //    }
-            //});
+            DBClient.Send(new PD_NFY_UPSERT_MAP()
+            {
+                tileMap = new TileMapData()
+                {
+                    x = 1,
+                    y = 1,
+                    heightMap = CompressionHelper.Compress(tileMap.HeightBuffer),
+                    tileType = CompressionHelper.Compress(tileMap.TileBuffer),
+                    topConnection = tileMap.Connections[0],
+                    rightConnection = tileMap.Connections[1],
+                    downConnection = tileMap.Connections[2],
+                    leftConnection = tileMap.Connections[3],
+                }
+            });
 
             //var tileCompressed = CompressionHelper.Compress(tileMap.TileBuffer);
             //var uncompressedTile = tileMap.TileBuffer.Length;
