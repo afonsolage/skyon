@@ -40,7 +40,6 @@ func select_target(target: Node) -> void:
 	if target and not target == _current_target:
 		clear_selection(true, false)
 		
-		Log.d("Selecting %s" % target.name)
 		_select_target_node.reset(SelectTarget.TargetType.TARGET)
 		
 		target.add_child(_select_target_node)
@@ -50,7 +49,6 @@ func select_target(target: Node) -> void:
 func select_path(position: Vector3) -> void:
 	clear_selection(false, true)
 	
-	Log.d("Placing target at %s" % position)
 	_select_target_path.reset(SelectTarget.TargetType.PATH, position)
 	self.add_child(_select_target_path)
 	_current_path = position
@@ -59,13 +57,11 @@ func select_path(position: Vector3) -> void:
 
 func clear_selection(target: bool = true, path: bool = true) -> void:
 	if target and has_target():
-		Log.d("Deselecting target")
 		_current_target.remove_child(_select_target_node)
 		_select_target_node.visible = false
 		_current_target = null
 		
 	if path and has_position():
-		Log.d("Removing path")
 		self.remove_child(_select_target_path)
 		_select_target_path.visible = false
 		_current_path = Vector3.ZERO
