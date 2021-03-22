@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://scripts/nodes/monster.gd" type="Script" id=1]
+
+[sub_resource type="CylinderShape" id=1]
+radius = 0.32
+height = 0.89
+
+[sub_resource type="CylinderMesh" id=2]
+top_radius = 0.32
+bottom_radius = 0.32
+height = 0.89
+
+[node name="Monster" type="KinematicBody"]
+script = ExtResource( 1 )
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.442703, 0 )
+shape = SubResource( 1 )
+
+[node name="WallRayCast" type="RayCast" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0 )
+enabled = true
+cast_to = Vector3( 0, 0, 0.75 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.445635, 0 )
+mesh = SubResource( 2 )
+material/0 = null

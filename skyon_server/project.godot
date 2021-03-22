@@ -1,0 +1,88 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Object",
+"class": "GravityBody",
+"language": "GDScript",
+"path": "res://scripts/shared/gravity_body.gd"
+}, {
+"base": "Reference",
+"class": "HeightMap",
+"language": "GDScript",
+"path": "res://scripts/tools/height_map.gd"
+}, {
+"base": "Reference",
+"class": "HeightMapGenerator",
+"language": "GDScript",
+"path": "res://scripts/tools/height_map_generator.gd"
+}, {
+"base": "Object",
+"class": "Log",
+"language": "GDScript",
+"path": "res://scripts/shared/log.gd"
+} ]
+_global_script_class_icons={
+"GravityBody": "",
+"HeightMap": "",
+"HeightMapGenerator": "",
+"Log": ""
+}
+
+[application]
+
+config/name="Skyon Server"
+run/main_scene="res://scenes/main.tscn"
+
+[autoload]
+
+GameServer="*res://scripts/singletons/game_server.gd"
+StateServer="*res://scripts/singletons/state_server.gd"
+
+[display]
+
+window/vsync/use_vsync=false
+
+[input]
+
+move_forward={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":87,"unicode":0,"echo":false,"script":null)
+ ]
+}
+move_backward={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":83,"unicode":0,"echo":false,"script":null)
+ ]
+}
+turn_left={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":65,"unicode":0,"echo":false,"script":null)
+ ]
+}
+turn_right={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":68,"unicode":0,"echo":false,"script":null)
+ ]
+}
+strafe_left={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":81,"unicode":0,"echo":false,"script":null)
+ ]
+}
+strafe_right={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":69,"unicode":0,"echo":false,"script":null)
+ ]
+}
+
+[rendering]
+
+environment/default_environment="res://default_env.tres"

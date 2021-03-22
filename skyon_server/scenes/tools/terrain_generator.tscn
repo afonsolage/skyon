@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://scripts/tools/terrain_generator.gd" type="Script" id=1]
+[ext_resource path="res://scenes/simple_terrain.tscn" type="PackedScene" id=2]
+
+
+
+
+[node name="TerrainGenerator" type="Spatial"]
+script = ExtResource( 1 )
+is_generate_border = false
+is_normalize_height = false
+map_scale = 10.0
+size = 128
+octaves = 5
+persistance = 0.2
+disable_randomness = true
+
+[node name="MeshInstance" parent="." instance=ExtResource( 2 )]
