@@ -32,6 +32,9 @@ func _ready() -> void:
 		game_world.connect("cleared_target", self, "_on_target_cleared")
 		game_world.connect("selected_target", self, "_on_target_selected")
 		_terrain = game_world.terrain
+		
+	
+	GameServer.combat.combat_test()
 
 
 

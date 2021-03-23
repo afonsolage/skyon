@@ -43,7 +43,7 @@ nodes/run_scale/node = SubResource( 6 )
 nodes/run_scale/position = Vector2( -60, 300 )
 nodes/speed/node = SubResource( 7 )
 nodes/speed/position = Vector2( 180, 220 )
-node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "attack", "run_scale", 0, "run_animation", "idle_scale", 0, "idle_animation", "attack", 0, "speed", "attack", 1, "1h_attack_animation" ]
+node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "attack", "idle_scale", 0, "idle_animation", "run_scale", 0, "run_animation", "attack", 0, "speed", "attack", 1, "1h_attack_animation" ]
 
 [sub_resource type="CylinderShape" id=9]
 radius = 0.300838
@@ -74,8 +74,8 @@ parameters/idle_scale/scale = 1.0
 parameters/run_scale/scale = 1.5
 parameters/speed/blend_amount = 0.0
 
-[node name="TerrainCollision" type="CollisionShape" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.887131, 0.00825965 )
+[node name="CollisionBody" type="CollisionShape" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.887, 0 )
 shape = SubResource( 9 )
 
 [node name="Body" type="Spatial" parent="."]
@@ -92,7 +92,7 @@ bones/12/bound_children = [ NodePath("HandRAttachment") ]
 material/0 = ExtResource( 5 )
 
 [node name="HandRAttachment" type="BoneAttachment" parent="Body/Model/base_character/BodyArmature/Skeleton" index="1"]
-transform = Transform( -0.213062, 0.0458615, 0.975962, 0.965032, 0.165997, 0.202875, -0.152702, 0.985059, -0.0796256, -0.251936, 0.35209, 0.0488474 )
+transform = Transform( -0.212601, 0.0461157, 0.976051, 0.96441, 0.170613, 0.202004, -0.157211, 0.984258, -0.0807469, -0.251883, 0.353245, 0.0496262 )
 bone_name = "hand_attachment_r"
 
 [node name="1h_sword" parent="Body/Model/base_character/BodyArmature/Skeleton/HandRAttachment" instance=ExtResource( 2 )]

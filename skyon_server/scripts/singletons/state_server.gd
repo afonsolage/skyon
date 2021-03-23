@@ -27,7 +27,7 @@ func set_player_state(session_id: int, state: Dictionary) -> void:
 func _process_player_states(state_snap: Dictionary) -> void:
 	for session_id in state_snap:
 		var state: Dictionary = state_snap[session_id]
-		var player = get_node("/root/World/Players/P%d" % session_id) as Spatial
+		var player = get_node("/root/GameWorld/Players/P%d" % session_id) as Spatial
 		if not player.move(state.P as Vector3):
 			# TODO: Reject the new state
 			Log.e("Invalid player %d state %s" % [session_id, state])

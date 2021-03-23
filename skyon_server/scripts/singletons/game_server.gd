@@ -2,19 +2,27 @@ extends Node
 
 var port := 44001
 
+var combat : CombatServer
+
 var _net := NetworkedMultiplayerENet.new()
 var _player_res: PackedScene
 
-onready var _players = get_node("/root/World/Players")
+onready var _players = get_node("/root/GameWorld/Players")
 
 func _ready():
 	_load_resources()
+	_setup()
 	_start_server()
 
 
-func _load_resources():
-	_player_res = preload("res://scenes/player.tscn")
-	
+func _load_resources() -> void:
+	_player_res = preload("res://scenes/characters/player.tscn")
+
+
+func _setup() -> void:
+	combat = CombatServer.new()
+	combat.name = "CombatServer"
+	add_child(combat)
 
 func _start_server() -> void:
 	Log.ok(_net.create_server(port))
@@ -34,7 +42,7 @@ func _on_peer_connected(session_id: int) -> void:
 
 func _on_peer_disconnected(session_id: int) -> void:
 	Log.i("[Session %d] disconnected" % session_id)
-	var player := get_node("/root/World/Players/P%d" % session_id)
+	var player := get_node("/root/GameWorld/Players/P%d" % session_id)
 	_players.remove_child(player)
 	StateServer.remove_player_state(session_id)
 

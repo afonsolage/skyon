@@ -3,7 +3,10 @@ extends Node
 var ip := "127.0.0.1"
 var port := 44001 
 
+var combat : CombatServer
+
 var _net := NetworkedMultiplayerENet.new()
+
 
 func _ready() -> void:
 	if not GameWorld.is_on_world():
@@ -28,14 +31,21 @@ func _on_connection_lost() -> void:
 
 func _on_connection_succeeded() -> void:
 	Log.i("Succesfully connected!")
-	join_world()
+	_setup()
+	_join_world()
 
 
 func _on_connection_failed() -> void:
 	Log.e("Failed to connect")
 
 
-func join_world() -> void:
+func _setup() -> void:
+	combat = CombatServer.new()
+	combat.name = "CombatServer"
+	add_child(combat)
+
+
+func _join_world() -> void:
 	rpc_id(1, "join_world")
 
 

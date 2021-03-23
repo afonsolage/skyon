@@ -10,6 +10,11 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Node",
+"class": "CombatServer",
+"language": "GDScript",
+"path": "res://scripts/components/combat_server.gd"
+}, {
+"base": "Node",
 "class": "GameWorld",
 "language": "GDScript",
 "path": "res://scripts/nodes/game_world.gd"
@@ -22,7 +27,7 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "HeightMap",
 "language": "GDScript",
-"path": "res://scripts/components/height_map.gd"
+"path": "res://scripts/shared/height_map.gd"
 }, {
 "base": "Reference",
 "class": "HeightMapGenerator",
@@ -45,6 +50,7 @@ _global_script_classes=[ {
 "path": "res://scripts/nodes/terrain.gd"
 } ]
 _global_script_class_icons={
+"CombatServer": "",
 "GameWorld": "",
 "GravityBody": "",
 "HeightMap": "",

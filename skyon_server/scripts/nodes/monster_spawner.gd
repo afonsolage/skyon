@@ -1,6 +1,6 @@
 extends Node
 
-onready var monster_res := preload("res://scenes/monster.tscn")
+onready var monster_res := preload("res://scenes/monsters/monster.tscn")
 
 var _uid_cnt: int = 1
 

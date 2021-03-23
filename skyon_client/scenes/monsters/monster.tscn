@@ -32,7 +32,7 @@ nodes/run_scale/node = SubResource( 4 )
 nodes/run_scale/position = Vector2( -78, 237 )
 nodes/speed/node = SubResource( 5 )
 nodes/speed/position = Vector2( 140, 100 )
-node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "speed", "run_scale", 0, "Animation 2", "idle_scale", 0, "Animation" ]
+node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "speed", "idle_scale", 0, "Animation", "run_scale", 0, "Animation 2" ]
 
 [sub_resource type="CylinderShape" id=7]
 radius = 0.466427
@@ -68,7 +68,7 @@ parameters/idle_scale/scale = 1.0
 parameters/run_scale/scale = 2.0
 parameters/speed/blend_amount = 0.0
 
-[node name="TerrainCollision" type="CollisionShape" parent="."]
+[node name="CollisionBody" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.577811, 0 )
 shape = SubResource( 7 )
 
