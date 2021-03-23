@@ -27,10 +27,10 @@ func _ready() -> void:
 	_gravity_body = GravityBody.new(self)
 	var game_world := GameWorld.get_instance()
 	if game_world:
-		game_world.connect("cleared_path", self, "_on_path_cleared")
-		game_world.connect("selected_path", self, "_on_path_selected")
-		game_world.connect("cleared_target", self, "_on_target_cleared")
-		game_world.connect("selected_target", self, "_on_target_selected")
+		Log.ok(game_world.connect("cleared_path", self, "_on_path_cleared"))
+		Log.ok(game_world.connect("selected_path", self, "_on_path_selected"))
+		Log.ok(game_world.connect("cleared_target", self, "_on_target_cleared"))
+		Log.ok(game_world.connect("selected_target", self, "_on_target_selected"))
 		_terrain = game_world.terrain
 		
 	
@@ -80,7 +80,7 @@ func _move_to_target() -> void:
 		var look_at := Vector3(_target_path.x, self.translation.y, _target_path.z)
 		self.look_at(look_at, Vector3.UP)
 		
-		self.move_and_slide(-self.transform.basis.z * move_speed)
+		var _velocity := self.move_and_slide(-self.transform.basis.z * move_speed)
 
 		var next_node_2d := Vector2(_target_path.x, _target_path.z)
 		var transaltion_2d := Vector2(self.translation.x, self.translation.z)

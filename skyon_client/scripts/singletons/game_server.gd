@@ -17,12 +17,12 @@ func _ready() -> void:
 
 
 func _connect_to_server() -> void:
-	_net.create_client(ip, port)
+	Log.ok(_net.create_client(ip, port))
 	get_tree().set_network_peer(_net)
 	
-	_net.connect("connection_succeeded", self, "_on_connection_succeeded")
-	_net.connect("connection_failed", self, "_on_connection_failed")
-	_net.connect("server_disconnected", self, "_on_connection_lost")
+	Log.ok(_net.connect("connection_succeeded", self, "_on_connection_succeeded"))
+	Log.ok(_net.connect("connection_failed", self, "_on_connection_failed"))
+	Log.ok(_net.connect("server_disconnected", self, "_on_connection_lost"))
 
 
 func _on_connection_lost() -> void:

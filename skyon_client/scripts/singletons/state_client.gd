@@ -10,7 +10,7 @@ func set_states(states: Dictionary) -> void:
 	else:
 		last_state_time = states.T
 	
-	states.erase("T")
+	var _erased := states.erase("T")
 	
 	for state in states:
 		var type: String = state.left(1)
@@ -20,7 +20,8 @@ func set_states(states: Dictionary) -> void:
 			_set_monster_state(state, states[state])
 
 
-func _set_player_state(id: String, state: Dictionary):
+func _set_player_state(_id: String, _state: Dictionary):
+	# TODO: set other players state
 	pass
 
 

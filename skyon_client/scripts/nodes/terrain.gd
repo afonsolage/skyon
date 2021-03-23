@@ -11,13 +11,13 @@ func _ready():
 	height_map.load_from_resource("user://terrain.tmp")
 	_setup_a_star()
 
-func find_path_to(from: Vector3, to: Vector3) -> PoolVector3Array:
-	var res := PoolVector3Array()
-	
-	var from_id := _a_star.get_closest_point(from)
-	var to_id := _a_star.get_closest_point(to)
-	
-	return _a_star.get_point_path(from_id, to_id);
+#func find_path_to(from: Vector3, to: Vector3) -> PoolVector3Array:
+#	var res := PoolVector3Array()
+#
+#	var from_id := _a_star.get_closest_point(from)
+#	var to_id := _a_star.get_closest_point(to)
+#
+#	return _a_star.get_point_path(from_id, to_id);
 
 
 func _setup_a_star() -> void:

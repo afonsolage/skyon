@@ -45,7 +45,7 @@ func scale(value: float) -> void:
 
 func save_to_resource(path: String) -> void:
 	var file := File.new()
-	file.open(path, File.WRITE)
+	Log.ok(file.open(path, File.WRITE))
 	file.store_var(_size)
 	file.store_var(_buffer)
 	file.close()
@@ -53,7 +53,7 @@ func save_to_resource(path: String) -> void:
 
 func load_from_resource(path: String) -> void:
 	var file := File.new()
-	file.open(path, File.READ)
+	Log.ok(file.open(path, File.READ))
 	_size = file.get_var() as int
 	_buffer = file.get_var() as PoolRealArray
 	file.close()

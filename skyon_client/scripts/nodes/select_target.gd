@@ -3,10 +3,12 @@ extends Spatial
 
 enum TargetType {
 	TARGET,
+	FOLLOW,
 	PATH,
 }
 
 const _target_color = Color(0.0, 0.0, 0.8, 0.5)
+const _follow_color = Color(0.8, 0.0, 0.0, 0.5)
 const _path_color = Color(0.0, 0.8, 0.0, 0.5)
 
 onready var _target_anim := $Target/AnimationPlayer
@@ -30,6 +32,9 @@ func reset(target_type: int, position: Vector3 = Vector3.ZERO) -> void:
 	if target_type == TargetType.TARGET:
 		_target_mesh.get("material/0").albedo_color = _target_color
 		_select_mesh.get("material/0").set_shader_param("albedo", _target_color)
+	elif target_type == TargetType.FOLLOW:
+		_target_mesh.get("material/0").albedo_color = _follow_color
+		_select_mesh.get("material/0").set_shader_param("albedo", _follow_color)
 	else:
 		_target_mesh.get("material/0").albedo_color = _path_color
 		_select_mesh.get("material/0").set_shader_param("albedo", _path_color)

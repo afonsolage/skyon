@@ -8,7 +8,7 @@ var _follow_target : Spatial
 var _click_target : Vector2
 var _click_path : Vector2
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if not _follow_target:
 		var game_world := GameWorld.get_instance()
 		if game_world:

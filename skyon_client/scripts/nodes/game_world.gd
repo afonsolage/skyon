@@ -28,7 +28,6 @@ func _ready() -> void:
 	_select_target_path = _select_path_gizmo_res.instance() as SelectTarget
 	_select_target_path.name = "SelectionNodePath"
 	_select_target_path.visible = false
-	
 
 
 func spawn_main_player(position: Vector3) -> void:
@@ -40,10 +39,18 @@ func spawn_main_player(position: Vector3) -> void:
 
 
 func select_target(target: Node, follow_target: bool = false) -> void:
+	if follow_target and target == main_player:
+		# can't follow it self
+		return
+	
+	
 	if target and not target == _current_target:
 		clear_selection(true, follow_target)
 		
-		_select_target_node.reset(SelectTarget.TargetType.TARGET)
+		if follow_target:
+			_select_target_node.reset(SelectTarget.TargetType.FOLLOW)
+		else:
+			_select_target_node.reset(SelectTarget.TargetType.TARGET)
 		
 		target.add_child(_select_target_node)
 		_current_target = target
@@ -61,6 +68,7 @@ func select_path(position: Vector3) -> void:
 	
 	self.emit_signal("selected_path", position)
 
+
 func clear_selection(target: bool = true, path: bool = true) -> void:
 	if target and has_target():
 		_current_target.remove_child(_select_target_node)
@@ -75,7 +83,6 @@ func clear_selection(target: bool = true, path: bool = true) -> void:
 		_current_path = Vector3.ZERO
 		
 		self.emit_signal("cleared_path")
-		
 
 
 func has_target() -> bool:
