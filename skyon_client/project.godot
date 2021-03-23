@@ -9,16 +9,6 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Node",
-"class": "CombatServer",
-"language": "GDScript",
-"path": "res://scripts/components/combat_server.gd"
-}, {
-"base": "Node",
-"class": "GameWorld",
-"language": "GDScript",
-"path": "res://scripts/nodes/game_world.gd"
-}, {
 "base": "Object",
 "class": "GravityBody",
 "language": "GDScript",
@@ -39,6 +29,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/shared/log.gd"
 }, {
+"base": "NodeSystem",
+"class": "NetSystem",
+"language": "GDScript",
+"path": "res://scripts/systems/net_system.gd"
+}, {
+"base": "Node",
+"class": "NodeSystem",
+"language": "GDScript",
+"path": "res://scripts/shared/node_system.gd"
+}, {
 "base": "Spatial",
 "class": "SelectTarget",
 "language": "GDScript",
@@ -48,27 +48,28 @@ _global_script_classes=[ {
 "class": "Terrain",
 "language": "GDScript",
 "path": "res://scripts/nodes/terrain.gd"
+}, {
+"base": "NodeSystem",
+"class": "WorldSystem",
+"language": "GDScript",
+"path": "res://scripts/systems/world_system.gd"
 } ]
 _global_script_class_icons={
-"CombatServer": "",
-"GameWorld": "",
 "GravityBody": "",
 "HeightMap": "",
 "HeightMapGenerator": "",
 "Log": "",
+"NetSystem": "",
+"NodeSystem": "",
 "SelectTarget": "",
-"Terrain": ""
+"Terrain": "",
+"WorldSystem": ""
 }
 
 [application]
 
 config/name="Skyon"
 run/main_scene="res://scenes/game_world.tscn"
-
-[autoload]
-
-GameServer="*res://scripts/singletons/game_server.gd"
-StateClient="*res://scripts/singletons/state_client.gd"
 
 [editor_plugins]
 

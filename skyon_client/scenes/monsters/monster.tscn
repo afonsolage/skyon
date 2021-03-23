@@ -7,6 +7,7 @@
 [ext_resource path="res://resources/material/default.material" type="Material" id=5]
 [ext_resource path="res://import/model/monster/monster.glb" type="PackedScene" id=6]
 
+
 [sub_resource type="AnimationNodeAnimation" id=1]
 animation = "run_loop"
 

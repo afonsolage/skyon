@@ -25,16 +25,16 @@ onready var attack_area : Area = $AttackArea
 func _ready() -> void:
 
 	_gravity_body = GravityBody.new(self)
-	var game_world := GameWorld.get_instance()
-	if game_world:
-		Log.ok(game_world.connect("cleared_path", self, "_on_path_cleared"))
-		Log.ok(game_world.connect("selected_path", self, "_on_path_selected"))
-		Log.ok(game_world.connect("cleared_target", self, "_on_target_cleared"))
-		Log.ok(game_world.connect("selected_target", self, "_on_target_selected"))
-		_terrain = game_world.terrain
+	var world_system := WorldSystem.instance()
+	Log.ok(world_system.connect("cleared_path", self, "_on_path_cleared"))
+	Log.ok(world_system.connect("selected_path", self, "_on_path_selected"))
+	Log.ok(world_system.connect("cleared_target", self, "_on_target_cleared"))
+	Log.ok(world_system.connect("selected_target", self, "_on_target_selected"))
+	
+	_terrain = world_system.terrain
 		
 	
-	GameServer.combat.combat_test()
+	# GameServer.combat.combat_test()
 
 
 
@@ -71,6 +71,7 @@ func _follow_target() -> void:
 	
 	_target_path = _target_follow.translation
 
+
 func _move_to_target() -> void:
 	if _target_path.length() > 0:
 		if not _moving_to_path:
@@ -99,7 +100,7 @@ func _move_to_target() -> void:
 	if _moving_to_path and _target_path == Vector3.ZERO:
 		_moving_to_path = false
 		animation_tree.set("parameters/speed/blend_amount", 0.0)
-		GameWorld.get_instance().clear_selection(false, true)
+		WorldSystem.instance().clear_selection(false, true)
 
 
 func _send_state() -> void:
@@ -107,7 +108,7 @@ func _send_state() -> void:
 		"T": OS.get_system_time_msecs(),
 		"P": self.global_transform.origin
 	}
-	GameServer.send_state(_state)
+	WorldSystem.instance().send_state(_state)
 
 
 func _attacking_started() -> void:
@@ -137,6 +138,5 @@ func _on_target_selected(node: Spatial, follow: bool) -> void:
 	if not node or not follow:
 		return;
 
-	Log.d(node)
-
 	_target_follow = node
+

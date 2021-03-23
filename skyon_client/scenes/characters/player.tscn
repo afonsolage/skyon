@@ -85,11 +85,14 @@ transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 0, 0
 
 [node name="base_character" parent="Body/Model" instance=ExtResource( 1 )]
 
+[node name="Skeleton" parent="Body/Model/base_character/BodyArmature" index="0"]
+bones/12/bound_children = [ NodePath("HandRAttachment") ]
+
 [node name="Body" parent="Body/Model/base_character/BodyArmature/Skeleton" index="0"]
 material/0 = ExtResource( 5 )
 
 [node name="HandRAttachment" type="BoneAttachment" parent="Body/Model/base_character/BodyArmature/Skeleton" index="1"]
-transform = Transform( -0.208115, 0.0482264, 0.976915, 0.959709, 0.202864, 0.194435, -0.188804, 0.978019, -0.0885025, -0.252226, 0.361236, 0.0550949 )
+transform = Transform( -0.227236, 0.0412518, 0.972966, 0.972226, 0.0671123, 0.224217, -0.0560486, 0.996892, -0.0553565, -0.250622, 0.329585, 0.0317952 )
 bone_name = "hand_attachment_r"
 
 [node name="1h_sword" parent="Body/Model/base_character/BodyArmature/Skeleton/HandRAttachment" instance=ExtResource( 2 )]
@@ -109,6 +112,5 @@ collision_mask = 14
 [node name="CollisionShape" type="CollisionShape" parent="AttackArea"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, -0.5 )
 shape = SubResource( 10 )
-[connection signal="body_entered" from="AttackArea" to="." method="_on_attack_area_body_entered"]
 
 [editable path="Body/Model/base_character"]

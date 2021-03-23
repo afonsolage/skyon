@@ -6,6 +6,7 @@ enum AIState {
 }
 
 const IDLE_TIMEOUT := 3.0
+const MAX_WALK_RADIOUS := 15
 
 export(float) var move_speed := 1.0
 export(float) var jump_force := 4.0
@@ -16,6 +17,7 @@ var _ai_next_state: float
 var _move_to: Vector3
 var _on_wall: bool = false
 
+onready var _original_position := self.translation
 onready var _wall_raycast := $WallRayCast
 
 func _ready() -> void:
@@ -64,5 +66,8 @@ func _ai_process_current_state() -> void:
 		
 		if _wall_raycast.is_colliding() and _gravity_body.is_grounded():
 			_gravity_body.jump(jump_force)
+			
+		if _original_position.distance_to(self.translation) > MAX_WALK_RADIOUS:
+			_ai_state = AIState.IDLE
 	else:
 		Log.e("Invalid ai state %d" % _ai_state)

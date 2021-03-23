@@ -9,10 +9,15 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Object",
+"class": "CombatComponent",
+"language": "GDScript",
+"path": "res://scripts/components/combat_component.gd"
+}, {
 "base": "Node",
 "class": "CombatServer",
 "language": "GDScript",
-"path": "res://scripts/components/combat_server.gd"
+"path": "res://scripts/nodes/combat_server.gd"
 }, {
 "base": "Object",
 "class": "GravityBody",
@@ -33,24 +38,38 @@ _global_script_classes=[ {
 "class": "Log",
 "language": "GDScript",
 "path": "res://scripts/shared/log.gd"
+}, {
+"base": "NodeSystem",
+"class": "NetSystem",
+"language": "GDScript",
+"path": "res://scripts/systems/net_system.gd"
+}, {
+"base": "Node",
+"class": "NodeSystem",
+"language": "GDScript",
+"path": "res://scripts/shared/node_system.gd"
+}, {
+"base": "NodeSystem",
+"class": "WorldSystem",
+"language": "GDScript",
+"path": "res://scripts/systems/world_system.gd"
 } ]
 _global_script_class_icons={
+"CombatComponent": "",
 "CombatServer": "",
 "GravityBody": "",
 "HeightMap": "",
 "HeightMapGenerator": "",
-"Log": ""
+"Log": "",
+"NetSystem": "",
+"NodeSystem": "",
+"WorldSystem": ""
 }
 
 [application]
 
 config/name="Skyon Server"
 run/main_scene="res://scenes/main.tscn"
-
-[autoload]
-
-GameServer="*res://scripts/singletons/game_server.gd"
-StateServer="*res://scripts/singletons/state_server.gd"
 
 [display]
 

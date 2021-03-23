@@ -10,9 +10,9 @@ var _click_path : Vector2
 
 func _physics_process(_delta):
 	if not _follow_target:
-		var game_world := GameWorld.get_instance()
-		if game_world:
-			_follow_target = game_world.main_player
+		var world_system := WorldSystem.instance() as WorldSystem
+		if world_system:
+			_follow_target = world_system.main_player
 	else:
 		self.transform.origin = _follow_target.transform.origin - offset
 	
@@ -40,9 +40,9 @@ func _select_object() -> void:
 	
 	if result.collider and result.collider is Spatial \
 			and (result.collider as Spatial).is_in_group("Targetable"):
-		GameWorld.get_instance().select_target(result.collider)
+		WorldSystem.instance().select_target(result.collider)
 	else:
-		GameWorld.get_instance().clear_selection(true, false)
+		WorldSystem.instance().clear_selection(true, false)
 
 
 func _select_path() -> void:
@@ -50,13 +50,13 @@ func _select_path() -> void:
 	
 	if result.collider and result.collider is Spatial \
 			and (result.collider as Spatial).is_in_group("Terrain"):
-		GameWorld.get_instance().select_path(result.position)
+		WorldSystem.instance().select_path(result.position)
 	elif result.collider and result.collider is Spatial \
 			and (result.collider as Spatial).is_in_group("Targetable"):
-		GameWorld.get_instance().select_target(result.collider, true)
+		WorldSystem.instance().select_target(result.collider, true)
 	else:
 		Log.d(result)
-		GameWorld.get_instance().clear_selection(false, true)
+		WorldSystem.instance().clear_selection(false, true)
 
 
 func _do_ray_cast(target: Vector2) -> Dictionary:
