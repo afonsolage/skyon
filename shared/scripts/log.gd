@@ -23,13 +23,14 @@ static func _l(type: String, msg, is_err: bool = false) -> void:
 	var stack := get_stack()
 	
 	var tm := OS.get_time()
-	var callee: Dictionary = stack[2] if stack.size() > 3 else stack[1]
-	var logmsg = "[%s][%02d:%02d:%02d][%s] %s" % [
+	var callee: Dictionary = stack[2] if stack.size() > 2 else stack[1]
+	var logmsg = "[%s][%02d:%02d:%02d][%s:%03d] %s" % [
 		type, 
 		tm.hour, 
 		tm.minute,
 		tm.second,
 		callee.source.replace("res://scripts/", ""),
+		callee.line,
 		msg,
 	]
 	if is_err:

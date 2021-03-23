@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://import/model/character/base_character.glb" type="PackedScene" id=1]
 [ext_resource path="res://import/model/items/1h_sword.glb" type="PackedScene" id=2]
@@ -27,7 +27,7 @@ animation = "run_loop"
 [sub_resource type="AnimationNodeBlend2" id=7]
 
 [sub_resource type="AnimationNodeBlendTree" id=8]
-graph_offset = Vector2( -599, 68 )
+graph_offset = Vector2( -599, 330 )
 nodes/1h_attack_animation/node = SubResource( 1 )
 nodes/1h_attack_animation/position = Vector2( -120, 460 )
 nodes/attack/node = SubResource( 2 )
@@ -49,9 +49,13 @@ node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output"
 radius = 0.300838
 height = 1.77735
 
+[sub_resource type="BoxShape" id=10]
+extents = Vector3( 0.5, 0.8, 0.5 )
+
 [node name="Player" type="KinematicBody" groups=[
 "Targetable",
 ]]
+collision_layer = 4
 script = ExtResource( 4 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -70,7 +74,7 @@ parameters/idle_scale/scale = 1.0
 parameters/run_scale/scale = 1.5
 parameters/speed/blend_amount = 0.0
 
-[node name="CollisionShape" type="CollisionShape" parent="."]
+[node name="TerrainCollision" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.887131, 0.00825965 )
 shape = SubResource( 9 )
 
@@ -88,7 +92,7 @@ bones/12/bound_children = [ NodePath("HandRAttachment") ]
 material/0 = ExtResource( 5 )
 
 [node name="HandRAttachment" type="BoneAttachment" parent="Body/Model/base_character/BodyArmature/Skeleton" index="1"]
-transform = Transform( -0.212049, 0.0463203, 0.976161, 0.964038, 0.173667, 0.201175, -0.160209, 0.983714, -0.0814806, -0.251987, 0.353964, 0.0501512 )
+transform = Transform( -0.213062, 0.0458615, 0.975962, 0.965032, 0.165997, 0.202875, -0.152702, 0.985059, -0.0796256, -0.251936, 0.35209, 0.0488474 )
 bone_name = "hand_attachment_r"
 
 [node name="1h_sword" parent="Body/Model/base_character/BodyArmature/Skeleton/HandRAttachment" instance=ExtResource( 2 )]
@@ -97,5 +101,17 @@ bone_name = "hand_attachment_r"
 transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 0.4, 0 )
 enabled = true
 cast_to = Vector3( 0, 0, 0.85 )
+
+[node name="AttackArea" type="Area" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.304004 )
+input_ray_pickable = false
+monitorable = false
+collision_layer = 0
+collision_mask = 14
+
+[node name="CollisionShape" type="CollisionShape" parent="AttackArea"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, -0.5 )
+shape = SubResource( 10 )
+[connection signal="body_entered" from="AttackArea" to="." method="_on_attack_area_body_entered"]
 
 [editable path="Body/Model/base_character"]

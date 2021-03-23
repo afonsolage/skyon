@@ -1,7 +1,9 @@
 class_name GameWorld
 extends Node
 
+signal selected_target(target, follow)
 signal selected_path(position)
+signal cleared_target()
 signal cleared_path()
 
 var main_player : Spatial
@@ -9,6 +11,7 @@ var main_player : Spatial
 var _select_target_node : SelectTarget
 var _select_target_path : SelectTarget
 var _current_target : Spatial
+var _follow_target : bool
 var _current_path : Vector3 = Vector3.ZERO
 
 onready var monsters : Node = $Monsters
@@ -36,18 +39,21 @@ func spawn_main_player(position: Vector3) -> void:
 	self.add_child(main_player)
 
 
-func select_target(target: Node) -> void:
+func select_target(target: Node, follow_target: bool = false) -> void:
 	if target and not target == _current_target:
-		clear_selection(true, false)
+		clear_selection(true, follow_target)
 		
 		_select_target_node.reset(SelectTarget.TargetType.TARGET)
 		
 		target.add_child(_select_target_node)
 		_current_target = target
+		_follow_target = follow_target
+
+		self.emit_signal("selected_target", _current_target, _follow_target)
 
 
 func select_path(position: Vector3) -> void:
-	clear_selection(false, true)
+	clear_selection(_follow_target, true)
 	
 	_select_target_path.reset(SelectTarget.TargetType.PATH, position)
 	self.add_child(_select_target_path)
@@ -60,6 +66,8 @@ func clear_selection(target: bool = true, path: bool = true) -> void:
 		_current_target.remove_child(_select_target_node)
 		_select_target_node.visible = false
 		_current_target = null
+		
+		self.emit_signal("cleared_target")
 		
 	if path and has_position():
 		self.remove_child(_select_target_path)

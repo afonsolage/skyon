@@ -51,6 +51,9 @@ func _select_path() -> void:
 	if result.collider and result.collider is Spatial \
 			and (result.collider as Spatial).is_in_group("Terrain"):
 		GameWorld.get_instance().select_path(result.position)
+	elif result.collider and result.collider is Spatial \
+			and (result.collider as Spatial).is_in_group("Targetable"):
+		GameWorld.get_instance().select_target(result.collider, true)
 	else:
 		Log.d(result)
 		GameWorld.get_instance().clear_selection(false, true)
