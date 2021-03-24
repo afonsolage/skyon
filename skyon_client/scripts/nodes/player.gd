@@ -25,13 +25,12 @@ onready var attack_area : Area = $AttackArea
 func _ready() -> void:
 
 	_gravity_body = GravityBody.new(self)
-	var world_system := WorldSystem.instance()
-	Log.ok(world_system.connect("cleared_path", self, "_on_path_cleared"))
-	Log.ok(world_system.connect("selected_path", self, "_on_path_selected"))
-	Log.ok(world_system.connect("cleared_target", self, "_on_target_cleared"))
-	Log.ok(world_system.connect("selected_target", self, "_on_target_selected"))
+	Log.ok(Systems.world.connect("cleared_path", self, "_on_path_cleared"))
+	Log.ok(Systems.world.connect("selected_path", self, "_on_path_selected"))
+	Log.ok(Systems.world.connect("cleared_target", self, "_on_target_cleared"))
+	Log.ok(Systems.world.connect("selected_target", self, "_on_target_selected"))
 	
-	_terrain = world_system.terrain
+	_terrain = Systems.world.terrain
 		
 	
 	# GameServer.combat.combat_test()
@@ -55,7 +54,10 @@ func _physics_process(delta: float) -> void:
 
 func _do_attack() -> void:
 	animation_tree.set("parameters/attack/active", true)
-	Log.d(attack_area.get_overlapping_bodies())
+	for body in attack_area.get_overlapping_bodies():
+		var pbody := body as PhysicsBody
+		if pbody.is_in_group("Enemy"):
+			Log.d("Attacking %s " % pbody.name )
 
 
 func _follow_target() -> void:
@@ -100,7 +102,7 @@ func _move_to_target() -> void:
 	if _moving_to_path and _target_path == Vector3.ZERO:
 		_moving_to_path = false
 		animation_tree.set("parameters/speed/blend_amount", 0.0)
-		WorldSystem.instance().clear_selection(false, true)
+		Systems.world.clear_selection(false, true)
 
 
 func _send_state() -> void:
@@ -108,7 +110,7 @@ func _send_state() -> void:
 		"T": OS.get_system_time_msecs(),
 		"P": self.global_transform.origin
 	}
-	WorldSystem.instance().send_state(_state)
+	Systems.world.send_state(_state)
 
 
 func _attacking_started() -> void:
@@ -139,4 +141,3 @@ func _on_target_selected(node: Spatial, follow: bool) -> void:
 		return;
 
 	_target_follow = node
-

@@ -1,17 +1,10 @@
 class_name WorldSystem
-extends NodeSystem
+extends Node
 
 signal selected_target(target, follow)
 signal selected_path(position)
 signal cleared_target()
 signal cleared_path()
-
-static func instance() -> WorldSystem:
-	if not is_on_world():
-		Log.e("The game server isn't loaded. You can't call it from here.")
-		return null
-	else:
-		return _get_root().get_node("/root/Main/WorldSystem") as WorldSystem
 
 var main_player : Spatial
 

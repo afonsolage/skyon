@@ -28,7 +28,7 @@ export(bool) var disable_randomness := false
 
 func set_update(value):
 	update = false
-	self.remove_child(self.get_child(0))
+	self.get_child(0).queue_free()
 	
 	var result := _generate_terrain_mesh()
 	var mesh : Mesh = result[0]

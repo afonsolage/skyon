@@ -1,3 +1,4 @@
+class_name Player
 extends KinematicBody
 
 export(float) var move_speed := 3.0
@@ -5,8 +6,9 @@ export(float) var boost_speed := 6.0
 export(float) var turn_speed := 3.0
 export(float) var jump_force := 5.0
 
-var _gravity_body: GravityBody
 var session_id: int
+
+var _gravity_body: GravityBody
 
 func _ready() -> void:
 	_gravity_body = GravityBody.new(self)
