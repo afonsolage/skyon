@@ -11,7 +11,7 @@ func _ready() -> void:
 	_max_foreground_size = _foreground.region_rect.size.x
 
 
-func _process(delta):
+func _process(_delta: float) -> void:
 	var camera := get_viewport().get_camera()
 	if not camera:
 		return
@@ -37,7 +37,6 @@ func _get_max_health() -> int:
 
 func _update_foreground() -> void:
 	var rate := float(health) / float(max_health)
-	Log.d(rate)
 	_foreground.region_rect.size.x = rate * _max_foreground_size
 	_foreground.offset.x = (_foreground.region_rect.size.x - _max_foreground_size) / 2.0
 

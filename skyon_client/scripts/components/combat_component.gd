@@ -1,6 +1,8 @@
 class_name CombatComponent
 extends Object
 
+signal health_changed
+
 var health : int = 100
 var max_health : int = 100
 var attack : int = 20

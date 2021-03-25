@@ -10,6 +10,10 @@ var combat: CombatComponent
 onready var _animation_tree := $AnimationTree
 onready var _health_bar := $HealthBar
 
+func _ready() -> void:
+	combat = CombatComponent.new(self)
+	Log.ok(combat.connect("health_changed", self, "_on_health_changed"))
+	
 func set_state(state: Dictionary) -> void:
 	self.translation = state.P
 	self.rotation_degrees = state.R
@@ -19,10 +23,12 @@ func set_state(state: Dictionary) -> void:
 func set_full_state(state: Dictionary) -> void:
 	set_state(state.S)
 	
-	combat = CombatComponent.new(self)
 	combat.decode(state.C)
+	
+	_health_bar.max_health = combat.max_health
+	_health_bar.health = combat.health
 
 
-func apply_damage(damage: int) -> void:
-	Log.d("Applaying damage: %s" % damage)
-	_health_bar.health -= damage
+func _on_health_changed() -> void:
+	_health_bar.max_health = combat.max_health
+	_health_bar.health = combat.health

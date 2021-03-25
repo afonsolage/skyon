@@ -10,6 +10,16 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Object",
+"class": "AIComponent",
+"language": "GDScript",
+"path": "res://scripts/components/ai_component.gd"
+}, {
+"base": "Node",
+"class": "AISystem",
+"language": "GDScript",
+"path": "res://scripts/systems/ai_system.gd"
+}, {
+"base": "Object",
 "class": "CombatComponent",
 "language": "GDScript",
 "path": "res://scripts/components/combat_component.gd"
@@ -20,9 +30,9 @@ _global_script_classes=[ {
 "path": "res://scripts/systems/combat_system.gd"
 }, {
 "base": "Object",
-"class": "GravityBody",
+"class": "GravityComponent",
 "language": "GDScript",
-"path": "res://scripts/shared/gravity_body.gd"
+"path": "res://scripts/components/gravity_component.gd"
 }, {
 "base": "Reference",
 "class": "HeightMap",
@@ -38,6 +48,16 @@ _global_script_classes=[ {
 "class": "Log",
 "language": "GDScript",
 "path": "res://scripts/shared/log.gd"
+}, {
+"base": "KinematicBody",
+"class": "Monster",
+"language": "GDScript",
+"path": "res://scripts/nodes/monster.gd"
+}, {
+"base": "Node",
+"class": "MonsterSystem",
+"language": "GDScript",
+"path": "res://scripts/systems/monster_system.gd"
 }, {
 "base": "Node",
 "class": "NetSystem",
@@ -55,12 +75,16 @@ _global_script_classes=[ {
 "path": "res://scripts/systems/world_system.gd"
 } ]
 _global_script_class_icons={
+"AIComponent": "",
+"AISystem": "",
 "CombatComponent": "",
 "CombatSystem": "",
-"GravityBody": "",
+"GravityComponent": "",
 "HeightMap": "",
 "HeightMapGenerator": "",
 "Log": "",
+"Monster": "",
+"MonsterSystem": "",
 "NetSystem": "",
 "Player": "",
 "WorldSystem": ""
