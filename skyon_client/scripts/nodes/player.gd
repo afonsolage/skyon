@@ -13,21 +13,16 @@ onready var _animation_tree: AnimationTree = $AnimationTree
 onready var _interaction_area : Area = $InteractionArea
 onready var _wall_raycast : RayCast = $WallRayCast
 
-func _physics_process(_delta: float) -> void:
-	_send_state()
-
-
 func is_on_wall() -> bool:
 	return _wall_raycast.is_colliding()
 
 
-func _send_state() -> void:
-	_state = {
-		"T": OS.get_system_time_msecs(),
+func get_state() -> Dictionary:
+	return {
 		"P": self.translation,
-		"R": self.rotation_degrees
+		"R": self.rotation_degrees,
+		"A": 0, # TODO: set animation
 	}
-	Systems.world.send_state(_state)
 
 
 func _attacking_started() -> void:

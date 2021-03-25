@@ -1,7 +1,7 @@
 class_name WorldSystem
 extends Node
 
-var main_player : Spatial
+var main_player : MainPlayer
 
 var _last_state_time : int = 0
 
@@ -11,14 +11,11 @@ onready var _monster_res := preload("res://scenes/monsters/monster.tscn")
 
 func _physics_process(delta: float) -> void:
 	_process_gravity(delta)
+	_send_state()
 
 
 func get_camera() -> Camera:
 	return get_viewport().get_camera()
-
-
-func send_state(state: Dictionary) -> void:
-	rpc_unreliable_id(1, "set_player_state", state)
 
 
 func get_spatial(id: String) -> Spatial:
@@ -47,6 +44,12 @@ func has_spatial(id: String) -> bool:
 			Log.e("Unknown spatial type on id %s" % id)
 
 	return false
+
+
+func _send_state() -> void:
+	var state := main_player.get_state()
+	state.T = OS.get_ticks_msec()
+	rpc_unreliable_id(1, "set_player_state", state)
 
 
 func _process_gravity(delta: float) -> void:
