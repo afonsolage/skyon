@@ -28,7 +28,7 @@ func _attack_target(attacker_node: Spatial, attacked_node: Spatial) -> Dictionar
 
 func _attack_combat(attacker: CombatComponent, attacked: CombatComponent) -> Dictionary:
 	var dmg := max(attacker.attack - attacked.defense, 0)
-	attacked.health -= dmg
+	attacked.health -= int(dmg)
 	
 	if attacked.health < 0:
 		#Trigger death

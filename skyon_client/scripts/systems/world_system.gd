@@ -34,14 +34,6 @@ func _ready() -> void:
 	_select_target_path.visible = false
 
 
-remote func spawn_main_player(position: Vector3) -> void:
-	main_player = load("res://scenes/characters/player.tscn").instance() as Spatial
-	main_player.name = "Main Player"
-	main_player.translate(position)
-
-	self.add_child(main_player)
-
-
 func select_target(target: Node, follow_target: bool = false) -> void:
 	if follow_target and target == main_player:
 		# can't follow it self
@@ -96,43 +88,8 @@ func has_position() -> bool:
 	return _current_path.length() > 0
 
 
-func _set_player_state(_id: String, _state: Dictionary):
-	# TODO: set other players state
-	pass
-
-
-func _set_monster_state(id: String, state: Dictionary):
-	var monster: Spatial = monsters.get_node_or_null("%s" % id)
-	
-	if not monster:
-		monster = _monster_res.instance()
-		monster.name = id
-		
-		monsters.add_child(monster)
-	else:
-		monster = monster as Spatial
-	
-	monster.set_state(state)
-
-
 func send_state(state: Dictionary) -> void:
 	rpc_unreliable_id(1, "set_player_state", state)
-
-
-remote func state_sync(states: Dictionary) -> void:
-	if states.T < _last_state_time:
-		Log.d("Discarting outdated states: %s" % [states])
-	else:
-		_last_state_time = states.T
-	
-	var _erased := states.erase("T")
-	
-	for state in states:
-		var type: String = state.left(1)
-		if type == "P":
-			_set_player_state(state, states[state])
-		elif type == "M":
-			_set_monster_state(state, states[state])
 
 
 func get_spatial(id: String) -> Spatial:
@@ -147,7 +104,83 @@ func get_spatial(id: String) -> Spatial:
 			Log.e("Unknown spatial type on id %s" % id)
 
 	return null
-	
+
+
 func _on_session_started():
 	rpc_id(1, "join_world")
 
+
+func _set_player_state(_id: String, _state: Dictionary):
+	# TODO: set other players state
+	pass
+
+
+func _set_monster_state(id: String, state: Dictionary) -> void:
+	var monster: Spatial = monsters.get_node_or_null("%s" % id)
+	
+	if not monster:
+		Log.d("Unable to set state. Monster %s not found" % id)
+		return
+	
+	monster.set_state(state)
+
+
+func _spawn(id: String, state: Dictionary) -> void:
+	var type := id.left(1)
+	match type:
+		"P":
+			#Not yet implemented!
+			pass
+		"M":
+			_spawn_monster(id, state)
+		_:
+			Log.e("Unknown spatial type on id %s" % id)
+
+
+func _spawn_monster(id: String, state: Dictionary) -> void:
+	var monster := _monster_res.instance()
+	monster.name = id
+
+	monsters.add_child(monster)
+
+	monster.set_full_state(state)
+
+remote func __state_sync(states: Dictionary) -> void:
+	if states.T < _last_state_time:
+		Log.d("Discarting outdated states: %s" % [states])
+	else:
+		_last_state_time = states.T
+	
+	var _erased := states.erase("T")
+	
+	for state in states:
+		var type: String = state.left(1)
+		match type:
+			"P":
+				_set_player_state(state, states[state])
+			"M":
+				_set_monster_state(state, states[state])
+			_:
+				Log.e("Unknown spatial type on id %s" % state)
+
+
+remote func __enter_on_area_of_interest(id: String, state: Dictionary) -> void:
+	if get_spatial(id):
+		Log.e("There is already an spatial with the id %s " % id)
+		return
+
+	_spawn(id, state)
+
+
+remote func __exit_from_area_of_interest(id: String) -> void:
+	var spatial := get_spatial(id)
+	if spatial:
+		spatial.queue_free()
+
+
+remote func __spawn_main_player(position: Vector3) -> void:
+	main_player = load("res://scenes/characters/player.tscn").instance() as Spatial
+	main_player.name = "Main Player"
+	main_player.translate(position)
+
+	self.add_child(main_player)

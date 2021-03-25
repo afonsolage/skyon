@@ -39,6 +39,13 @@ func get_state() -> Dictionary:
 	}
 
 
+func get_full_state() -> Dictionary:
+	return {
+		"S": get_state(),
+		"C": combat.encode(),
+	}
+
+
 func _ai_process(delta) -> void:
 	_ai_next_state -= delta
 	

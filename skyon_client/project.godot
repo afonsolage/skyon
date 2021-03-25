@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Object",
+"class": "CombatComponent",
+"language": "GDScript",
+"path": "res://scripts/components/combat_component.gd"
+}, {
 "base": "Node",
 "class": "CombatSystem",
 "language": "GDScript",
@@ -55,6 +60,7 @@ _global_script_classes=[ {
 "path": "res://scripts/systems/world_system.gd"
 } ]
 _global_script_class_icons={
+"CombatComponent": "",
 "CombatSystem": "",
 "GravityBody": "",
 "HeightMap": "",

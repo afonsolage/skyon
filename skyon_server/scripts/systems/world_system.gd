@@ -20,10 +20,7 @@ func _ready():
 
 func _physics_process(_delta: float) -> void:
 	_process_player_states(_player_states.duplicate(true))
-	var states := _get_states()
-	
-	if not states.empty():
-		_broadcast_states(states)
+	_broadcast_states()
 
 
 func get_player(session_id: int) -> Player:
@@ -65,23 +62,37 @@ func _get_states() -> Dictionary:
 	return states
 
 
-func _broadcast_states(states: Dictionary) -> void:
-	for session_id in Systems.net.get_sessions():
-		rpc_unreliable_id(session_id, "state_sync", states)
-
-
+func _broadcast_states() -> void:
+	for player in _players.get_children():
+		player = player as Player
+		
+		var state := {}
+		for body in player.area_of_interest.get_overlapping_bodies():
+			if not body.is_in_group("StateSync"):
+				continue
+			
+			state[body.name] = body.get_state()
+		
+		if not state.empty():
+			state.T = OS.get_ticks_msec()
+			rpc_unreliable_id(player.session_id, "__state_sync", state)
+		
 remote func join_world() -> void:
 	var session_id := get_tree().get_rpc_sender_id()
 	Log.i("[Session %d] joined!" % session_id)
 	
-	var player := _player_res.instance() as Spatial
+	var player := _player_res.instance() as Player
 	player.name = "P%d" % session_id
 	player.translate(Vector3(30, 30, 30))
 	player.add_to_group("StateSync")
-	
+	player.connect("area_of_interest_entered", 
+			self, "_on_player_area_of_interest_entered", [player])
+	player.connect("area_of_interest_exited", 
+			self, "_on_player_area_of_interest_exited", [player])	
+			
 	_players.add_child(player)
 
-	rpc_id(session_id, "spawn_main_player", Vector3(30, 10, 30))
+	rpc_id(session_id, "__spawn_main_player", Vector3(30, 10, 30))
 
 
 remote func set_player_state(state: Dictionary) -> void:
@@ -94,7 +105,22 @@ remote func set_player_state(state: Dictionary) -> void:
 	_player_states[session_id] = state
 
 
-
 func _on_session_disconnected(session_id):
 	remove_player_state(session_id)
 
+
+func _on_player_area_of_interest_entered(body: PhysicsBody, player: Player) -> void:
+	if not body.has_method("get_full_state"):
+		Log.d("Skipping the area entered since %s doesn't have `get_full_state" % body.name)
+		return
+
+	var state: Dictionary = body.get_full_state()
+	rpc_id(player.session_id, "__enter_on_area_of_interest", body.name, state)
+
+
+func _on_player_area_of_interest_exited(body: PhysicsBody, player: Player) -> void:
+	if not body.has_method("get_full_state"):
+		Log.d("Skipping the area exited since %s doesn't have `get_full_state" % body.name)
+		return
+	
+	rpc_id(player.session_id, "__exit_from_area_of_interest", body.name)

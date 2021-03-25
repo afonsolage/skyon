@@ -1,6 +1,9 @@
 class_name Player
 extends KinematicBody
 
+signal area_of_interest_entered(body)
+signal area_of_interest_exited(body)
+
 export(float) var move_speed := 3.0
 export(float) var boost_speed := 6.0
 export(float) var turn_speed := 3.0
@@ -11,6 +14,7 @@ var session_id: int
 var _gravity_body: GravityBody
 
 onready var combat := CombatComponent.new(self)
+onready var area_of_interest: Area = $AreaOfInterest
 onready var _attack_area: Area = $AttackArea
 
 func _ready() -> void:
@@ -26,6 +30,12 @@ func get_state() -> Dictionary:
 		"P": self.translation,
 		"R": self.rotation_degrees,
 		"A": 0, #TODO: Set animation
+	}
+
+func get_full_state() -> Dictionary:
+	return {
+		"S": get_state(),
+		"C": combat,
 	}
 
 
@@ -52,3 +62,17 @@ func get_attack_target() -> Spatial:
 			return body as Spatial
 	
 	return null
+
+
+func _on_AreaOfInterest_body_entered(body):
+	if body == self:
+		return
+	
+	self.emit_signal("area_of_interest_entered", body)
+
+
+func _on_AreaOfInterest_body_exited(body):
+	if body == self:
+		return
+		
+	self.emit_signal("area_of_interest_exited", body)
