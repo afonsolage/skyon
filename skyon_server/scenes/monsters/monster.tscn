@@ -2,8 +2,6 @@
 
 [ext_resource path="res://scripts/nodes/monster.gd" type="Script" id=1]
 
-
-
 [sub_resource type="CylinderShape" id=1]
 radius = 0.32
 height = 0.89
@@ -13,7 +11,10 @@ top_radius = 0.47
 bottom_radius = 0.47
 height = 1.16
 
-[node name="Monster" type="KinematicBody"]
+[node name="Monster" type="KinematicBody" groups=[
+"Enemy",
+"Targetable",
+]]
 collision_layer = 2
 script = ExtResource( 1 )
 

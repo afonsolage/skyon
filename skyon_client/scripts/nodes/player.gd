@@ -57,7 +57,7 @@ func _do_attack() -> void:
 	for body in attack_area.get_overlapping_bodies():
 		var pbody := body as PhysicsBody
 		if pbody.is_in_group("Enemy"):
-			Log.d("Attacking %s " % pbody.name )
+			Systems.combat.attack()
 
 
 func _follow_target() -> void:
@@ -108,7 +108,8 @@ func _move_to_target() -> void:
 func _send_state() -> void:
 	_state = {
 		"T": OS.get_system_time_msecs(),
-		"P": self.global_transform.origin
+		"P": self.translation,
+		"R": self.rotation_degrees
 	}
 	Systems.world.send_state(_state)
 

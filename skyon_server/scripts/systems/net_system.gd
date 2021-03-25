@@ -33,3 +33,5 @@ func _on_peer_disconnected(session_id: int) -> void:
 	self.emit_signal("session_disconnected", session_id)
 
 
+func get_sessions() -> PoolIntArray:
+	return get_tree().get_network_connected_peers()

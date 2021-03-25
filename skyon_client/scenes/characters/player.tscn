@@ -89,7 +89,7 @@ transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 0, 0
 material/0 = ExtResource( 5 )
 
 [node name="HandRAttachment" type="BoneAttachment" parent="Body/Model/base_character/BodyArmature/Skeleton" index="1"]
-transform = Transform( -0.227412, 0.0413101, 0.972922, 0.971998, 0.0703609, 0.224208, -0.0591935, 0.996666, -0.0561544, -0.250302, 0.330414, 0.0323337 )
+transform = Transform( -0.226987, 0.0414537, 0.973015, 0.971801, 0.0751831, 0.2235, -0.0638895, 0.996308, -0.0573504, -0.250217, 0.33151, 0.0331615 )
 bone_name = "hand_attachment_r"
 
 [node name="1h_sword" parent="Body/Model/base_character/BodyArmature/Skeleton/HandRAttachment" instance=ExtResource( 2 )]

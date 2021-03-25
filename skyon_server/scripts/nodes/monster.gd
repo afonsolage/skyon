@@ -11,14 +11,13 @@ const MAX_WALK_RADIOUS := 15
 export(float) var move_speed := 1.0
 export(float) var jump_force := 4.0
 
-var combat : CombatComponent
-
 var _gravity_body: GravityBody
 var _ai_state: int #enum is just a dictionary of ints
 var _ai_next_state: float
 var _move_to: Vector3
 var _on_wall: bool = false
 
+onready var combat := CombatComponent.new(self)
 onready var _original_position := self.translation
 onready var _wall_raycast := $WallRayCast
 

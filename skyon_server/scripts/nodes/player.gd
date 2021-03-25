@@ -10,6 +10,9 @@ var session_id: int
 
 var _gravity_body: GravityBody
 
+onready var combat := CombatComponent.new(self)
+onready var _attack_area: Area = $AttackArea
+
 func _ready() -> void:
 	_gravity_body = GravityBody.new(self)
 	session_id = int(self.name.right(1))
@@ -26,6 +29,11 @@ func get_state() -> Dictionary:
 	}
 
 
+func set_state(state: Dictionary) -> void:
+	self.translation = state.P
+	self.rotation_degrees = state.R
+
+
 func move(new_position: Vector3) -> bool:
 	var offset := new_position - self.transform.origin
 	
@@ -34,3 +42,13 @@ func move(new_position: Vector3) -> bool:
 		self.transform.origin = new_position
 	
 	return true
+
+
+func get_attack_target() -> Spatial:
+	var bodies = _attack_area.get_overlapping_bodies()
+	
+	for body in bodies:
+		if body is Spatial and body.is_in_group("Enemy"):
+			return body as Spatial
+	
+	return null

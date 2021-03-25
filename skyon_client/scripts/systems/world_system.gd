@@ -135,6 +135,19 @@ remote func state_sync(states: Dictionary) -> void:
 			_set_monster_state(state, states[state])
 
 
+func get_spatial(id: String) -> Spatial:
+	var type := id.left(1)
+	match type:
+		"P":
+			#Not yet implemented!
+			pass
+		"M":
+			return monsters.get_node(id) as Spatial
+		_:
+			Log.e("Unknown spatial type on id %s" % id)
+
+	return null
+	
 func _on_session_started():
 	rpc_id(1, "join_world")
 

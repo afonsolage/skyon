@@ -9,7 +9,6 @@ onready var _players = $Players
 onready var _monsters = $Monsters
 onready var monster_res := preload("res://scenes/monsters/monster.tscn")
 
-
 func _ready():
 	var monster := monster_res.instance() as Spatial
 	monster.name = "M%d" % monster.get_instance_id()
@@ -17,7 +16,6 @@ func _ready():
 	monster.add_to_group("StateSync")
 	
 	_monsters.add_child(monster)
-	
 
 
 func _physics_process(_delta: float) -> void:
@@ -48,10 +46,9 @@ func remove_player_state(session_id: int) -> void:
 func _process_player_states(state_snap: Dictionary) -> void:
 	for session_id in state_snap:
 		var state: Dictionary = state_snap[session_id]
-		var player = get_player(session_id)
-		if player and not player.move(state.P as Vector3):
-			# TODO: Reject the new state
-			Log.e("Invalid player %d state %s" % [session_id, state])
+		var player := get_player(session_id)
+		# TODO: Reject the new state if it's invalid
+		player.set_state(state)
 
 
 func _get_states() -> Dictionary:
@@ -69,9 +66,8 @@ func _get_states() -> Dictionary:
 
 
 func _broadcast_states(states: Dictionary) -> void:
-	var peers := get_tree().get_network_connected_peers()
-	for peer in peers:
-		rpc_unreliable_id(peer, "state_sync", states)
+	for session_id in Systems.net.get_sessions():
+		rpc_unreliable_id(session_id, "state_sync", states)
 
 
 remote func join_world() -> void:

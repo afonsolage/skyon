@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://scripts/nodes/monster.gd" type="Script" id=1]
 [ext_resource path="res://import/model/monster/idle_loop.anim" type="Animation" id=2]
@@ -6,6 +6,7 @@
 [ext_resource path="res://import/model/monster/t_pose.anim" type="Animation" id=4]
 [ext_resource path="res://resources/material/default.material" type="Material" id=5]
 [ext_resource path="res://import/model/monster/monster.glb" type="PackedScene" id=6]
+[ext_resource path="res://scenes/components/HealthBar.tscn" type="PackedScene" id=7]
 
 [sub_resource type="AnimationNodeAnimation" id=1]
 animation = "run_loop"
@@ -72,5 +73,7 @@ parameters/speed/blend_amount = 0.0
 [node name="CollisionBody" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.577811, 0 )
 shape = SubResource( 7 )
+
+[node name="HealthBar" parent="." instance=ExtResource( 7 )]
 
 [editable path="Model/monster"]
