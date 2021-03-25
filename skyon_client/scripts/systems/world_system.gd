@@ -47,6 +47,9 @@ func has_spatial(id: String) -> bool:
 
 
 func _send_state() -> void:
+	if not main_player:
+		return
+		
 	var state := main_player.get_state()
 	state.T = OS.get_ticks_msec()
 	rpc_unreliable_id(1, "set_player_state", state)

@@ -35,6 +35,8 @@ script = ExtResource( 4 )
 [node name="CombatSystem" type="Node" parent="."]
 script = ExtResource( 2 )
 
+[node name="FloatingDamages" type="Node" parent="CombatSystem"]
+
 [node name="InputSystem" type="Node" parent="."]
 script = ExtResource( 6 )
 

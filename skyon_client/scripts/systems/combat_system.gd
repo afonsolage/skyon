@@ -3,6 +3,9 @@ extends Node
 
 signal damage_received(dmg_info)
 
+onready var _dmg_text_res = preload("res://scenes/components/FloatingText.tscn")
+onready var _floating_damages = $FloatingDamages
+
 func _on_InputSystem_attack_pressed():
 	var main_player: MainPlayer = Systems.world.main_player
 	
@@ -24,6 +27,12 @@ remote func __damage_received(dmg_info: Dictionary) -> void:
 	
 	attacked.combat.health -= dmg_info.dmg
 	attacked.combat.emit_signal("health_changed")
+	
+	var dmg_text := _dmg_text_res.instance() as FloatingText
+	dmg_text.follow_ref = weakref(attacked)
+	dmg_text.text = str(dmg_info.dmg)
+	
+	_floating_damages.add_child(dmg_text)
 	
 	if attacked.combat.health <= 0:
 		attacked.combat.health = 0

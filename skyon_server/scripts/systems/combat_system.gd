@@ -22,6 +22,11 @@ func _attack_target(attacker_node: Spatial, attacked_node: Spatial) -> Dictionar
 
 func _attack_combat(attacker: CombatComponent, attacked: CombatComponent) -> Dictionary:
 	var dmg := max(attacker.attack - attacked.defense, 0)
+	var randomness = rand_range(-2.0, 2.0)
+	dmg += randomness
+	dmg = int(dmg)
+	
+	
 	attacked.health -= int(dmg)
 	
 	if attacked.health < 0:
