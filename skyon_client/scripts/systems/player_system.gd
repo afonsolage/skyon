@@ -1,8 +1,6 @@
 class_name PlayerSystem
 extends Node
 
-signal attacked
-
 const MOVE_PATH_MIN_DIST := 0.1
 const FOLLOW_MIN_DIST := 0.5
 const FOLLOW_MAX_DIST := 1.5

@@ -26,7 +26,7 @@ remote func __damage_received(dmg_info: Dictionary) -> void:
 		return
 	
 	attacked.combat.health -= dmg_info.dmg
-	attacked.combat.emit_signal("health_changed")
+	attacked.combat.emit_health_changed()
 	
 	var dmg_text := _dmg_text_res.instance() as FloatingText
 	dmg_text.follow_ref = weakref(attacked)

@@ -33,3 +33,7 @@ func decode(state: Dictionary) -> void:
 	attack = state.A
 	defense = state.D
 	attack_range = state.AR
+
+
+func emit_health_changed() -> void:
+	self.emit_signal("health_changed")
