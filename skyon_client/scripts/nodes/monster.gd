@@ -1,10 +1,5 @@
 extends KinematicBody
 
-enum AIState {
-	IDLE, 
-	WANDER,
-}
-
 var combat: CombatComponent
 
 onready var _animation_tree := $AnimationTree
