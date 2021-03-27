@@ -52,7 +52,7 @@ _global_script_classes=[ {
 "base": "KinematicBody",
 "class": "MainPlayer",
 "language": "GDScript",
-"path": "res://scripts/nodes/player.gd"
+"path": "res://scripts/nodes/main_player.gd"
 }, {
 "base": "Node",
 "class": "NetSystem",
@@ -74,6 +74,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/nodes/terrain.gd"
 }, {
+"base": "Reference",
+"class": "TestUtils",
+"language": "GDScript",
+"path": "res://test/test_utils.gd"
+}, {
 "base": "Node",
 "class": "WorldSystem",
 "language": "GDScript",
@@ -93,6 +98,7 @@ _global_script_class_icons={
 "PlayerSystem": "",
 "SelectTarget": "",
 "Terrain": "",
+"TestUtils": "",
 "WorldSystem": ""
 }
 
@@ -120,9 +126,14 @@ run/main_scene="res://scenes/game_world.tscn"
 
 Systems="*res://scripts/singletons/systems.gd"
 
+[editor_plugins]
+
+enabled=PoolStringArray( "res://addons/gut/plugin.cfg" )
+
 [global]
 
 layer=false
+debug=false
 
 [input]
 

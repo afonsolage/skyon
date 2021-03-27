@@ -138,7 +138,7 @@ remote func __exit_from_area_of_interest(id: String) -> void:
 
 
 remote func __spawn_main_player(position: Vector3) -> void:
-	main_player = load("res://scenes/characters/player.tscn").instance() as Spatial
+	main_player = load("res://scenes/characters/main_player.tscn").instance() as Spatial
 	main_player.name = "Main Player"
 	main_player.translate(position)
 

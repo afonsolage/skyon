@@ -21,8 +21,7 @@ func _process(delta: float) -> void:
 	self.rect_position = screen_pos
 
 
-func _get_target_screen_position(delta: float) -> Vector2:
-	var target = follow_ref.get_ref() as Spatial
+func _get_target_screen_position(_delta: float) -> Vector2:
 	var camera = Systems.world.get_camera()
 	var node_pos = _origin
 	node_pos.y += (_elapsed * 5) + height_offset
