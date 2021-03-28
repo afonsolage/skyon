@@ -3,7 +3,7 @@ extends Node
 
 signal damage_received(dmg_info)
 
-onready var _dmg_text_res = preload("res://scenes/components/FloatingText.tscn")
+onready var _dmg_text_res = preload("res://scenes/components/floating_text.tscn")
 onready var _floating_damages = $FloatingDamages
 
 func _on_InputSystem_attack_pressed():
@@ -16,6 +16,7 @@ func _on_InputSystem_attack_pressed():
 		if body.is_in_group("Enemy"):
 			main_player.start_attack_animation()
 			rpc_id(1, "__attack")
+			return
 
 
 remote func __damage_received(dmg_info: Dictionary) -> void:

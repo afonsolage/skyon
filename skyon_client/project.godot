@@ -699,6 +699,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/gdUnit3/test/core/_TestSuiteScannerTest.gd"
 }, {
+"base": "GdUnitTestSuiteExtended",
+"class": "combat_systemTest",
+"language": "GDScript",
+"path": "res://test/scripts/systems/combat_systemTest.gd"
+}, {
 "base": "Reference",
 "class": "gravity_componentTest",
 "language": "GDScript",
@@ -718,6 +723,11 @@ _global_script_classes=[ {
 "class": "mobTest",
 "language": "GDScript",
 "path": "res://test/scripts/nodes/mobTest.gd"
+}, {
+"base": "Resource",
+"class": "script_with_class_name",
+"language": "GDScript",
+"path": "res://addons/gdUnit3/test/core/resources/script_with_class_name.gd"
 }, {
 "base": "Reference",
 "class": "snake_case_class_name",
@@ -863,10 +873,12 @@ _global_script_class_icons={
 "_TestCase": "",
 "_TestSuiteScanner": "",
 "_TestSuiteScannerTest": "",
+"combat_systemTest": "",
 "gravity_componentTest": "",
 "health_barTest": "",
 "main_playerTest": "",
 "mobTest": "",
+"script_with_class_name": "",
 "snake_case_class_name": ""
 }
 

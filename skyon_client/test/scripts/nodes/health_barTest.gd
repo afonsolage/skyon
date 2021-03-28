@@ -9,7 +9,7 @@ const HealthBar = preload(__source)
 var health_bar: HealthBar
 
 func before_test() -> void:
-	health_bar = mock("res://scenes/components/HealthBar.tscn", CALL_REAL_FUNC)
+	health_bar = mock("res://scenes/components/health_bar.tscn", CALL_REAL_FUNC)
 	add_child_autofree(health_bar)
 
 
