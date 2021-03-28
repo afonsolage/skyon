@@ -26,7 +26,7 @@ far = 200.0
 script = ExtResource( 1 )
 offset = Vector3( 7, -10, -7 )
 
-[node name="Monsters" type="Node" parent="WorldSystem"]
+[node name="Mobs" type="Node" parent="WorldSystem"]
 
 [node name="Terrain" parent="WorldSystem" instance=ExtResource( 3 )]
 

@@ -6,8 +6,8 @@ var main_player : MainPlayer
 var _last_state_time : int = 0
 
 onready var _terrain: Terrain = $Terrain
-onready var _monsters: Node = $Monsters
-onready var _monster_res := preload("res://scenes/monsters/monster.tscn")
+onready var _mobs: Node = $Mobs
+onready var _mob_res := preload("res://scenes/mobs/mob.tscn")
 
 func _physics_process(delta: float) -> void:
 	_process_gravity(delta)
@@ -25,7 +25,7 @@ func get_spatial(id: String) -> Spatial:
 			#Not yet implemented!
 			pass
 		"M":
-			return _monsters.get_node(id) as Spatial
+			return _mobs.get_node(id) as Spatial
 		_:
 			Log.e("Unknown spatial type on id %s" % id)
 
@@ -39,7 +39,7 @@ func has_spatial(id: String) -> bool:
 			#Not yet implemented!
 			pass
 		"M":
-			return _monsters.has_node(id)
+			return _mobs.has_node(id)
 		_:
 			Log.e("Unknown spatial type on id %s" % id)
 
@@ -68,14 +68,14 @@ func _set_player_state(_id: String, _state: Dictionary):
 	pass
 
 
-func _set_monster_state(id: String, state: Dictionary) -> void:
-	var monster: Spatial = _monsters.get_node_or_null("%s" % id)
+func _set_mob_state(id: String, state: Dictionary) -> void:
+	var mob: Spatial = _mobs.get_node_or_null("%s" % id)
 	
-	if not monster:
-		Log.d("Unable to set state. Monster %s not found" % id)
+	if not mob:
+		Log.d("Unable to set state. Mob %s not found" % id)
 		return
 	
-	monster.set_state(state)
+	mob.set_state(state)
 
 
 func _spawn(id: String, state: Dictionary) -> void:
@@ -86,18 +86,18 @@ func _spawn(id: String, state: Dictionary) -> void:
 			#Not yet implemented!
 			pass
 		"M":
-			_spawn_monster(id, state)
+			_spawn_mob(id, state)
 		_:
 			Log.e("Unknown spatial type on id %s" % id)
 
 
-func _spawn_monster(id: String, state: Dictionary) -> void:
-	var monster := _monster_res.instance()
-	monster.name = id
+func _spawn_mob(id: String, state: Dictionary) -> void:
+	var mob := _mob_res.instance()
+	mob.name = id
 
-	_monsters.add_child(monster)
+	_mobs.add_child(mob)
 	
-	monster.set_full_state(state)
+	mob.set_full_state(state)
 
 
 func _on_session_started():
@@ -118,7 +118,7 @@ remote func __state_sync(states: Dictionary) -> void:
 			"P":
 				_set_player_state(state, states[state])
 			"M":
-				_set_monster_state(state, states[state])
+				_set_mob_state(state, states[state])
 			_:
 				Log.e("Unknown spatial type on id %s" % state)
 

@@ -27,7 +27,7 @@ animation = "run_loop"
 [sub_resource type="AnimationNodeBlend2" id=7]
 
 [sub_resource type="AnimationNodeBlendTree" id=8]
-graph_offset = Vector2( -599, 330 )
+graph_offset = Vector2( -471, 28 )
 nodes/1h_attack_animation/node = SubResource( 1 )
 nodes/1h_attack_animation/position = Vector2( -120, 460 )
 nodes/attack/node = SubResource( 2 )
@@ -36,14 +36,14 @@ nodes/idle_animation/node = SubResource( 3 )
 nodes/idle_animation/position = Vector2( -340, 140 )
 nodes/idle_scale/node = SubResource( 4 )
 nodes/idle_scale/position = Vector2( -60, 120 )
-nodes/output/position = Vector2( 780, 160 )
+nodes/output/position = Vector2( 960, 300 )
 nodes/run_animation/node = SubResource( 5 )
 nodes/run_animation/position = Vector2( -340, 300 )
 nodes/run_scale/node = SubResource( 6 )
 nodes/run_scale/position = Vector2( -60, 300 )
 nodes/speed/node = SubResource( 7 )
 nodes/speed/position = Vector2( 180, 220 )
-node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "attack", "run_scale", 0, "run_animation", "idle_scale", 0, "idle_animation", "attack", 0, "speed", "attack", 1, "1h_attack_animation" ]
+node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "attack", "attack", 0, "speed", "attack", 1, "1h_attack_animation", "idle_scale", 0, "idle_animation", "run_scale", 0, "run_animation" ]
 
 [sub_resource type="CylinderShape" id=9]
 radius = 0.300838
@@ -85,11 +85,14 @@ transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 0, 0
 
 [node name="base_character" parent="Body/Model" instance=ExtResource( 1 )]
 
+[node name="Skeleton" parent="Body/Model/base_character/BodyArmature" index="0"]
+bones/12/bound_children = [ NodePath("HandRAttachment") ]
+
 [node name="Body" parent="Body/Model/base_character/BodyArmature/Skeleton" index="0"]
 material/0 = ExtResource( 5 )
 
 [node name="HandRAttachment" type="BoneAttachment" parent="Body/Model/base_character/BodyArmature/Skeleton" index="1"]
-transform = Transform( -0.221225, 0.0429737, 0.974276, 0.970084, 0.112123, 0.215327, -0.0999852, 0.992765, -0.0664926, -0.250977, 0.339593, 0.0395829 )
+transform = Transform( -0.213123, 0.0458346, 0.97595, 0.96509, 0.165538, 0.202977, -0.152254, 0.985138, -0.0795146, -0.251933, 0.351979, 0.0487695 )
 bone_name = "hand_attachment_r"
 
 [node name="1h_sword" parent="Body/Model/base_character/BodyArmature/Skeleton/HandRAttachment" instance=ExtResource( 2 )]

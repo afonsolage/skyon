@@ -14,6 +14,7 @@ var parent : Spatial
 func _init(parent_node: Spatial) -> void:
 	if not parent_node:
 		Log.d("Can't add this component to a null parent")
+		push_error("Can't add this component to a null parent")
 	parent = parent_node
 
 
@@ -33,6 +34,8 @@ func decode(state: Dictionary) -> void:
 	attack = state.A
 	defense = state.D
 	attack_range = state.AR
+	
+	emit_health_changed()
 
 
 func emit_health_changed() -> void:
