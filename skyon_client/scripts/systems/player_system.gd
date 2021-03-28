@@ -13,7 +13,7 @@ var _main_player: MainPlayer
 
 func _physics_process(_delta: float) -> void:
 	if not _main_player:
-		if not Systems.world.main_player:
+		if not Systems.world or not Systems.world.main_player:
 			return
 		
 		_main_player = Systems.world.main_player as MainPlayer

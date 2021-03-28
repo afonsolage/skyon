@@ -100,10 +100,6 @@ func _spawn_mob(id: String, state: Dictionary) -> void:
 	mob.set_full_state(state)
 
 
-func _on_session_started():
-	rpc_id(1, "join_world")
-
-
 remote func __state_sync(states: Dictionary) -> void:
 	if states.T < _last_state_time:
 		Log.d("Discarting outdated states: %s" % [states])
@@ -143,3 +139,7 @@ remote func __spawn_main_player(position: Vector3) -> void:
 	main_player.translate(position)
 
 	self.add_child(main_player)
+
+
+func _on_NetSystem_session_started():
+	rpc_id(1, "join_world")

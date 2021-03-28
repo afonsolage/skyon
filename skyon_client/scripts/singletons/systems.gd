@@ -7,35 +7,35 @@ var input: InputSystem setget, _get_input
 var player: PlayerSystem setget, _get_player
 
 func _get_world() -> WorldSystem:
-	if not world:
+	if not world and has_node("/root/Main/WorldSystem"):
 		world = get_node("/root/Main/WorldSystem") as WorldSystem
 	
 	return world
 
 
 func _get_net() -> NetSystem:
-	if not net:
+	if not net and has_node("/root/Main/NetSystem"):
 		net = get_node("/root/Main/NetSystem") as NetSystem
 	
 	return net
 
 
 func _get_combat() -> CombatSystem:
-	if not combat:
+	if not combat and has_node("/root/Main/CombatSystem"):
 		combat = get_node("/root/Main/CombatSystem") as CombatSystem
 	
 	return combat
 
 
 func _get_input() -> InputSystem:
-	if not input:
+	if not input and has_node("/root/Main/InputSystem"):
 		input = get_node("/root/Main/InputSystem") as InputSystem
 	
 	return input
 
 
 func _get_player() -> PlayerSystem:
-	if not player:
+	if not player and has_node("/root/Main/PlayerSystem"):
 		player = get_node("/root/Main/PlayerSystem") as PlayerSystem
 	
 	return player
