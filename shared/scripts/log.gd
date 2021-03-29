@@ -16,7 +16,7 @@ static func d(msg) -> void:
 
 static func ok(err: int) -> void:
 	if err != OK:
-		_l("E", "Error code %d returned" % err)
+		_l("E", "Error code %d returned" % err, true)
 
 
 static func _l(type: String, msg, is_err: bool = false) -> void:
@@ -34,6 +34,7 @@ static func _l(type: String, msg, is_err: bool = false) -> void:
 		msg,
 	]
 	if is_err:
+		push_error(logmsg)
 		printerr(logmsg)
 	else:
 		print(logmsg)

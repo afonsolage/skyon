@@ -21,7 +21,7 @@ func despawn_monster(id: String):
 	monster.queue_free()
 
 
-func _on_CombatSystem_died(killed, killer):
+func _on_CombatSystem_died(killed, _killer):
 	if not killed is Monster:
 		return
 
