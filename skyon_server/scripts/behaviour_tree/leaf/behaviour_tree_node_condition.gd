@@ -1,4 +1,0 @@
-class_name BehavourTreeNodeLeafCondition
-extends BehaviourTreeNodeLeaf
-
-

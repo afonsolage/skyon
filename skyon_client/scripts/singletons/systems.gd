@@ -6,6 +6,11 @@ var combat: CombatSystem setget ,_get_combat
 var input: InputSystem setget, _get_input
 var player: PlayerSystem setget, _get_player
 
+
+func _ready() -> void:
+	randomize()
+
+
 func _get_world() -> WorldSystem:
 	if not world and has_node("/root/Main/WorldSystem"):
 		world = get_node("/root/Main/WorldSystem") as WorldSystem
