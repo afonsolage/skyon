@@ -11,7 +11,10 @@ func _ready():
 		Log.e("Behaviour tree root should only one child")
 		active = false
 	
-	_data.actor = get_node(actor_path) as Node
+	var actor := get_node(actor_path) as Spatial
+	_data.actor = actor
+	_data.original_position = actor.global_transform.origin
+	_data.root_parent = self.get_parent()
 	
 func _physics_process(delta: float) -> void:
 	if not active:

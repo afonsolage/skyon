@@ -1,10 +1,13 @@
 class_name BTreeNodeCompositeSelector, "../icons/selector.png"
 extends BTreeNodeComposite
 
+export(bool) var reactive: bool = true
 onready var running_child: int = 0
 
 func _tick(data: Dictionary) -> int:
-	for i in range(running_child, .get_child_count()):
+	var start = 0 if reactive else running_child
+	
+	for i in range(start, .get_child_count()):
 		var result = .get_child(i)._tick(data)
 		
 		match result:

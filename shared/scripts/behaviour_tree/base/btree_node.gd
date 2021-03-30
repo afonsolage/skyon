@@ -29,7 +29,7 @@ func _restore(data: Dictionary, key: String):
 
 
 func _reset(data: Dictionary) -> void:
-	data.erase(get_instance_id())
+	var _erased := data.erase(get_instance_id())
 
 
 func _success() -> int:
@@ -41,4 +41,4 @@ func _running() -> int:
 
 
 func _failure() -> int:
-	return BTreeResult.RUNNING
+	return BTreeResult.FAILURE

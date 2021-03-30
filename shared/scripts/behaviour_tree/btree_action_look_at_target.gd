@@ -4,7 +4,7 @@ extends BTreeNodeLeafAction
 func _tick(data: Dictionary) -> int:
 	var target := _get_global(data, "target") as Vector3
 	if not target:
-		Log.d("Not target found!")
+		Log.e("Not target found!")
 		return _failure()
 	
 	var actor = data.actor
