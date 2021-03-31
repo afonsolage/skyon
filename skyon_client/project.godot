@@ -65,19 +65,19 @@ _global_script_classes=[ {
 "path": "res://scripts/shared/behaviour_tree/debug/btree_action_debug_clear_target.gd"
 }, {
 "base": "BTreeNodeLeafAction",
+"class": "BTreeNodeLeafActionDebugLog",
+"language": "GDScript",
+"path": "res://scripts/shared/behaviour_tree/debug/btree_action_debug_log.gd"
+}, {
+"base": "BTreeNodeLeafAction",
 "class": "BTreeNodeLeafActionDebugShowTarget",
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/debug/btree_action_debug_show_target.gd"
 }, {
 "base": "BTreeNodeLeafAction",
-"class": "BTreeNodeLeafActionFindRandom2DPlace",
-"language": "GDScript",
-"path": "res://scripts/shared/behaviour_tree/btree_action_find_random_2d_place.gd"
-}, {
-"base": "BTreeNodeLeafAction",
 "class": "BTreeNodeLeafActionFindRandomPlace",
 "language": "GDScript",
-"path": "res://scripts/shared/behaviour_tree/btree_action_find_random_place.gd"
+"path": "res://scripts/shared/behaviour_tree/btree_action_target_random_place.gd"
 }, {
 "base": "BTreeNodeLeafAction",
 "class": "BTreeNodeLeafActionFindTarget",
@@ -89,10 +89,20 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/btree_action_look_at_target.gd"
 }, {
-"base": "BTreeNodeLeafAction",
-"class": "BTreeNodeLeafActionMoveToTarget",
+"base": "Reference",
+"class": "BTreeNodeLeafActionMoveFowardUntilTarget",
 "language": "GDScript",
-"path": "res://scripts/shared/behaviour_tree/btree_action_move_to_target.gd"
+"path": "res://scripts/shared/behaviour_tree/btree_action_move_forward_until_target.gd"
+}, {
+"base": "BTreeNodeLeafAction",
+"class": "BTreeNodeLeafActionTargetEnemy",
+"language": "GDScript",
+"path": "res://scripts/shared/behaviour_tree/btree_action_target_enemy.gd"
+}, {
+"base": "BTreeNodeLeafAction",
+"class": "BTreeNodeLeafActionTargetRandom2DPlace",
+"language": "GDScript",
+"path": "res://scripts/shared/behaviour_tree/btree_action_find_random_2d_place.gd"
 }, {
 "base": "BTreeNodeLeafAction",
 "class": "BTreeNodeLeafActionWait",
@@ -109,15 +119,15 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/btree_condition_is_being_attacked.gd"
 }, {
-"base": "Reference",
+"base": "BTreeNodeLeafCondition",
 "class": "BTreeNodeLeafConditionIsEnemyNear",
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/btree_condition_is_enemy_near.gd"
 }, {
 "base": "BTreeNodeLeafCondition",
-"class": "BTreeNodeLeafConditionWaitedRecently",
+"class": "BTreeNodeLeafConditionIsTargetReached",
 "language": "GDScript",
-"path": "res://scripts/shared/behaviour_tree/btree_condition_waited_recently.gd"
+"path": "res://scripts/shared/behaviour_tree/btree_condition_is_target_reached.gd"
 }, {
 "base": "BTreeNodeLeafAction",
 "class": "BTreeNodeLeaftActionClearTarget",
@@ -221,17 +231,19 @@ _global_script_class_icons={
 "BTreeNodeLeafAction": "res://scripts/shared/behaviour_tree/base/icons/action.png",
 "BTreeNodeLeafActionCursorToTarget": "",
 "BTreeNodeLeafActionDebugClearTarget": "",
+"BTreeNodeLeafActionDebugLog": "",
 "BTreeNodeLeafActionDebugShowTarget": "",
-"BTreeNodeLeafActionFindRandom2DPlace": "",
 "BTreeNodeLeafActionFindRandomPlace": "",
 "BTreeNodeLeafActionFindTarget": "",
 "BTreeNodeLeafActionLookAtTarget": "",
-"BTreeNodeLeafActionMoveToTarget": "",
+"BTreeNodeLeafActionMoveFowardUntilTarget": "",
+"BTreeNodeLeafActionTargetEnemy": "",
+"BTreeNodeLeafActionTargetRandom2DPlace": "",
 "BTreeNodeLeafActionWait": "",
 "BTreeNodeLeafCondition": "res://scripts/shared/behaviour_tree/base/icons/condition.png",
 "BTreeNodeLeafConditionIsBeingAttacked": "",
 "BTreeNodeLeafConditionIsEnemyNear": "",
-"BTreeNodeLeafConditionWaitedRecently": "",
+"BTreeNodeLeafConditionIsTargetReached": "",
 "BTreeNodeLeaftActionClearTarget": "",
 "BTreeResult": "",
 "BTreeRoot": "res://scripts/shared/behaviour_tree/base/icons/root.png",
@@ -270,7 +282,7 @@ Display=8
 [application]
 
 config/name="Skyon"
-run/main_scene="res://scenes/game_world.tscn"
+run/main_scene="res://scenes/ai_test_scene.tscn"
 
 [autoload]
 
@@ -279,11 +291,6 @@ Systems="*res://scripts/singletons/systems.gd"
 [gdunit3]
 
 report/error_notification=true
-
-[global]
-
-layer=false
-debug=false
 
 [input]
 
@@ -335,6 +342,10 @@ attack={
 [memory]
 
 limits/message_queue/max_size_kb=10240
+
+[network]
+
+limits/debugger_stdout/max_chars_per_second=20480
 
 [physics]
 

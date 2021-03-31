@@ -4,7 +4,7 @@ extends BTreeNodeDecorator
 
 
 func _tick(data: Dictionary) -> int:
-	var result = .get_child(0).tick(data)
+	var result = .get_child(0)._tick(data)
 	
 	match result:
 		BTreeResult.SUCCESS:

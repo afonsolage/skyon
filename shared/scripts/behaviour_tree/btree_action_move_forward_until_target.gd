@@ -1,15 +1,16 @@
-class_name BTreeNodeLeafActionMoveToTarget
+class_name BTreeNodeLeafActionMoveFowardUntilTarget
 extends BTreeNodeLeafAction
 
 export(float) var move_speed: float = 2.0
 export(float) var reach_distance: float = 1.0
 
 func _tick(data: Dictionary) -> int:
-	var target = _get_global(data, "target") as Vector3
-	if not target:
+	if not _has_global(data, "target"):
 		Log.e("Not target found!")
 		return _failure()
 
+	var target = _get_global(data, "target") as Vector3
+	
 	var actor = data.actor
 	if not actor is KinematicBody:
 		Log.e("This action can only moves KinematicBody")

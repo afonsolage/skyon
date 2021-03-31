@@ -2,11 +2,13 @@ class_name BTreeNodeLeafActionDebugClearTarget
 extends BTreeNodeLeafAction
 
 func _tick(data: Dictionary) -> int:
-	var target := _get_global(data, "debug_target_mesh") as Node
-	if not target:
-		Log.e("Not debug target mesh found!")
-		return _failure()
+	if not "debug" in data or not data.debug:
+		return  _success()
 	
-	target.queue_free()
+	var target := _get_global(data, "debug_target_mesh") as Node
+	if target and is_instance_valid(target):
+		target.queue_free()
+	
+	_clear_global(data, "debug_target_mesh")
 	
 	return _success()

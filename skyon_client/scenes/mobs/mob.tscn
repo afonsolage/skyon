@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://scenes/components/health_bar.tscn" type="PackedScene" id=1]
 [ext_resource path="res://resources/material/default.material" type="Material" id=2]
@@ -7,6 +7,17 @@
 [ext_resource path="res://import/model/monster/idle_loop.anim" type="Animation" id=5]
 [ext_resource path="res://scripts/nodes/mob.gd" type="Script" id=6]
 [ext_resource path="res://import/model/monster/monster.glb" type="PackedScene" id=7]
+[ext_resource path="res://scripts/shared/behaviour_tree/base/composite/behaviour_tree_node_selector.gd" type="Script" id=8]
+[ext_resource path="res://scripts/shared/behaviour_tree/base/composite/behaviour_tree_node_sequence.gd" type="Script" id=9]
+[ext_resource path="res://scenes/btree/MoveToTarget.tscn" type="PackedScene" id=10]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_wait.gd" type="Script" id=11]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_find_random_2d_place.gd" type="Script" id=12]
+[ext_resource path="res://scripts/shared/behaviour_tree/base/decorator/behaviour_tree_node_inverter.gd" type="Script" id=13]
+[ext_resource path="res://scripts/shared/behaviour_tree/debug/btree_action_debug_log.gd" type="Script" id=15]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_enemy_near.gd" type="Script" id=17]
+[ext_resource path="res://scripts/shared/behaviour_tree/base/btree_root.gd" type="Script" id=18]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_being_attacked.gd" type="Script" id=19]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_target_enemy.gd" type="Script" id=20]
 
 [sub_resource type="AnimationNodeAnimation" id=1]
 animation = "run_loop"
@@ -38,6 +49,10 @@ node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output"
 [sub_resource type="CylinderShape" id=7]
 radius = 0.466427
 height = 1.15532
+
+[sub_resource type="CylinderShape" id=8]
+radius = 8.0
+height = 8.0
 
 [node name="Monster" type="KinematicBody" groups=[
 "Enemy",
@@ -81,4 +96,74 @@ material/0 = ExtResource( 2 )
 transform = Transform( 1, 0, 0, 0, 0.896857, 0.44232, 0, -0.44232, 0.896857, 0, 2.32578, 2.32502 )
 visible = false
 
+[node name="AggroArea" type="Area" parent="."]
+monitorable = false
+collision_layer = 0
+collision_mask = 6
+
+[node name="CollisionShape" type="CollisionShape" parent="AggroArea"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0 )
+shape = SubResource( 8 )
+
+[node name="AIRoot" type="Node" parent="."]
+script = ExtResource( 18 )
+actor_path = NodePath("..")
+
+[node name="MobBehaviour" type="Node" parent="AIRoot"]
+script = ExtResource( 8 )
+
+[node name="Defensive" type="Node" parent="AIRoot/MobBehaviour"]
+script = ExtResource( 9 )
+enabled = false
+
+[node name="IsBeingAttacked" type="Node" parent="AIRoot/MobBehaviour/Defensive"]
+script = ExtResource( 19 )
+
+[node name="BTreeNodeCompositeSequence" type="Node" parent="AIRoot/MobBehaviour"]
+script = ExtResource( 9 )
+enabled = false
+
+[node name="Not" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence"]
+script = ExtResource( 13 )
+
+[node name="IsEnemyNear" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/Not"]
+script = ExtResource( 17 )
+aggro_area_path = NodePath("../../../../../AggroArea")
+
+[node name="FindTarget" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence"]
+script = ExtResource( 20 )
+
+[node name="MoveAndAttackTarget" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence"]
+script = ExtResource( 8 )
+
+[node name="MoveToTarget" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/MoveAndAttackTarget" instance=ExtResource( 10 )]
+
+[node name="AttackTarget" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/MoveAndAttackTarget"]
+script = ExtResource( 9 )
+
+[node name="DebugLog" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/MoveAndAttackTarget/AttackTarget"]
+script = ExtResource( 15 )
+enabled = false
+message = "Attacking"
+
+[node name="Peaceful" type="Node" parent="AIRoot/MobBehaviour"]
+script = ExtResource( 9 )
+
+[node name="Wait" type="Node" parent="AIRoot/MobBehaviour/Peaceful"]
+script = ExtResource( 9 )
+
+[node name="Wait" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wait"]
+script = ExtResource( 11 )
+min_seconds = 1.0
+max_seconds = 3.0
+
+[node name="Wander" type="Node" parent="AIRoot/MobBehaviour/Peaceful"]
+script = ExtResource( 9 )
+
+[node name="FindRandomPlace2D" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander"]
+script = ExtResource( 12 )
+
+[node name="MoveToTarget" parent="AIRoot/MobBehaviour/Peaceful/Wander" instance=ExtResource( 10 )]
+
 [editable path="Model/monster"]
+[editable path="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/MoveAndAttackTarget/MoveToTarget"]

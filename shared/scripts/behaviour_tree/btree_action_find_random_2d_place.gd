@@ -1,4 +1,4 @@
-class_name BTreeNodeLeafActionFindRandom2DPlace
+class_name BTreeNodeLeafActionTargetRandom2DPlace
 extends BTreeNodeLeafAction
 
 export(float) var max_radius: float = 5.0
@@ -6,7 +6,7 @@ export(float) var min_radius: float = 2.0
 export(bool) var keep_origin: bool = true
 
 func _tick(data: Dictionary) -> int:
-	var actor := data.actor as Spatial	
+	var actor := data.actor as Spatial
 	
 	var origin := data.original_position as Vector3 if keep_origin else actor.translation
 	var offset := Vector3(

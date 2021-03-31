@@ -1,22 +1,27 @@
 class_name BTreeNodeLeafActionWait
 extends BTreeNodeLeafAction
 
-export(float) var seconds:= 2
+export(float) var min_seconds := 2
+export(float) var max_seconds := 4
+
+var _elapsed_time := 0.0
+var _wait_seconds := 0.0
+
+func _ready():
+	_reset()
 
 func _tick(data: Dictionary) -> int:
 	var delta := data.delta as float
-	var elapsed_time = _restore(data, "elapsed_time")
 	
-	if not elapsed_time:
-		elapsed_time = 0
+	_elapsed_time += delta
 	
-	elapsed_time += delta
-	_store(data, "elapsed_time", elapsed_time)
-	
-	if elapsed_time > seconds:
-		_reset(data)
-		_set_global(data, "last_wait_timeout", OS.get_ticks_msec())
+	if _elapsed_time > _wait_seconds:
 		return _success()
 	else:
 		return _running()
 
+
+func _reset() -> void:
+	_elapsed_time = 0.0
+	_wait_seconds = rand_range(min_seconds, max_seconds)
+	._reset()
