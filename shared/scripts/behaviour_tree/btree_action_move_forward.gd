@@ -5,7 +5,7 @@ export(float) var move_speed: float = 2.0
 export(float) var reach_distance: float = 1.0
 
 func _tick(data: Dictionary) -> int:
-	if not _has_global(data, "target"):
+	if not _has_global(data, "move_target"):
 		Log.e("Not target found!")
 		return _failure()
 

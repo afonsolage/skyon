@@ -4,7 +4,7 @@ extends BTreeNodeLeafCondition
 export(float) var reach_distance: float = 1.0
 
 func _tick(data: Dictionary) -> int:
-	var target := _get_global(data, "target") as Vector3
+	var target := _get_global(data, "move_target") as Vector3
 	if not target:
 		Log.e("Not target found!")
 		return _failure()

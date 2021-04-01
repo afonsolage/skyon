@@ -1,21 +1,17 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://scripts/shared/behaviour_tree/base/btree_root.gd" type="Script" id=1]
 [ext_resource path="res://scripts/nodes/mob.gd" type="Script" id=2]
-[ext_resource path="res://scripts/shared/behaviour_tree/base/decorator/behaviour_tree_node_inverter.gd" type="Script" id=3]
+[ext_resource path="res://scenes/btree/MoveToTarget.tscn" type="PackedScene" id=3]
 [ext_resource path="res://scripts/shared/behaviour_tree/base/composite/behaviour_tree_node_sequence.gd" type="Script" id=4]
 [ext_resource path="res://scripts/shared/behaviour_tree/btree_action_change_actor_state.gd" type="Script" id=5]
-[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_jump.gd" type="Script" id=6]
-[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_look_at_target.gd" type="Script" id=7]
+[ext_resource path="res://scripts/shared/behaviour_tree/debug/btree_action_debug_log.gd" type="Script" id=6]
 [ext_resource path="res://scripts/shared/behaviour_tree/btree_action_target_random_2d_place.gd" type="Script" id=8]
-[ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_facing_wall.gd" type="Script" id=9]
-[ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_grounded.gd" type="Script" id=10]
-[ext_resource path="res://scripts/shared/behaviour_tree/btree_decorator_force_success.gd" type="Script" id=11]
 [ext_resource path="res://scenes/components/wall_raycast.tscn" type="PackedScene" id=12]
 [ext_resource path="res://scripts/shared/behaviour_tree/base/composite/behaviour_tree_node_selector.gd" type="Script" id=13]
-[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_move_forward.gd" type="Script" id=14]
 [ext_resource path="res://scripts/shared/behaviour_tree/btree_action_wait.gd" type="Script" id=15]
-[ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_target_reached.gd" type="Script" id=16]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_enemy_near.gd" type="Script" id=17]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_target_enemy.gd" type="Script" id=18]
 
 [sub_resource type="CylinderShape" id=1]
 radius = 0.32
@@ -25,6 +21,10 @@ height = 0.89
 top_radius = 0.47
 bottom_radius = 0.47
 height = 1.16
+
+[sub_resource type="CylinderShape" id=3]
+radius = 4.98595
+height = 7.44878
 
 [node name="Mob" type="KinematicBody" groups=[
 "Enemy",
@@ -45,12 +45,49 @@ material/0 = null
 [node name="WallRayCast" parent="." instance=ExtResource( 12 )]
 transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 0.3, 0 )
 
+[node name="AggroArea" type="Area" parent="."]
+monitorable = false
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape" type="CollisionShape" parent="AggroArea"]
+shape = SubResource( 3 )
+
 [node name="AIRoot" type="Node" parent="."]
 script = ExtResource( 1 )
 actor_path = NodePath("..")
 
 [node name="MobBehaviour" type="Node" parent="AIRoot"]
 script = ExtResource( 13 )
+
+[node name="Aggresive" type="Node" parent="AIRoot/MobBehaviour"]
+script = ExtResource( 4 )
+reactive = true
+
+[node name="IsEnemyNear" type="Node" parent="AIRoot/MobBehaviour/Aggresive"]
+script = ExtResource( 17 )
+aggro_area_path = NodePath("../../../../AggroArea")
+
+[node name="TargetEnemy" type="Node" parent="AIRoot/MobBehaviour/Aggresive"]
+script = ExtResource( 18 )
+
+[node name="MoveOrAttack" type="Node" parent="AIRoot/MobBehaviour/Aggresive"]
+script = ExtResource( 13 )
+
+[node name="MoveToTarget" parent="AIRoot/MobBehaviour/Aggresive/MoveOrAttack" instance=ExtResource( 3 )]
+
+[node name="AttackTarget" type="Node" parent="AIRoot/MobBehaviour/Aggresive/MoveOrAttack"]
+script = ExtResource( 4 )
+
+[node name="ChangeActorState" type="Node" parent="AIRoot/MobBehaviour/Aggresive/MoveOrAttack/AttackTarget"]
+script = ExtResource( 5 )
+state_variable_name = "current_action"
+state_value = "Attacking"
+
+[node name="DebugLog" type="Node" parent="AIRoot/MobBehaviour/Aggresive/MoveOrAttack/AttackTarget"]
+script = ExtResource( 6 )
+enabled = false
+message = "Attacking this fellow!"
 
 [node name="Peaceful" type="Node" parent="AIRoot/MobBehaviour"]
 script = ExtResource( 4 )
@@ -74,40 +111,6 @@ script = ExtResource( 4 )
 [node name="TargetRandom2DPlace" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander"]
 script = ExtResource( 8 )
 
-[node name="MoveToTarget" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander"]
-script = ExtResource( 4 )
-reactive = true
+[node name="MoveToTarget" parent="AIRoot/MobBehaviour/Peaceful/Wander" instance=ExtResource( 3 )]
 
-[node name="Not" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
-script = ExtResource( 3 )
-
-[node name="IsTargetReached" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/Not"]
-script = ExtResource( 16 )
-
-[node name="ForceSuccess" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
-script = ExtResource( 11 )
-
-[node name="Jump" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/ForceSuccess"]
-script = ExtResource( 4 )
-reactive = true
-
-[node name="IsFacingWall" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/ForceSuccess/Jump"]
-script = ExtResource( 9 )
-wall_ray_cast_path = NodePath("../../../../../../../../WallRayCast")
-
-[node name="IsGrounded" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/ForceSuccess/Jump"]
-script = ExtResource( 10 )
-
-[node name="Jump" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/ForceSuccess/Jump"]
-script = ExtResource( 6 )
-
-[node name="LookAtTarget" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
-script = ExtResource( 7 )
-
-[node name="ChangeActorState" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
-script = ExtResource( 5 )
-state_variable_name = "current_action"
-state_value = "Walking"
-
-[node name="MoveFoward" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
-script = ExtResource( 14 )
+[editable path="AIRoot/MobBehaviour/Aggresive/MoveOrAttack/MoveToTarget"]

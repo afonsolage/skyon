@@ -311,6 +311,10 @@ strafe_right={
 3d_physics/layer_3="Players"
 3d_physics/layer_4="Resources"
 
+[network]
+
+limits/debugger_stdout/max_chars_per_second=20480
+
 [rendering]
 
 environment/default_environment="res://default_env.tres"

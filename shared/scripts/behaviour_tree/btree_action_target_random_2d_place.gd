@@ -21,6 +21,6 @@ func _tick(data: Dictionary) -> int:
 		
 	var target := origin + offset
 	
-	_set_global(data, "target", target)
+	_set_global(data, "move_target", target)
 	
 	return _success()
