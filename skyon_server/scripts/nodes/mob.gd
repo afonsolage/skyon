@@ -24,5 +24,6 @@ func get_full_state() -> Dictionary:
 	}
 
 
-func disable_ai() -> void:
+func die() -> void:
 	ai_root.active = false
+	current_action = "Die"

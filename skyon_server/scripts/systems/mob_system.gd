@@ -25,7 +25,7 @@ func _on_CombatSystem_died(killed, _killer):
 	if not killed is Mob:
 		return
 
-	killed.disable_ai()
+	killed.die()
 	# TODO: Add loot, exp, and such
 	
 	yield(get_tree().create_timer(3), "timeout")

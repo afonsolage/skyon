@@ -31,3 +31,7 @@ func decode(state: Dictionary) -> void:
 	attack = state.A
 	defense = state.D
 	attack_range = state.AR
+
+
+func is_alive() -> bool:
+	return health > 0
