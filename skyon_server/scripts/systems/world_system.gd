@@ -95,7 +95,7 @@ remote func join_world() -> void:
 			
 	_players.add_child(player)
 
-	rpc_id(session_id, "__spawn_main_player", Vector3(30, 10, 30))
+	rpc_id(session_id, "__spawn_main_player", Vector3(30, 10, 30), session_id)
 
 
 remote func set_player_state(state: Dictionary) -> void:

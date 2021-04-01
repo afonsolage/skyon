@@ -5,7 +5,7 @@
 [ext_resource path="res://scenes/btree/MoveToTarget.tscn" type="PackedScene" id=3]
 [ext_resource path="res://scripts/shared/behaviour_tree/base/composite/behaviour_tree_node_sequence.gd" type="Script" id=4]
 [ext_resource path="res://scripts/shared/behaviour_tree/btree_action_change_actor_state.gd" type="Script" id=5]
-[ext_resource path="res://scripts/shared/behaviour_tree/debug/btree_action_debug_log.gd" type="Script" id=6]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_attack_enemy.gd" type="Script" id=6]
 [ext_resource path="res://scripts/shared/behaviour_tree/btree_action_target_random_2d_place.gd" type="Script" id=8]
 [ext_resource path="res://scenes/components/wall_raycast.tscn" type="PackedScene" id=12]
 [ext_resource path="res://scripts/shared/behaviour_tree/base/composite/behaviour_tree_node_selector.gd" type="Script" id=13]
@@ -84,10 +84,8 @@ script = ExtResource( 5 )
 state_variable_name = "current_action"
 state_value = "Attacking"
 
-[node name="DebugLog" type="Node" parent="AIRoot/MobBehaviour/Aggresive/MoveOrAttack/AttackTarget"]
+[node name="AttackEnemy" type="Node" parent="AIRoot/MobBehaviour/Aggresive/MoveOrAttack/AttackTarget"]
 script = ExtResource( 6 )
-enabled = false
-message = "Attacking this fellow!"
 
 [node name="Peaceful" type="Node" parent="AIRoot/MobBehaviour"]
 script = ExtResource( 4 )

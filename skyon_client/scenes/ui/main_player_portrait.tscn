@@ -1,0 +1,62 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://assets/barHorizontal_green_mid 200.png" type="Texture" id=1]
+[ext_resource path="res://scenes/player_face.tscn" type="PackedScene" id=2]
+[ext_resource path="res://assets/char_ui.png" type="Texture" id=3]
+[ext_resource path="res://scripts/nodes/ui/main_player_portrait.gd" type="Script" id=4]
+
+[sub_resource type="ViewportTexture" id=1]
+viewport_path = NodePath("Viewport")
+
+[node name="MainPlayerPortrait" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ViewportContainer" type="ViewportContainer" parent="."]
+margin_right = 192.0
+margin_bottom = 138.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureRect" type="TextureRect" parent="ViewportContainer"]
+margin_left = 8.078
+margin_top = 7.745
+margin_right = 108.078
+margin_bottom = 107.745
+rect_scale = Vector2( 0.6, 0.6 )
+texture = SubResource( 1 )
+expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureRect2" type="TextureRect" parent="ViewportContainer"]
+margin_right = 580.0
+margin_bottom = 253.0
+rect_scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="health_bar" type="Sprite" parent="."]
+position = Vector2( 121.689, 58.4589 )
+scale = Vector2( 0.46783, 0.885654 )
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 0, 0, 200, 25 )
+
+[node name="Viewport" type="Viewport" parent="."]
+size = Vector2( 400, 400 )
+own_world = true
+transparent_bg = true
+msaa = 4
+render_target_v_flip = true
+gui_disable_input = true
+
+[node name="PlayerFace" parent="Viewport" instance=ExtResource( 2 )]

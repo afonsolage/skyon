@@ -22,8 +22,10 @@ func get_spatial(id: String) -> Spatial:
 	var type := id.left(1)
 	match type:
 		"P":
-			#Not yet implemented!
-			pass
+			if int(id.right(1)) == main_player.session_id:
+				return main_player
+			else:
+				return null
 		"M":
 			return _mobs.get_node(id) as Spatial
 		_:
@@ -100,6 +102,10 @@ func _spawn_mob(id: String, state: Dictionary) -> void:
 	mob.set_full_state(state)
 
 
+func _on_NetSystem_session_started():
+	rpc_id(1, "join_world")
+
+
 remote func __state_sync(states: Dictionary) -> void:
 	if states.T < _last_state_time:
 		Log.d("Discarting outdated states: %s" % [states])
@@ -133,13 +139,11 @@ remote func __exit_from_area_of_interest(id: String) -> void:
 		spatial.queue_free()
 
 
-remote func __spawn_main_player(position: Vector3) -> void:
+remote func __spawn_main_player(position: Vector3, session_id: int) -> void:
 	main_player = load("res://scenes/characters/main_player.tscn").instance() as Spatial
 	main_player.name = "Main Player"
+	main_player.session_id = session_id
 	main_player.translate(position)
 
 	self.add_child(main_player)
 
-
-func _on_NetSystem_session_started():
-	rpc_id(1, "join_world")

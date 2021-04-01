@@ -43,7 +43,7 @@ nodes/run_scale/node = SubResource( 6 )
 nodes/run_scale/position = Vector2( -60, 300 )
 nodes/speed/node = SubResource( 7 )
 nodes/speed/position = Vector2( 180, 220 )
-node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "attack", "attack", 0, "speed", "attack", 1, "1h_attack_animation", "idle_scale", 0, "idle_animation", "run_scale", 0, "run_animation" ]
+node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "attack", "attack", 0, "speed", "attack", 1, "1h_attack_animation", "run_scale", 0, "run_animation", "idle_scale", 0, "idle_animation" ]
 
 [sub_resource type="CylinderShape" id=9]
 radius = 0.300838
@@ -85,14 +85,11 @@ transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 0, 0
 
 [node name="base_character" parent="Body/Model" instance=ExtResource( 1 )]
 
-[node name="Skeleton" parent="Body/Model/base_character/BodyArmature" index="0"]
-bones/12/bound_children = [ NodePath("HandRAttachment") ]
-
 [node name="Body" parent="Body/Model/base_character/BodyArmature/Skeleton" index="0"]
 material/0 = ExtResource( 5 )
 
 [node name="HandRAttachment" type="BoneAttachment" parent="Body/Model/base_character/BodyArmature/Skeleton" index="1"]
-transform = Transform( -0.227642, 0.0411584, 0.972875, 0.972287, 0.0642663, 0.224786, -0.0532713, 0.997084, -0.0546476, -0.250584, 0.328975, 0.0312995 )
+transform = Transform( -0.208015, 0.0482771, 0.976934, 0.959591, 0.20359, 0.194261, -0.189516, 0.977865, -0.0886761, -0.252233, 0.36142, 0.0552174 )
 bone_name = "hand_attachment_r"
 
 [node name="1h_sword" parent="Body/Model/base_character/BodyArmature/Skeleton/HandRAttachment" instance=ExtResource( 2 )]

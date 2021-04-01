@@ -1,6 +1,8 @@
 class_name PlayerSystem
 extends Node
 
+signal health_changed(health, max_health)
+
 const MOVE_PATH_MIN_DIST := 0.1
 const FOLLOW_MIN_DIST := 0.5
 const FOLLOW_MAX_DIST := 1.5
@@ -16,12 +18,17 @@ func _physics_process(_delta: float) -> void:
 		if not Systems.world or not Systems.world.main_player:
 			return
 		
-		_main_player = Systems.world.main_player as MainPlayer
+		_set_main_player(Systems.world.main_player as MainPlayer)
 	
 	if not _main_player.is_busy:
 		_follow_target()
 		_move_to_target()
 		
+
+func _set_main_player(main_player: MainPlayer) -> void:
+	_main_player = main_player
+	_main_player.combat.connect("health_changed", self, "_on_main_player_health_changed")
+
 
 func _follow_target() -> void:
 	if not _target_follow_ref.get_ref() or _moving_to_path:
@@ -67,6 +74,10 @@ func _move_to_target() -> void:
 		_moving_to_path = false
 		_main_player.set_idle()
 		Systems.input.clear_selection(false, true)
+
+
+func _on_main_player_health_changed() -> void:
+	self.emit_signal("health_changed", _main_player.combat.health, _main_player.combat.max_health)
 
 
 func _on_InputSystem_selected_path(position: Vector3) -> void:

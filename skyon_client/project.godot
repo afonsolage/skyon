@@ -60,6 +60,11 @@ _global_script_classes=[ {
 "path": "res://scripts/shared/behaviour_tree/base/leaf/behaviour_tree_node_action.gd"
 }, {
 "base": "BTreeNodeLeafAction",
+"class": "BTreeNodeLeafActionAttackEnemy",
+"language": "GDScript",
+"path": "res://scripts/shared/behaviour_tree/btree_action_attack_enemy.gd"
+}, {
+"base": "BTreeNodeLeafAction",
 "class": "BTreeNodeLeafActionChangeActorState",
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/btree_action_change_actor_state.gd"
@@ -199,6 +204,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/nodes/main_player.gd"
 }, {
+"base": "Control",
+"class": "MainPlayerPortrait",
+"language": "GDScript",
+"path": "res://scripts/nodes/ui/main_player_portrait.gd"
+}, {
 "base": "KinematicBody",
 "class": "Mob",
 "language": "GDScript",
@@ -225,6 +235,11 @@ _global_script_classes=[ {
 "path": "res://scripts/nodes/terrain.gd"
 }, {
 "base": "Node",
+"class": "UISystem",
+"language": "GDScript",
+"path": "res://scripts/systems/ui_system.gd"
+}, {
+"base": "Node",
 "class": "WorldSystem",
 "language": "GDScript",
 "path": "res://scripts/systems/world_system.gd"
@@ -240,6 +255,7 @@ _global_script_class_icons={
 "BTreeNodeDecoratorLimiter": "res://scripts/shared/behaviour_tree/base/icons/decorator.png",
 "BTreeNodeLeaf": "",
 "BTreeNodeLeafAction": "res://scripts/shared/behaviour_tree/base/icons/action.png",
+"BTreeNodeLeafActionAttackEnemy": "",
 "BTreeNodeLeafActionChangeActorState": "",
 "BTreeNodeLeafActionCursorToTarget": "",
 "BTreeNodeLeafActionDebugClearTarget": "",
@@ -268,11 +284,13 @@ _global_script_class_icons={
 "InputSystem": "",
 "Log": "",
 "MainPlayer": "",
+"MainPlayerPortrait": "",
 "Mob": "",
 "NetSystem": "",
 "PlayerSystem": "",
 "SelectTarget": "",
 "Terrain": "",
+"UISystem": "",
 "WorldSystem": ""
 }
 

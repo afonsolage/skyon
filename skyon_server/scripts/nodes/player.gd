@@ -21,6 +21,7 @@ onready var _interaction_area: Area = $InteractionArea
 
 func _ready() -> void:
 	session_id = int(self.name.right(1))
+	combat.defense *= 3
 
 
 func get_state() -> Dictionary:

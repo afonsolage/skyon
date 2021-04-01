@@ -1,11 +1,14 @@
 class_name CombatComponent
 extends Object
 
-var health : int = 100
-var max_health : int = 100
-var attack : int = 20
+var health: int = 100
+var max_health: int = 100
+var attack: int = 20
 var defense: int = 5
-var attack_range : int = 1
+var attack_range: int = 1
+var attack_speed: float = 1.0
+
+var last_attack: int = 0
 
 var parent : Spatial
 
@@ -35,3 +38,7 @@ func decode(state: Dictionary) -> void:
 
 func is_alive() -> bool:
 	return health > 0
+
+
+func is_attack_ready() -> bool:
+	return OS.get_ticks_msec() > last_attack + (attack_speed * 1000)

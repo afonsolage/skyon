@@ -4,6 +4,17 @@ extends Node
 signal died(killed, killer)
 
 
+func attack(attacker: Spatial, attacked: Spatial) -> Dictionary:
+	var result := _attack_target(attacker, attacked)
+		
+	if not result.empty():
+		result.attacked = attacked.name
+		result.attacker = attacker.name
+		_broadcast_damage(result)
+	
+	return result
+
+
 func _attack_target(attacker_node: Spatial, attacked_node: Spatial) -> Dictionary:
 	if not "combat" in attacker_node or not "combat" in attacked_node:
 		Log.e("%s can't attack %s" % [attacker_node.name, attacked_node.name])
@@ -29,7 +40,7 @@ func _attack_combat(attacker: CombatComponent, attacked: CombatComponent) -> Dic
 	dmg += randomness
 	dmg = int(dmg)
 	
-	
+	attacker.last_attack = OS.get_ticks_msec()
 	attacked.health -= int(dmg)
 	
 	if attacked.health < 0:
@@ -45,6 +56,10 @@ func _broadcast_damage(damage_info: Dictionary) -> void:
 		rpc_id(session_id, "__damage_received", damage_info)
 
 
+func is_attack_ready(node: Spatial) -> bool:
+	return node.combat.is_attack_ready()
+
+
 remote func __attack() -> void:
 	var session_id := self.get_tree().get_rpc_sender_id()
 	var player = Systems.world.get_player(session_id)
@@ -55,11 +70,6 @@ remote func __attack() -> void:
 			target = body
 	
 	if target:
-		var result := _attack_target(player, target)
-		
-		if not result.empty():
-			result.attacked = target.name
-			result.attacker = player.name
-			_broadcast_damage(result)
+		attack(player, target)
 	else:
 		Log.d("No target!")

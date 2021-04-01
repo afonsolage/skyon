@@ -3,9 +3,11 @@ extends KinematicBody
 
 export(float) var move_speed := 3.0
 
-var is_busy : bool
+var is_busy: bool
+var session_id: int
 
 var gravity := GravityComponent.new(self)
+var combat := CombatComponent.new(self)
 
 var _state: Dictionary
 
