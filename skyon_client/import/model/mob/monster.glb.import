@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/monster.glb-a30d479fe3d66218a38af970e3896e89.scn"
+path="res://.import/monster.glb-5c64c8c9a96b4b5b5993afbf2c1aacd3.scn"
 
 [deps]
 
-source_file="res://import/model/monster/monster.glb"
-dest_files=[ "res://.import/monster.glb-a30d479fe3d66218a38af970e3896e89.scn" ]
+source_file="res://import/model/mob/monster.glb"
+dest_files=[ "res://.import/monster.glb-5c64c8c9a96b4b5b5993afbf2c1aacd3.scn" ]
 
 [params]
 

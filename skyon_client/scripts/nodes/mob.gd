@@ -35,5 +35,9 @@ func _parse_current_action(action: String) -> void:
 			_animation_tree.set("parameters/speed/blend_amount", 0)
 		"Walking":
 			_animation_tree.set("parameters/speed/blend_amount", 1)
+		"Attacking":
+			_animation_tree.set("parameters/attack/active", true)
+		"Die":
+			_animation_tree.set("parameters/dead/blend_amount", 1)
 		_:
 			Log.e("Unknown action: %s" % action)

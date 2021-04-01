@@ -5,6 +5,7 @@ export(float) var move_speed := 1.0
 
 onready var combat := CombatComponent.new(self)
 onready var gravity := GravityComponent.new(self)
+onready var ai_root := $AIRoot
 
 var current_action: String = "Idle"
 
@@ -22,3 +23,6 @@ func get_full_state() -> Dictionary:
 		"C": combat.encode(),
 	}
 
+
+func disable_ai() -> void:
+	ai_root.active = false
