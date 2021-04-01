@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://scenes/components/health_bar.tscn" type="PackedScene" id=1]
 [ext_resource path="res://resources/material/default.material" type="Material" id=2]
@@ -12,7 +12,6 @@
 [ext_resource path="res://scenes/btree/MoveToTarget.tscn" type="PackedScene" id=10]
 [ext_resource path="res://scripts/shared/behaviour_tree/btree_action_wait.gd" type="Script" id=11]
 [ext_resource path="res://scripts/shared/behaviour_tree/btree_action_find_random_2d_place.gd" type="Script" id=12]
-[ext_resource path="res://scripts/shared/behaviour_tree/base/decorator/behaviour_tree_node_inverter.gd" type="Script" id=13]
 [ext_resource path="res://scripts/shared/behaviour_tree/debug/btree_action_debug_log.gd" type="Script" id=15]
 [ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_enemy_near.gd" type="Script" id=17]
 [ext_resource path="res://scripts/shared/behaviour_tree/base/btree_root.gd" type="Script" id=18]
@@ -114,36 +113,30 @@ script = ExtResource( 8 )
 
 [node name="Defensive" type="Node" parent="AIRoot/MobBehaviour"]
 script = ExtResource( 9 )
-enabled = false
 
 [node name="IsBeingAttacked" type="Node" parent="AIRoot/MobBehaviour/Defensive"]
 script = ExtResource( 19 )
 
-[node name="BTreeNodeCompositeSequence" type="Node" parent="AIRoot/MobBehaviour"]
+[node name="Aggresive" type="Node" parent="AIRoot/MobBehaviour"]
 script = ExtResource( 9 )
-enabled = false
 
-[node name="Not" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence"]
-script = ExtResource( 13 )
-
-[node name="IsEnemyNear" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/Not"]
+[node name="IsEnemyNear" type="Node" parent="AIRoot/MobBehaviour/Aggresive"]
 script = ExtResource( 17 )
-aggro_area_path = NodePath("../../../../../AggroArea")
+aggro_area_path = NodePath("../../../../AggroArea")
 
-[node name="FindTarget" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence"]
+[node name="FindTarget" type="Node" parent="AIRoot/MobBehaviour/Aggresive"]
 script = ExtResource( 20 )
 
-[node name="MoveAndAttackTarget" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence"]
+[node name="MoveAndAttackTarget" type="Node" parent="AIRoot/MobBehaviour/Aggresive"]
 script = ExtResource( 8 )
 
-[node name="MoveToTarget" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/MoveAndAttackTarget" instance=ExtResource( 10 )]
+[node name="MoveToTarget" parent="AIRoot/MobBehaviour/Aggresive/MoveAndAttackTarget" instance=ExtResource( 10 )]
 
-[node name="AttackTarget" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/MoveAndAttackTarget"]
+[node name="AttackTarget" type="Node" parent="AIRoot/MobBehaviour/Aggresive/MoveAndAttackTarget"]
 script = ExtResource( 9 )
 
-[node name="DebugLog" type="Node" parent="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/MoveAndAttackTarget/AttackTarget"]
+[node name="DebugLog" type="Node" parent="AIRoot/MobBehaviour/Aggresive/MoveAndAttackTarget/AttackTarget"]
 script = ExtResource( 15 )
-enabled = false
 message = "Attacking"
 
 [node name="Peaceful" type="Node" parent="AIRoot/MobBehaviour"]
@@ -166,4 +159,4 @@ script = ExtResource( 12 )
 [node name="MoveToTarget" parent="AIRoot/MobBehaviour/Peaceful/Wander" instance=ExtResource( 10 )]
 
 [editable path="Model/monster"]
-[editable path="AIRoot/MobBehaviour/BTreeNodeCompositeSequence/MoveAndAttackTarget/MoveToTarget"]
+[editable path="AIRoot/MobBehaviour/Aggresive/MoveAndAttackTarget/MoveToTarget"]

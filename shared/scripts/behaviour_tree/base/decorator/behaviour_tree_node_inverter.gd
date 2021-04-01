@@ -1,4 +1,4 @@
-class_name BTreeNodeDecoratorInverter, "../icons/decorator.png"
+class_name BTreeNodeDecoratorInverter
 extends BTreeNodeDecorator
 
 

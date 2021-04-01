@@ -1,4 +1,4 @@
-class_name BTreeNodeDecorator
+class_name BTreeNodeDecorator, "../icons/decorator.png"
 extends BTreeNode
 
 func _ready():

@@ -19,12 +19,13 @@ func _tick(data: Dictionary) -> int:
 	var body := actor as KinematicBody
 	var _velocity = body.move_and_slide(-body.transform.basis.z * move_speed)
 
-	var target_2d := Vector2(target.x, target.z)
-	var transaltion_2d := Vector2(body.translation.x, body.translation.z)
-	var dist := transaltion_2d.distance_to(target_2d)
-
-	if dist > reach_distance:
-		return _running()
-	else:
-		return _success()
+	return _running()
+#	var target_2d := Vector2(target.x, target.z)
+#	var transaltion_2d := Vector2(body.translation.x, body.translation.z)
+#	var dist := transaltion_2d.distance_to(target_2d)
+#
+#	if dist > reach_distance:
+#		return _running()
+#	else:
+#		return _success()
 
