@@ -35,6 +35,11 @@ _global_script_classes=[ {
 "path": "res://scripts/shared/behaviour_tree/base/decorator/behaviour_tree_node_decorator.gd"
 }, {
 "base": "BTreeNodeDecorator",
+"class": "BTreeNodeDecoratorForceSuccess",
+"language": "GDScript",
+"path": "res://scripts/shared/behaviour_tree/btree_decorator_force_success.gd"
+}, {
+"base": "BTreeNodeDecorator",
 "class": "BTreeNodeDecoratorInverter",
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/base/decorator/behaviour_tree_node_inverter.gd"
@@ -53,6 +58,11 @@ _global_script_classes=[ {
 "class": "BTreeNodeLeafAction",
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/base/leaf/behaviour_tree_node_action.gd"
+}, {
+"base": "BTreeNodeLeafAction",
+"class": "BTreeNodeLeafActionChangeActorState",
+"language": "GDScript",
+"path": "res://scripts/shared/behaviour_tree/btree_action_change_actor_state.gd"
 }, {
 "base": "BTreeNodeLeafAction",
 "class": "BTreeNodeLeafActionCursorToTarget",
@@ -79,17 +89,17 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/btree_action_look_at_target.gd"
 }, {
-"base": "Reference",
-"class": "BTreeNodeLeafActionMoveFowardUntilTarget",
+"base": "BTreeNodeLeafAction",
+"class": "BTreeNodeLeafActionMoveFoward",
 "language": "GDScript",
-"path": "res://scripts/shared/behaviour_tree/btree_action_move_forward_until_target.gd"
+"path": "res://scripts/shared/behaviour_tree/btree_action_move_forward.gd"
 }, {
 "base": "BTreeNodeLeafAction",
 "class": "BTreeNodeLeafActionTargetEnemy",
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/btree_action_target_enemy.gd"
 }, {
-"base": "Reference",
+"base": "BTreeNodeLeafAction",
 "class": "BTreeNodeLeafActionTargetRandom2DPlace",
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/btree_action_target_random_2d_place.gd"
@@ -118,6 +128,11 @@ _global_script_classes=[ {
 "class": "BTreeNodeLeafConditionIsFacingWall",
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/btree_condition_is_facing_wall.gd"
+}, {
+"base": "BTreeNodeLeafCondition",
+"class": "BTreeNodeLeafConditionIsGrounded",
+"language": "GDScript",
+"path": "res://scripts/shared/behaviour_tree/btree_condition_is_grounded.gd"
 }, {
 "base": "BTreeNodeLeafCondition",
 "class": "BTreeNodeLeafConditionIsTargetReached",
@@ -219,17 +234,19 @@ _global_script_class_icons={
 "BTreeNodeComposite": "",
 "BTreeNodeCompositeSelector": "res://scripts/shared/behaviour_tree/base/icons/selector.png",
 "BTreeNodeCompositeSequence": "res://scripts/shared/behaviour_tree/base/icons/sequence.png",
-"BTreeNodeDecorator": "",
-"BTreeNodeDecoratorInverter": "res://scripts/shared/behaviour_tree/base/icons/decorator.png",
+"BTreeNodeDecorator": "res://scripts/shared/behaviour_tree/base/icons/decorator.png",
+"BTreeNodeDecoratorForceSuccess": "",
+"BTreeNodeDecoratorInverter": "",
 "BTreeNodeDecoratorLimiter": "res://scripts/shared/behaviour_tree/base/icons/decorator.png",
 "BTreeNodeLeaf": "",
 "BTreeNodeLeafAction": "res://scripts/shared/behaviour_tree/base/icons/action.png",
+"BTreeNodeLeafActionChangeActorState": "",
 "BTreeNodeLeafActionCursorToTarget": "",
 "BTreeNodeLeafActionDebugClearTarget": "",
 "BTreeNodeLeafActionDebugLog": "",
 "BTreeNodeLeafActionDebugShowTarget": "",
 "BTreeNodeLeafActionLookAtTarget": "",
-"BTreeNodeLeafActionMoveFowardUntilTarget": "",
+"BTreeNodeLeafActionMoveFoward": "",
 "BTreeNodeLeafActionTargetEnemy": "",
 "BTreeNodeLeafActionTargetRandom2DPlace": "",
 "BTreeNodeLeafActionWait": "",
@@ -237,6 +254,7 @@ _global_script_class_icons={
 "BTreeNodeLeafConditionIsBeingAttacked": "",
 "BTreeNodeLeafConditionIsEnemyNear": "",
 "BTreeNodeLeafConditionIsFacingWall": "",
+"BTreeNodeLeafConditionIsGrounded": "",
 "BTreeNodeLeafConditionIsTargetReached": "",
 "BTreeNodeLeaftActionClearTarget": "",
 "BTreeResult": "",
@@ -276,7 +294,7 @@ Display=8
 [application]
 
 config/name="Skyon"
-run/main_scene="res://scenes/ai_test_scene.tscn"
+run/main_scene="res://scenes/game_world.tscn"
 
 [autoload]
 

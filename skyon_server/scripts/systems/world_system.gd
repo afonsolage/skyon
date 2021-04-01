@@ -6,7 +6,7 @@ var _uid_cnt: int = 1
 
 onready var _player_res = preload("res://scenes/characters/player.tscn")
 onready var _players = $Players
-onready var _monsters = $Monsters
+onready var _mobs = $Mobs
 
 
 func _physics_process(delta: float) -> void:
@@ -15,8 +15,8 @@ func _physics_process(delta: float) -> void:
 	_broadcast_states()
 
 
-func add_monster(monster: Spatial) -> void:
-	_monsters.add_child(monster)
+func add_mob(mob: Spatial) -> void:
+	_mobs.add_child(mob)
 
 
 func get_player(session_id: int) -> Player:
@@ -27,8 +27,8 @@ func get_player(session_id: int) -> Player:
 		return node as Player
 
 
-func get_monster(id: String) -> Monster:
-	return _monsters.get_node(id) as Monster
+func get_mob(id: String) -> Mob:
+	return _mobs.get_node(id) as Mob
 
 
 func remove_player_state(session_id: int) -> void:
@@ -41,7 +41,7 @@ func remove_player_state(session_id: int) -> void:
 
 
 func list_monsters() -> Array:
-	return _monsters.get_children()
+	return _mobs.get_children()
 
 
 func _process_player_states(state_snap: Dictionary) -> void:
@@ -54,7 +54,7 @@ func _process_player_states(state_snap: Dictionary) -> void:
 
 func _process_gravity(delta: float) -> void:
 	var bodies := []
-	bodies += _monsters.get_children()
+	bodies += _mobs.get_children()
 	bodies += _players.get_children()
 	
 	var magnitude = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -123,7 +123,7 @@ func _on_player_area_of_interest_entered(body: PhysicsBody, player: Player) -> v
 
 func _on_player_area_of_interest_exited(body: PhysicsBody, player: Player) -> void:
 	if not body.has_method("get_full_state"):
-		Log.d("Skipping the area exited since %s doesn't have `get_full_state" % body.name)
+		Log.d("Skipping the area exited since %s doesn't have get_full_state" % body.name)
 		return
 	
 	rpc_id(player.session_id, "__exit_from_area_of_interest", body.name)

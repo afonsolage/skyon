@@ -1,0 +1,113 @@
+[gd_scene load_steps=19 format=2]
+
+[ext_resource path="res://scripts/shared/behaviour_tree/base/btree_root.gd" type="Script" id=1]
+[ext_resource path="res://scripts/nodes/mob.gd" type="Script" id=2]
+[ext_resource path="res://scripts/shared/behaviour_tree/base/decorator/behaviour_tree_node_inverter.gd" type="Script" id=3]
+[ext_resource path="res://scripts/shared/behaviour_tree/base/composite/behaviour_tree_node_sequence.gd" type="Script" id=4]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_change_actor_state.gd" type="Script" id=5]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_jump.gd" type="Script" id=6]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_look_at_target.gd" type="Script" id=7]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_target_random_2d_place.gd" type="Script" id=8]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_facing_wall.gd" type="Script" id=9]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_grounded.gd" type="Script" id=10]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_decorator_force_success.gd" type="Script" id=11]
+[ext_resource path="res://scenes/components/wall_raycast.tscn" type="PackedScene" id=12]
+[ext_resource path="res://scripts/shared/behaviour_tree/base/composite/behaviour_tree_node_selector.gd" type="Script" id=13]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_move_forward.gd" type="Script" id=14]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_action_wait.gd" type="Script" id=15]
+[ext_resource path="res://scripts/shared/behaviour_tree/btree_condition_is_target_reached.gd" type="Script" id=16]
+
+[sub_resource type="CylinderShape" id=1]
+radius = 0.32
+height = 0.89
+
+[sub_resource type="CylinderMesh" id=2]
+top_radius = 0.47
+bottom_radius = 0.47
+height = 1.16
+
+[node name="Mob" type="KinematicBody" groups=[
+"Enemy",
+"Targetable",
+]]
+collision_layer = 2
+script = ExtResource( 2 )
+
+[node name="CollisionBody" type="CollisionShape" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.442703, 0 )
+shape = SubResource( 1 )
+
+[node name="DummyGizmo" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.580426, 0 )
+mesh = SubResource( 2 )
+material/0 = null
+
+[node name="WallRayCast" parent="." instance=ExtResource( 12 )]
+transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 0.3, 0 )
+
+[node name="AIRoot" type="Node" parent="."]
+script = ExtResource( 1 )
+actor_path = NodePath("..")
+
+[node name="MobBehaviour" type="Node" parent="AIRoot"]
+script = ExtResource( 13 )
+
+[node name="Peaceful" type="Node" parent="AIRoot/MobBehaviour"]
+script = ExtResource( 4 )
+
+[node name="Wait" type="Node" parent="AIRoot/MobBehaviour/Peaceful"]
+script = ExtResource( 4 )
+
+[node name="ChangeActorState" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wait"]
+script = ExtResource( 5 )
+state_variable_name = "current_action"
+state_value = "Idle"
+
+[node name="Wait" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wait"]
+script = ExtResource( 15 )
+min_seconds = 1.0
+max_seconds = 3.0
+
+[node name="Wander" type="Node" parent="AIRoot/MobBehaviour/Peaceful"]
+script = ExtResource( 4 )
+
+[node name="TargetRandom2DPlace" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander"]
+script = ExtResource( 8 )
+
+[node name="MoveToTarget" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander"]
+script = ExtResource( 4 )
+reactive = true
+
+[node name="Not" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
+script = ExtResource( 3 )
+
+[node name="IsTargetReached" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/Not"]
+script = ExtResource( 16 )
+
+[node name="ForceSuccess" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
+script = ExtResource( 11 )
+
+[node name="Jump" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/ForceSuccess"]
+script = ExtResource( 4 )
+reactive = true
+
+[node name="IsFacingWall" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/ForceSuccess/Jump"]
+script = ExtResource( 9 )
+wall_ray_cast_path = NodePath("../../../../../../../../WallRayCast")
+
+[node name="IsGrounded" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/ForceSuccess/Jump"]
+script = ExtResource( 10 )
+
+[node name="Jump" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget/ForceSuccess/Jump"]
+script = ExtResource( 6 )
+
+[node name="LookAtTarget" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
+script = ExtResource( 7 )
+
+[node name="ChangeActorState" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
+script = ExtResource( 5 )
+state_variable_name = "current_action"
+state_value = "Walking"
+
+[node name="MoveFoward" type="Node" parent="AIRoot/MobBehaviour/Peaceful/Wander/MoveToTarget"]
+script = ExtResource( 14 )
