@@ -39,7 +39,7 @@ func generate(some_seed: int = 0) -> HeightMap:
 	
 	if is_generate_border:
 		generate_border(map)
-	 
+	
 	if is_generate_places:
 		generate_places(map)
 	

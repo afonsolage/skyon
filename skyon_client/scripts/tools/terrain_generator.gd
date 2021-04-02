@@ -4,6 +4,7 @@ extends Spatial
 export(bool) var update := false setget set_update
 
 export(bool) var is_generate_terrain := false
+export(bool) var is_merge_faces := true
 export(bool) var is_generate_border := true
 export(bool) var is_generate_places := true
 export(bool) var is_connect_places := true
@@ -26,15 +27,20 @@ export(Array, Color) var height_colors := []
 
 export(bool) var disable_randomness := false
 
+func _ready():
+	generate()
+
 
 func set_update(_value):
 	update = false
-	
+	generate()
+
+func generate():
 	if not is_generate_terrain:
 		return
 	
-	if self.get_child_count() > 0:
-		self.get_child(0).queue_free()
+	if self.has_node("Terrain"):
+		self.get_node("Terrain").free()
 	
 	var result := _generate_terrain_mesh()
 	var mesh : Mesh = result[0]
@@ -84,10 +90,14 @@ func _generate_terrain_mesh() -> Array:
 	print("Generating a new terrain mesh!")
 	
 	var height_map := _create_height_map()
+	
 	_normalize_height_map(height_map)
 	
-	var new_mesh = Mesh.new()
 	var planes := _create_planes(height_map)
+	
+	if is_merge_faces:
+		_merge_faces(planes, height_map)
+	
 	var indexes := _create_indexes(planes)
 	
 	var mat := SpatialMaterial.new()
@@ -99,32 +109,33 @@ func _generate_terrain_mesh() -> Array:
 	
 	st.set_material(mat)
 
-	for side in planes.vertices:
-		var vertices: Dictionary = planes.vertices[side]
-		for pos in vertices:
-			var c = planes.colors[pos]
-			var vertices_arr = vertices[pos]
+	for side in planes:
+		var vertices: PoolVector3Array = planes[side]
+		for i in range(0, vertices.size(), 4):
+			var h = vertices[i].y - 1
+			var c = height_colors[h]
 			
 			var normal := _get_side_normal(side)
 			st.add_normal(normal)
 			st.add_color(c)
-			st.add_vertex(vertices_arr[0])
+			st.add_vertex(vertices[i])
 			
 			st.add_normal(normal)
 			st.add_color(c)
-			st.add_vertex(vertices_arr[1])
+			st.add_vertex(vertices[i + 1])
 			
 			st.add_normal(normal)
 			st.add_color(c)
-			st.add_vertex(vertices_arr[2])
+			st.add_vertex(vertices[i + 2])
 			
 			st.add_normal(normal)
 			st.add_color(c)
-			st.add_vertex(vertices_arr[3])
+			st.add_vertex(vertices[i + 3])
 
 	for i in indexes:
 		st.add_index(i)
 
+	var new_mesh = Mesh.new()
 	var _res = st.commit(new_mesh)
 	
 	return [new_mesh, height_map]
@@ -145,30 +156,28 @@ func _get_side_normal(side: String) -> Vector3:
 
 
 func _create_planes(height_map: HeightMap) -> Dictionary:
-	var planes := {
-		"vertices": {
-			"top": {},
-			"right": {},
-			"front": {},
-			"left": {},
-			"back": {}
-		},
-		"colors": {},
-	}
+	
+	var right := PoolVector3Array()
+	var left := PoolVector3Array()
+	var front := PoolVector3Array()
+	var back := PoolVector3Array()
 
-	for x in size:
-		for z in size:
-			var h := int(height_map.get_at(x, z))
-			var pos = Vector2(x, z)
-			planes.vertices.top[pos] = _top_vertices(x, h, z)
-			planes.vertices.right[pos] = _right_vertices(height_map, x, h, z)
-			planes.vertices.front[pos] = _front_vertices(height_map, x, h, z)
-			planes.vertices.left[pos] = _left_vertices(height_map, x, h, z)
-			planes.vertices.back[pos] = _back_vertices(height_map, x, h, z)
+	for i in height_map.buffer_size():
+		var h := int(height_map.get_at_index(i))
+		var x = int(i / height_map.size())
+		var z = int(i % height_map.size())
+		
+		right.append_array(_right_vertices(height_map, x, h, z))
+		left.append_array(_left_vertices(height_map, x, h, z))
+		front.append_array(_front_vertices(height_map, x, h, z))
+		back.append_array(_back_vertices(height_map, x, h, z))
 			
-			planes.colors[pos] = height_colors[h] as Color
-			
-	return planes
+	return {
+		"right": right,
+		"front": front,
+		"left": left,
+		"back": back,
+	}
 
 #    
 #   v1         v2
@@ -195,60 +204,57 @@ func _top_vertices(x: int, y: int, z: int) -> Array:
 	]
 
 
-func _calc_height_difference(side: String, height_map: HeightMap, x: int, y: int, z: int) -> int:
-	var normal = _get_side_normal(side)
-	var previous_pos = Vector2(x + normal.x, z + normal.z)
-	
-	if height_map.is_pos_valid(previous_pos):
-		var previous_height = height_map.get_at(previous_pos.x, previous_pos.y)
-		if y > previous_height + 1:
-			return int(y - previous_height - 1)
-			
-	return 0
-
-
-func _left_vertices(height_map: HeightMap, x: int, y: int, z: int) -> Array:
+func _left_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVector3Array:
 	var height_difference := _calc_height_difference("left", height_map, x, y, z)
 	
-	return [
-		_v1(x, y, z),
-		_v3(x, y, z),
-		_v7(x, y - height_difference, z),
-		_v5(x, y - height_difference, z),
-	]
+	if height_difference > 0:
+		return PoolVector3Array([
+			_v1(x, y, z),
+			_v3(x, y, z),
+			_v7(x, y - height_difference + 1, z),
+			_v5(x, y - height_difference + 1, z),
+		])
+	else:
+		return PoolVector3Array()
 
-
-func _right_vertices(height_map: HeightMap, x: int, y: int, z: int) -> Array:
+func _right_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVector3Array:
 	var height_difference := _calc_height_difference("right", height_map, x, y, z)
 	
-	return [
-		_v2(x, y, z),
-		_v6(x, y - height_difference, z),
-		_v8(x, y - height_difference, z),
-		_v4(x, y, z),
-	]
+	if height_difference > 0:
+		return PoolVector3Array([
+			_v4(x, y, z),
+			_v2(x, y, z),
+			_v6(x, y - height_difference + 1, z),
+			_v8(x, y - height_difference + 1, z),
+		])
+	else:
+		return PoolVector3Array()
 
-
-func _front_vertices(height_map: HeightMap, x: int, y: int, z: int) -> Array:
+func _front_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVector3Array:
 	var height_difference := _calc_height_difference("front", height_map, x, y, z)
 	
-	return [
-		_v3(x, y, z),
-		_v4(x, y, z),
-		_v8(x, y - height_difference, z),
-		_v7(x, y - height_difference, z),
-	]
+	if height_difference > 0:
+		return PoolVector3Array([
+			_v3(x, y, z),
+			_v4(x, y, z),
+			_v8(x, y - height_difference + 1, z),
+			_v7(x, y - height_difference + 1, z),
+		])
+	else:
+		return PoolVector3Array()
 
-
-func _back_vertices(height_map: HeightMap, x: int, y: int, z: int) -> Array:
+func _back_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVector3Array:
 	var height_difference := _calc_height_difference("back", height_map, x, y, z)
 	
-	return [
-		_v1(x, y, z),
-		_v5(x, y - height_difference, z),
-		_v6(x, y - height_difference, z),
-		_v2(x, y, z),
-	]
+	if height_difference > 0:
+		return PoolVector3Array([
+			_v1(x, y, z),
+			_v5(x, y - height_difference + 1, z),
+			_v6(x, y - height_difference + 1, z),
+			_v2(x, y, z),
+		])
+	else:
+		return PoolVector3Array()
 
 
 func _v1(x: int, y: int, z: int) -> Vector3:
@@ -283,11 +289,87 @@ func _v8(x: int, y: int, z: int) -> Vector3:
 	return Vector3(x + 1, y, z + 1)
 
 
+func _calc_height_difference(side: String, height_map: HeightMap, x: int, y: int, z: int) -> int:
+	var normal := _get_side_normal(side)
+	var next_idx := height_map.calc_index(normal.x + x, normal.z + z)
+	
+	if next_idx > 0 and next_idx < height_map.buffer_size():
+		var previous_height := int(height_map.get_at_index(next_idx))
+		if y > previous_height:
+			return y - previous_height
+			
+	return 0
+
+
+func _merge_faces(planes: Dictionary, height_map: HeightMap) -> void:
+	var merged := PoolByteArray()
+	merged.resize(size * size)
+	var merged_faces := PoolVector3Array()
+
+	for i in merged.size():
+		merged[i] = 0
+
+	for x in size:
+		for z in size:
+			var pos := Vector2(x, z)
+
+			if merged[height_map.calc_index(pos.x, pos.y)] == 1:
+				continue
+
+			var h := int(height_map.get_at(x, z))
+			var origin_x = x
+			var origin_z = z
+
+			var end_z = z + 1
+			while end_z < size:
+				var npos := Vector2(origin_x, end_z)
+
+				var nh := int(height_map.get_at(origin_x, end_z))
+
+				if nh == h and merged[height_map.calc_index(npos.x, npos.y)] == 0:
+					end_z += 1
+				else:
+					break
+
+			end_z -= 1
+
+			var end_x = origin_x
+			var done := false
+			while end_x < size and not done:
+				end_x += 1
+				
+				if end_x >= size:
+					break
+				
+				for tmp_z in range(origin_z, end_z + 1):
+					var npos := Vector2(end_x, tmp_z)
+					var nh := int(height_map.get_at(end_x, tmp_z))
+					
+					if nh == h and merged[height_map.calc_index(npos.x, npos.y)] == 0:
+						tmp_z += 1
+					else:
+						done = true
+						break
+
+			end_x -= 1
+
+			for wx in range(origin_x, end_x + 1):
+				for wz in range(origin_z, end_z + 1):
+					merged[height_map.calc_index(wx, wz)] = 1
+
+			merged_faces.push_back(_v1(origin_x, h, origin_z))
+			merged_faces.push_back(_v2(end_x, h, origin_z))
+			merged_faces.push_back(_v4(end_x, h, end_z))
+			merged_faces.push_back(_v3(origin_x, h, end_z))
+
+	planes.top = merged_faces
+
+
 func _create_indexes(planes: Dictionary) -> PoolIntArray:
 	var indexes := PoolIntArray()
 
 	var i := 0
-	for vertices in planes.vertices.values():
+	for vertices in planes.values():
 		for _i in vertices.size():
 			indexes.push_back(i)
 			indexes.push_back(i + 1)
