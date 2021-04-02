@@ -30,6 +30,15 @@ func calc_index(x: int, y: int) -> int:
 	return x * _size + y
 
 
+func calc_pos(index: int) -> Vector2:
+	return Vector2(index / _size, index % _size)
+
+
+func is_pos_valid(pos: Vector2) -> bool:
+	var idx := calc_index(pos.x, pos.y)
+	return idx > 0 and idx < _buffer.size()
+
+
 func size() -> int:
 	return _size
 
