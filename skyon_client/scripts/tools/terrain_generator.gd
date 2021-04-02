@@ -43,8 +43,9 @@ func generate():
 		self.get_node("Terrain").free()
 	
 	var result := _generate_terrain_mesh()
-	var mesh : Mesh = result[0]
-	var height_map : HeightMap = result[1]
+	var mesh: Mesh = result[0]
+	var height_map: HeightMap = result[1]
+	var collision_shape_faces: PoolVector3Array = result[2]
 	
 	var meshInstance := Terrain.new()
 	meshInstance.mesh = mesh
@@ -56,35 +57,21 @@ func generate():
 	
 	self.add_child(meshInstance)
 	meshInstance.owner = get_tree().get_edited_scene_root()
-#
-#	meshInstance.create_trimesh_collision()
-#	meshInstance.get_child(0).name = "StaticBody"
+
+	var static_body = StaticBody.new()
+	meshInstance.add_child(static_body)
+	static_body.owner = get_tree().get_edited_scene_root()
 	
-#	var navigation = Navigation.new()
-#
-#	var mesh = _generate_terrain_mesh()
-#
-#	var meshInstance := MeshInstance.new()
-#	meshInstance.mesh = mesh
-#
-#	var navMesh := NavigationMesh.new()
-#
-#	var navMeshInstance := NavigationMeshInstance.new()
-#	navMeshInstance.navmesh = navMesh
-#
-#	self.add_child(navigation)
-#	navigation.owner = get_tree().get_edited_scene_root()
-#
-#	navigation.add_child(navMeshInstance)
-#	navMeshInstance.owner = get_tree().get_edited_scene_root()
-#
-#	navMeshInstance.add_child(meshInstance)
-#	meshInstance.owner = get_tree().get_edited_scene_root()
-#
-#	meshInstance.create_trimesh_collision()
-#
-#	navMesh.create_from_mesh(mesh)
+	var concave_shape = ConcavePolygonShape.new()
+	concave_shape.set_faces(collision_shape_faces)
 	
+	var collision_shape = CollisionShape.new()
+	collision_shape.shape = concave_shape
+	
+	static_body.add_child(collision_shape)
+	collision_shape.owner = get_tree().get_edited_scene_root()
+	
+	var a_start = AStar.new()
 
 func _generate_terrain_mesh() -> Array:
 	print("Generating a new terrain mesh!")
@@ -104,6 +91,7 @@ func _generate_terrain_mesh() -> Array:
 	mat.albedo_color = Color.white;
 	mat.vertex_color_use_as_albedo = true
 	
+	var vertex_list = PoolVector3Array()
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
@@ -119,26 +107,33 @@ func _generate_terrain_mesh() -> Array:
 			st.add_normal(normal)
 			st.add_color(c)
 			st.add_vertex(vertices[i])
+			vertex_list.push_back(vertices[i])
 			
 			st.add_normal(normal)
 			st.add_color(c)
 			st.add_vertex(vertices[i + 1])
+			vertex_list.push_back(vertices[i + 1])
 			
 			st.add_normal(normal)
 			st.add_color(c)
 			st.add_vertex(vertices[i + 2])
+			vertex_list.push_back(vertices[i + 2])
 			
 			st.add_normal(normal)
 			st.add_color(c)
 			st.add_vertex(vertices[i + 3])
+			vertex_list.push_back(vertices[i + 3])
 
+	var collision_shape_faces := PoolVector3Array()
 	for i in indexes:
 		st.add_index(i)
+		collision_shape_faces.push_back(vertex_list[i])
+
 
 	var new_mesh = Mesh.new()
 	var _res = st.commit(new_mesh)
 	
-	return [new_mesh, height_map]
+	return [new_mesh, height_map, collision_shape_faces]
 
 
 func _get_side_normal(side: String) -> Vector3:
@@ -368,18 +363,22 @@ func _merge_faces(planes: Dictionary, height_map: HeightMap) -> void:
 func _create_indexes(planes: Dictionary) -> PoolIntArray:
 	var indexes := PoolIntArray()
 
-	var i := 0
+	var n := 0
 	for vertices in planes.values():
-		for _i in vertices.size():
-			indexes.push_back(i)
-			indexes.push_back(i + 1)
-			indexes.push_back(i + 3)
+		
+		if not vertices.size() % 4 == 0:
+			push_error("Invalid vertices size: %d" % vertices.size())
+		
+		for _k in range(0, vertices.size(), 4):
+			indexes.push_back(n)
+			indexes.push_back(n + 1)
+			indexes.push_back(n + 3)
 
-			indexes.push_back(i + 1)
-			indexes.push_back(i + 2)
-			indexes.push_back(i + 3)
+			indexes.push_back(n + 1)
+			indexes.push_back(n + 2)
+			indexes.push_back(n + 3)
 			
-			i += 4
+			n += 4
 	
 	return indexes
 

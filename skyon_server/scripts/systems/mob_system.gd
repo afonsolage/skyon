@@ -4,7 +4,8 @@ extends Node
 onready var mob_res := preload("res://scenes/mobs/mob.tscn")
 
 func _ready():
-	spawn_mob()
+#	spawn_mob()
+	pass
 
 
 func spawn_mob():
