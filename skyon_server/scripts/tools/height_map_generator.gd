@@ -97,6 +97,7 @@ func generate_border(map: HeightMap) -> void:
 
 
 func generate_places(map: HeightMap) -> void:
+# warning-ignore:integer_division
 	var offset := int(size / 15)
 	var places := []
 	
@@ -122,6 +123,8 @@ func generate_places(map: HeightMap) -> void:
 		var y = rnd if connection_dir.y == 0 else 0 if connection_dir.y == -1 else size - border_connection_size - 1
 		
 		create_square(x, y, border_connection_size, border_connection_size, map, true)
+# warning-ignore:integer_division
+# warning-ignore:integer_division
 		var center = Vector2(int(x + border_connection_size / 2), int(y + border_connection_size / 2))
 		places.push_back(center)
 	
@@ -147,12 +150,14 @@ func create_square(sx: int, sy: int, swidth: int, sheight: int, map: HeightMap, 
 	if not map_rect.encloses(rect):
 		return
 	
+# warning-ignore:integer_division
 	var sborder_thickness := int(float((swidth + sheight) / 2 / 5.0))
 	var border_rect = Rect2(rect.position.x - sborder_thickness, 
 		rect.position.y - sborder_thickness,  
 		rect.end.x + (sborder_thickness * 2) - 1, 
 		rect.end.y + (sborder_thickness * 2) - 1)
 		
+# warning-ignore:integer_division
 	var connection_rect :Rect2 = map_rect.grow(-border_connection_size/2)
 	
 	for pixel_x in range(rect.position.x, rect.end.x):

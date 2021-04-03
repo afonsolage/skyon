@@ -11,6 +11,8 @@ onready var _player_res = preload("res://scenes/characters/player.tscn")
 onready var _players = $Players
 onready var _mobs = $Mobs
 
+func _init() -> void:
+	Log.ok(Systems.net.connect("session_disconnected", self, "_on_session_disconnected"))
 
 func _physics_process(delta: float) -> void:
 	_process_gravity(delta)
@@ -36,7 +38,7 @@ func get_mob(id: String) -> Mob:
 
 func remove_player_state(session_id: int) -> void:
 	if not _player_states.erase(session_id):
-		Log.e("Session id %d not found" % session_id)
+		return
 	
 	var player = get_player(session_id)
 	if player:

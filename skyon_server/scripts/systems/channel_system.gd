@@ -10,18 +10,18 @@ var _pending_channel_data: Dictionary
 var _loading_threads: Dictionary
 
 func _init() -> void:
-	connect("channel_loaded", self, "_on_channel_loaded")
+	Log.ok(connect("channel_loaded", self, "_on_channel_loaded"))
 
 	var directory := Directory.new()
 	if not directory.dir_exists(DATA_FOLDER):
-		directory.open("user://channel")
-		directory.make_dir_recursive(DATA_FOLDER)
+		Log.ok(directory.open("user://channel"))
+		Log.ok(directory.make_dir_recursive(DATA_FOLDER))
 
 
 func _ready() -> void:
 	Log.d("Initializing Channel System")
 	
-	Systems.net.connect("session_connected", self, "_on_session_connected")
+	Log.ok(Systems.net.connect("session_connected", self, "_on_session_connected"))
 
 
 func is_channel_loaded(channel_id: int) -> bool:
@@ -47,6 +47,8 @@ func unload_channel(channel_id: int) -> void:
 
 
 func send_channel_data(channel_id: int, session_id: int) -> void:
+	Log.d("Sending channel data %d to session %d" % [channel_id, session_id])
+	
 	var data := _get_channel_data(channel_id)
 	rpc_id(session_id, "__set_channel_data", channel_id, data)
 
@@ -58,8 +60,10 @@ func _t_load_channel(channel_id: int) -> void:
 	var height_map := PackedHeightMap.new(0)
 	var file_path := "%s/%d.hm" % [DATA_FOLDER, channel_id]
 	if File.new().file_exists(file_path):
+		Log.d("Height map %d already exists, loading it" % channel_id)
 		height_map.load_from_resource(file_path)
 	else:
+		Log.d("Height map %d doesn't exists, generating a new one" % channel_id)
 		var terrain_generator := TerrainGenerator.new()
 		terrain_generator.height_map_seed = channel_id
 		
@@ -85,6 +89,7 @@ func _t_load_channel(channel_id: int) -> void:
 	
 	var terrain := terrain_generator.generate_mesh_instance_node(height_map)
 	self.call_deferred("_finish_channel_load", channel_id, terrain)
+	
 
 
 func _finish_channel_load(channel_id: int, terrain: Terrain) -> void:
@@ -96,8 +101,9 @@ func _finish_channel_load(channel_id: int, terrain: Terrain) -> void:
 	self.add_child(channel)
 	if _loading_threads.has(channel_id):
 		_loading_threads[channel_id].wait_to_finish()
-		_loading_threads.erase(channel_id)
-		
+		var _erased = _loading_threads.erase(channel_id)
+	
+	Log.d("Channel loaded!")
 	self.emit_signal("channel_loaded", channel_id)
 
 
@@ -117,15 +123,18 @@ func _get_channel_data(channel_id: int) -> Dictionary:
 
 func _on_session_connected(session_id: int) -> void:
 	# TODO change this to be called from a DB result or something like that
-	rpc_id(session_id, "__join_channel", 1)
+	rpc_id(session_id, "__join_channel", int(rand_range(2, 200)))
 
 
 func _on_channel_loaded(channel_id: int) -> void:
 	if not _pending_channel_data.has(channel_id):
+		Log.d("No one was waiting for channel %d " % channel_id)
 		return
 
-	var sessions := _pending_channel_data[channel_id] as PoolIntArray
-	_pending_channel_data.erase(channel_id)
+	var sessions := _pending_channel_data[channel_id] as Array
+	var _erased = _pending_channel_data.erase(channel_id)
+
+	Log.d("Sessions waiting for channel %s " % sessions)
 
 	for session_id in sessions:
 		send_channel_data(channel_id, session_id)
@@ -137,7 +146,7 @@ remote func __get_channel_data(channel_id: int) -> void:
 		send_channel_data(channel_id, session_id)
 	else:
 		if not _pending_channel_data.has(channel_id):
-			_pending_channel_data[channel_id] = PoolIntArray()
+			_pending_channel_data[channel_id] = []
 		
 		_pending_channel_data[channel_id].push_back(session_id)
 		
