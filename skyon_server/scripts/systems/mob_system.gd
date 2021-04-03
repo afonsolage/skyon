@@ -1,10 +1,14 @@
 class_name MobSystem
 extends Node
 
+var _channel_id: int
+
 onready var mob_res := preload("res://scenes/mobs/mob.tscn")
 
 func _ready():
-#	spawn_mob()
+	_channel_id = Systems.get_current_channel_id(self)
+	
+	spawn_mob()
 	pass
 
 
@@ -14,11 +18,11 @@ func spawn_mob():
 	mob.translate(Vector3(30, 10, 30))
 	mob.add_to_group("StateSync")
 
-	Systems.world.add_mob(mob)	
+	Systems.get_world(_channel_id).add_mob(mob)	
 
 
 func despawn_mob(id: String):
-	var mob := Systems.world.get_mob(id)
+	var mob := Systems.get_world(_channel_id).get_mob(id) as Mob
 	mob.queue_free()
 
 

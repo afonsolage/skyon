@@ -11,7 +11,7 @@ onready var _mob_res := preload("res://scenes/mobs/mob.tscn")
 
 func _ready():
 	Log.d("Initializing World System")
-	
+	rpc_id(1, "join_world")
 
 func _physics_process(delta: float) -> void:
 	_process_gravity(delta)
@@ -104,10 +104,6 @@ func _spawn_mob(id: String, state: Dictionary) -> void:
 	_mobs.add_child(mob)
 	
 	mob.set_full_state(state)
-
-
-func _on_NetSystem_session_started():
-	rpc_id(1, "join_world")
 
 
 remote func __state_sync(states: Dictionary) -> void:

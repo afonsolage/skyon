@@ -1,26 +1,44 @@
 extends Node
 
-var world : WorldSystem setget ,_get_world
-var net : NetSystem setget ,_get_net
-var combat : CombatSystem setget ,_get_combat
+var net : NetSystem
+var channel: ChannelSystem
 
-
-func _get_world() -> WorldSystem:
-	if not world:
-		world = get_node("/root/Main/WorldSystem") as WorldSystem
+func _ready() -> void:
+	Log.d("Initializing Core Systems")
+	randomize()
 	
-	return world
+	_init_net_system()
+	_init_channel_system()
+
+# System-wide...systems
+
+func _init_net_system() -> void:
+	net = NetSystem.new()
+	net.name = "NetSystem"
+	add_child(net)
 
 
-func _get_net() -> NetSystem:
-	if not net:
-		net = get_node("/root/Main/NetSystem") as NetSystem
+func _init_channel_system() -> void:
+	channel = ChannelSystem.new()
+	channel.name = "ChannelSystem"
+	add_child(channel)
+
+
+# Channel-wide functions
+
+func get_current_channel_id(channel_node: Node) -> int:
+	var path := channel_node.get_path()
 	
-	return net
-
-
-func _get_combat() -> CombatSystem:
-	if not combat:
-		combat = get_node("/root/Main/CombatSystem") as CombatSystem
+	# /root/Systems/ChannelSystem/<ChannelNumber>
+	if path.get_name_count() < 4 or not path.get_name(2) == "ChannelSystem":
+		Log.d("Invalid channel path: %s" % path)
 	
-	return combat
+	return int(path.get_name(3))
+
+
+func get_world(channel_id: int) -> WorldSystem:
+	return get_node("ChannelSystem/%d/WorldSystem" % channel_id) as WorldSystem
+
+
+func get_combat(channel_id: int) -> CombatSystem:
+	return get_node("ChannelSystem/%d/CombatSystem" % channel_id) as CombatSystem

@@ -330,7 +330,7 @@ Display=8
 [application]
 
 config/name="Skyon"
-run/main_scene="res://scenes/Loading.tscn"
+run/main_scene="res://scenes/empty.tscn"
 
 [autoload]
 

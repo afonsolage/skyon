@@ -9,6 +9,8 @@ var port := 44001
 var _net := NetworkedMultiplayerENet.new()
 
 func _ready():
+	Log.d("Initializing Net System")
+	
 	_start_server()
 
 
@@ -17,7 +19,7 @@ func _start_server() -> void:
 	
 	get_tree().set_network_peer(_net)
 	
-	Log.i("Server started!")
+	Log.i("Net Server started!")
 	
 	Log.ok(_net.connect("peer_connected", self, "_on_peer_connected"))
 	Log.ok(_net.connect("peer_disconnected", self, "_on_peer_disconnected"))

@@ -3,6 +3,10 @@ extends Node
 
 signal died(killed, killer)
 
+var _channel_id: int
+
+func _ready() -> void:
+	_channel_id = Systems.get_current_channel_id(self)
 
 func attack(attacker: Spatial, attacked: Spatial) -> Dictionary:
 	var result := _attack_target(attacker, attacked)
@@ -52,6 +56,7 @@ func _attack_combat(attacker: CombatComponent, attacked: CombatComponent) -> Dic
 
 
 func _broadcast_damage(damage_info: Dictionary) -> void:
+	# TODO: Get sessions only on the current channel
 	for session_id in Systems.net.get_sessions():
 		rpc_id(session_id, "__damage_received", damage_info)
 
@@ -62,7 +67,7 @@ func is_attack_ready(node: Spatial) -> bool:
 
 remote func __attack() -> void:
 	var session_id := self.get_tree().get_rpc_sender_id()
-	var player = Systems.world.get_player(session_id)
+	var player = Systems.get_world(_channel_id).get_player(session_id)
 	var target = null
 	
 	for body in player.get_interaction_area_bodies():
@@ -70,6 +75,6 @@ remote func __attack() -> void:
 			target = body
 	
 	if target:
-		attack(player, target)
+		var _res = attack(player, target)
 	else:
 		Log.d("No target!")
