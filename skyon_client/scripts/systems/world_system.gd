@@ -9,6 +9,10 @@ onready var _terrain: Terrain = $Terrain
 onready var _mobs: Node = $Mobs
 onready var _mob_res := preload("res://scenes/mobs/mob.tscn")
 
+func _ready():
+	Log.d("Initializing World System")
+	
+
 func _physics_process(delta: float) -> void:
 	_process_gravity(delta)
 	_send_state()

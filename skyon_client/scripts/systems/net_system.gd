@@ -10,6 +10,7 @@ var port := 44001
 var _net := NetworkedMultiplayerENet.new()
 
 func _ready() -> void:
+	Log.d("Initializing Net System")
 	_connect_to_server()
 
 

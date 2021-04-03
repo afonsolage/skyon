@@ -13,6 +13,9 @@ var _moving_to_path: bool = false
 
 var _main_player: MainPlayer
 
+func _ready() -> void:
+	Log.d("Initializing Player System")
+
 func _physics_process(_delta: float) -> void:
 	if not _main_player:
 		if not Systems.world or not Systems.world.main_player:
@@ -27,7 +30,7 @@ func _physics_process(_delta: float) -> void:
 
 func _set_main_player(main_player: MainPlayer) -> void:
 	_main_player = main_player
-	_main_player.combat.connect("health_changed", self, "_on_main_player_health_changed")
+	Log.ok(_main_player.combat.connect("health_changed", self, "_on_main_player_health_changed"))
 
 
 func _follow_target() -> void:

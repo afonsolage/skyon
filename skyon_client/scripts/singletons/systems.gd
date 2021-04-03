@@ -9,6 +9,7 @@ var player: PlayerSystem setget, _get_player
 
 func _ready() -> void:
 	randomize()
+	Log.d("Initializing systems")
 
 
 func _get_world() -> WorldSystem:

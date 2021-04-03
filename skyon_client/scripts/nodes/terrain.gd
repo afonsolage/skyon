@@ -1,7 +1,7 @@
 class_name Terrain
 extends MeshInstance
 
-var height_map : HeightMap
+var height_map : PackedHeightMap
 var height_map_scale : float = 0.5
 var _a_star : AStar
 

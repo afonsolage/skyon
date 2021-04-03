@@ -22,6 +22,8 @@ var _follow_target : bool
 var _current_path : Vector3 = Vector3.ZERO
 
 func _ready() -> void:
+	Log.d("Initializing Input System")
+	
 	_select_target_node = _select_target_gizmo_res.instance() as SelectTarget
 	_select_target_node.name = "SelectionNodeTarget"
 	_select_target_node.visible = false

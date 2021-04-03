@@ -1,18 +1,23 @@
 tool
+class_name TerrainGenerator
 extends Spatial
 
 export(bool) var update := false setget set_update
 
-export(bool) var is_generate_terrain := false
+export(bool) var is_generate_height_map := false
+export(bool) var is_generate_terrain := true
 export(bool) var is_merge_faces := true
 export(bool) var is_generate_border := true
 export(bool) var is_generate_places := true
 export(bool) var is_connect_places := true
 export(bool) var is_smooth_connection_border := true
 export(bool) var is_normalize_height := true
+export(bool) var is_generate_mesh_instance := true
+export(bool) var is_generate_collisions := true
+export(bool) var is_save_height_map := false
 
 export(float) var map_scale := 10.0;
-export(int) var size := 256
+export(int) var size := 512
 export(int) var octaves := 5
 export(float) var persistance := 0.2
 export(float) var period := 20.0
@@ -36,49 +41,61 @@ func set_update(_value):
 	generate()
 
 func generate():
-	if not is_generate_terrain:
-		return
+	var height_map := PackedHeightMap.new(0)
+	if is_generate_height_map:
+		height_map = _create_height_map()
+	else:
+		height_map.load_from_resource("user://terrain.tmp")
 	
-	if self.has_node("Terrain"):
-		self.get_node("Terrain").free()
+	if is_save_height_map:
+		height_map.save_to_resource("user://terrain.tmp")
 	
-	var result := _generate_terrain_mesh()
+	if is_generate_mesh_instance:
+		var terrain := generate_mesh_instance_node(height_map)
+		
+		if self.has_node("Terrain"):
+			self.get_node("Terrain").free()
+			
+		self.add_child(terrain)
+		
+		if Engine.editor_hint:
+			terrain.owner = get_tree().get_edited_scene_root()
+		
+
+func generate_mesh_instance_node(height_map: PackedHeightMap) -> Terrain:
+	var result := _generate_terrain_mesh(height_map)
 	var mesh: Mesh = result[0]
-	var height_map: HeightMap = result[1]
-	var collision_shape_faces: PoolVector3Array = result[2]
+	var collision_shape_faces: PoolVector3Array = result[1]
 	
 	var meshInstance := Terrain.new()
 	meshInstance.mesh = mesh
 	meshInstance.name = "Terrain"
 	meshInstance.set_script(load("res://scripts/nodes/terrain.gd"))
 	meshInstance.height_map = height_map
-	
-#	height_map.save_to_resource("user://terrain.tmp")
-	
-	self.add_child(meshInstance)
-	meshInstance.owner = get_tree().get_edited_scene_root()
 
-	var static_body = StaticBody.new()
-	meshInstance.add_child(static_body)
-	static_body.owner = get_tree().get_edited_scene_root()
+	if is_generate_collisions:
+		var static_body = StaticBody.new()
+		static_body.add_to_group("Terrain")
+		meshInstance.add_child(static_body)
+		
+		if Engine.editor_hint:
+			static_body.owner = get_tree().get_edited_scene_root()
+		
+		var concave_shape = ConcavePolygonShape.new()
+		concave_shape.set_faces(collision_shape_faces)
+		
+		var collision_shape = CollisionShape.new()
+		collision_shape.shape = concave_shape
+		
+		static_body.add_child(collision_shape)
+		
+		if Engine.editor_hint:
+			collision_shape.owner = get_tree().get_edited_scene_root()
 	
-	var concave_shape = ConcavePolygonShape.new()
-	concave_shape.set_faces(collision_shape_faces)
-	
-	var collision_shape = CollisionShape.new()
-	collision_shape.shape = concave_shape
-	
-	static_body.add_child(collision_shape)
-	collision_shape.owner = get_tree().get_edited_scene_root()
-	
-	var a_start = AStar.new()
+	return meshInstance
 
-func _generate_terrain_mesh() -> Array:
+func _generate_terrain_mesh(height_map: PackedHeightMap) -> Array:
 	print("Generating a new terrain mesh!")
-	
-	var height_map := _create_height_map()
-	
-	_normalize_height_map(height_map)
 	
 	var planes := _create_planes(height_map)
 	
@@ -133,7 +150,7 @@ func _generate_terrain_mesh() -> Array:
 	var new_mesh = Mesh.new()
 	var _res = st.commit(new_mesh)
 	
-	return [new_mesh, height_map, collision_shape_faces]
+	return [new_mesh, collision_shape_faces]
 
 
 func _get_side_normal(side: String) -> Vector3:
@@ -150,7 +167,7 @@ func _get_side_normal(side: String) -> Vector3:
 	
 
 
-func _create_planes(height_map: HeightMap) -> Dictionary:
+func _create_planes(height_map: PackedHeightMap) -> Dictionary:
 	
 	var right := PoolVector3Array()
 	var left := PoolVector3Array()
@@ -199,7 +216,7 @@ func _top_vertices(x: int, y: int, z: int) -> Array:
 	]
 
 
-func _left_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVector3Array:
+func _left_vertices(height_map: PackedHeightMap, x: int, y: int, z: int) -> PoolVector3Array:
 	var height_difference := _calc_height_difference("left", height_map, x, y, z)
 	
 	if height_difference > 0:
@@ -212,7 +229,7 @@ func _left_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVector
 	else:
 		return PoolVector3Array()
 
-func _right_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVector3Array:
+func _right_vertices(height_map: PackedHeightMap, x: int, y: int, z: int) -> PoolVector3Array:
 	var height_difference := _calc_height_difference("right", height_map, x, y, z)
 	
 	if height_difference > 0:
@@ -225,7 +242,7 @@ func _right_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVecto
 	else:
 		return PoolVector3Array()
 
-func _front_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVector3Array:
+func _front_vertices(height_map: PackedHeightMap, x: int, y: int, z: int) -> PoolVector3Array:
 	var height_difference := _calc_height_difference("front", height_map, x, y, z)
 	
 	if height_difference > 0:
@@ -238,7 +255,7 @@ func _front_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVecto
 	else:
 		return PoolVector3Array()
 
-func _back_vertices(height_map: HeightMap, x: int, y: int, z: int) -> PoolVector3Array:
+func _back_vertices(height_map: PackedHeightMap, x: int, y: int, z: int) -> PoolVector3Array:
 	var height_difference := _calc_height_difference("back", height_map, x, y, z)
 	
 	if height_difference > 0:
@@ -284,9 +301,9 @@ func _v8(x: int, y: int, z: int) -> Vector3:
 	return Vector3(x + 1, y, z + 1)
 
 
-func _calc_height_difference(side: String, height_map: HeightMap, x: int, y: int, z: int) -> int:
+func _calc_height_difference(side: String, height_map: PackedHeightMap, x: int, y: int, z: int) -> int:
 	var normal := _get_side_normal(side)
-	var next_idx := height_map.calc_index(normal.x + x, normal.z + z)
+	var next_idx := height_map.calc_index(int(normal.x) + x, int(normal.z) + z)
 	
 	if next_idx > 0 and next_idx < height_map.buffer_size():
 		var previous_height := int(height_map.get_at_index(next_idx))
@@ -296,7 +313,7 @@ func _calc_height_difference(side: String, height_map: HeightMap, x: int, y: int
 	return 0
 
 
-func _merge_faces(planes: Dictionary, height_map: HeightMap) -> void:
+func _merge_faces(planes: Dictionary, height_map: PackedHeightMap) -> void:
 	var merged := PoolByteArray()
 	merged.resize(size * size)
 	var merged_faces := PoolVector3Array()
@@ -308,7 +325,7 @@ func _merge_faces(planes: Dictionary, height_map: HeightMap) -> void:
 		for z in size:
 			var pos := Vector2(x, z)
 
-			if merged[height_map.calc_index(pos.x, pos.y)] == 1:
+			if merged[height_map.calc_index(int(pos.x), int(pos.y))] == 1:
 				continue
 
 			var h := int(height_map.get_at(x, z))
@@ -321,7 +338,7 @@ func _merge_faces(planes: Dictionary, height_map: HeightMap) -> void:
 
 				var nh := int(height_map.get_at(origin_x, end_z))
 
-				if nh == h and merged[height_map.calc_index(npos.x, npos.y)] == 0:
+				if nh == h and merged[height_map.calc_index(int(npos.x), int(npos.y))] == 0:
 					end_z += 1
 				else:
 					break
@@ -340,7 +357,7 @@ func _merge_faces(planes: Dictionary, height_map: HeightMap) -> void:
 					var npos := Vector2(end_x, tmp_z)
 					var nh := int(height_map.get_at(end_x, tmp_z))
 					
-					if nh == h and merged[height_map.calc_index(npos.x, npos.y)] == 0:
+					if nh == h and merged[height_map.calc_index(int(npos.x), int(npos.y))] == 0:
 						tmp_z += 1
 					else:
 						done = true
@@ -383,7 +400,7 @@ func _create_indexes(planes: Dictionary) -> PoolIntArray:
 	return indexes
 
 
-func _create_height_map() -> HeightMap:
+func _create_height_map() -> PackedHeightMap:
 	var height_map_generator := HeightMapGenerator.new()
 	
 	height_map_generator.is_generate_terrain = is_generate_terrain
@@ -408,33 +425,21 @@ func _create_height_map() -> HeightMap:
 	height_map_generator.disable_randomness = disable_randomness
 	
 	
-	var height_map := height_map_generator.generate()
-	return height_map
+	var full_height_map := height_map_generator.generate()
+	return _pack_height_map(full_height_map)
 
 
-func _normalize_height_map(height_map: HeightMap) -> void:
-	for i in height_map.buffer_size():
-		var h := height_map.get_at_index(i)
-		
-		h = int(h * map_scale)
-		
-		if h < 0 or h > map_scale:
-			Log.e("Invalid height: %d" % h)
-		
-		height_map.set_at_index(i, h)
+func _pack_height_map(height_map: HeightMap) -> PackedHeightMap:
+	var packed_height_map := PackedHeightMap.new(height_map.size())
 	
 	for i in height_map.buffer_size():
 		var h := height_map.get_at_index(i)
 		
-		if h < 0 or h > map_scale:
-			push_error("Invalid height: %d" % h)
-
-
-func _get_at(arr: PoolVector3Array, x: int, z: int) -> Vector3:
-	var sz := int(sqrt(arr.size()))
+		var packed_h = int(h * map_scale)
+		
+		if packed_h < 0 or packed_h > map_scale:
+			Log.e("Invalid height: %d" % packed_h)
+		
+		packed_height_map.set_at_index(i, packed_h)
 	
-	return arr[x * sz + z]
-
-
-func _calc_idx(sz: int, x: int, z: int) -> int:
-	return x * sz + z
+	return packed_height_map

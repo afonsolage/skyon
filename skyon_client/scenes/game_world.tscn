@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://scripts/systems/world_system.gd" type="Script" id=1]
 [ext_resource path="res://scripts/systems/input_system.gd" type="Script" id=2]
@@ -7,7 +7,6 @@
 [ext_resource path="res://scripts/systems/player_system.gd" type="Script" id=5]
 [ext_resource path="res://scenes/ui/main_player_portrait.tscn" type="PackedScene" id=6]
 [ext_resource path="res://scripts/nodes/camera_follow.gd" type="Script" id=7]
-[ext_resource path="res://scenes/heightmap_terrain.tscn" type="PackedScene" id=8]
 [ext_resource path="res://scripts/systems/ui_system.gd" type="Script" id=9]
 
 [node name="Main" type="Node"]
@@ -29,8 +28,6 @@ script = ExtResource( 7 )
 offset = Vector3( 7, -10, -7 )
 
 [node name="Mobs" type="Node" parent="WorldSystem"]
-
-[node name="Terrain" parent="WorldSystem" instance=ExtResource( 8 )]
 
 [node name="NetSystem" type="Node" parent="."]
 script = ExtResource( 4 )
