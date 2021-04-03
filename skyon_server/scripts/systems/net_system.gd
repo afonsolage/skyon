@@ -27,7 +27,9 @@ func _start_server() -> void:
 
 func _on_peer_connected(session_id: int) -> void:
 	Log.i("[Session %d] connected!" % session_id)
-	self.emit_signal("session_connected")
+	self.emit_signal("session_connected", session_id)
+	
+	# TODO: get this from the last map or something like that
 
 
 func _on_peer_disconnected(session_id: int) -> void:

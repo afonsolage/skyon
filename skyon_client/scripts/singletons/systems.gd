@@ -1,24 +1,34 @@
 extends Node
 
 var net: NetSystem
+var channel: ChannelSystem
 
-var world: WorldSystem setget ,_get_world
-var combat: CombatSystem setget ,_get_combat
-var input: InputSystem setget, _get_input
-var player: PlayerSystem setget, _get_player
-
+var world: WorldSystem
+var combat: CombatSystem
+var input: InputSystem
+var player: PlayerSystem
 
 func _ready() -> void:
 	randomize()
 	Log.d("Initializing systems")
 	
 	_init_net_system()
+	_init_channel_system()
+
 
 # System-wide...systems
 
 func _init_net_system() -> void:
 	net = NetSystem.new()
-	add_child(net)
+	net.name = "NetSystem"
+	self.add_child(net)
+
+
+func _init_channel_system() -> void:
+	channel = ChannelSystem.new()
+	channel.name = "ChannelSystem"
+	self.add_child(channel)
+
 
 # Channel-wide systems
 

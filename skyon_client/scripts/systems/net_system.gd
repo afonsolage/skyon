@@ -36,6 +36,3 @@ func _on_connection_succeeded() -> void:
 func _on_connection_failed() -> void:
 	Log.e("Failed to connect")
 
-
-
-
