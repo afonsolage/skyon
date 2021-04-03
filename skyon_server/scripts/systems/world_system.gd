@@ -1,9 +1,12 @@
 class_name WorldSystem
 extends Node
 
+
 var _player_states: Dictionary
 var _uid_cnt: int = 1
 
+
+onready var terrain = $Terrain
 onready var _player_res = preload("res://scenes/characters/player.tscn")
 onready var _players = $Players
 onready var _mobs = $Mobs

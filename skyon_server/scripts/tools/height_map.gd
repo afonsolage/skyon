@@ -31,6 +31,10 @@ func calc_index(x: int, y: int) -> int:
 
 
 func size() -> int:
+	return _size
+
+
+func buffer_size() -> int:
 	return _buffer.size()
 
 

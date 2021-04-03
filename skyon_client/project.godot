@@ -192,7 +192,7 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "HeightMapGenerator",
 "language": "GDScript",
-"path": "res://scripts/tools/height_map_generator.gd"
+"path": "res://scripts/shared/height_map_generator.gd"
 }, {
 "base": "Node",
 "class": "InputSystem",
@@ -252,7 +252,7 @@ _global_script_classes=[ {
 "base": "Spatial",
 "class": "TerrainGenerator",
 "language": "GDScript",
-"path": "res://scripts/tools/terrain_generator.gd"
+"path": "res://scripts/shared/terrain_generator.gd"
 }, {
 "base": "Node",
 "class": "UISystem",

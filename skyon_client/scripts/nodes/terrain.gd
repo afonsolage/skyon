@@ -5,8 +5,8 @@ var height_map : PackedHeightMap
 var height_map_scale : float = 0.5
 var _a_star : AStar
 
-func _ready():
-	self.scale = Vector3(height_map_scale, height_map_scale, height_map_scale)
+#func _ready():
+#	self.scale = Vector3(height_map_scale, height_map_scale, height_map_scale)
 #	height_map = HeightMap.new()
 #	height_map.load_from_resource("user://terrain.tmp")
 #	_setup_a_star()

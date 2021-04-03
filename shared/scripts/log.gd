@@ -13,7 +13,6 @@ static func d(msg) -> void:
 	if OS.is_debug_build():
 		_l("D", msg)
 
-
 static func ok(err: int) -> void:
 	if err != OK:
 		_l("E", "Error code %d returned" % err, true)
@@ -21,9 +20,17 @@ static func ok(err: int) -> void:
 
 static func _l(type: String, msg, is_err: bool = false) -> void:
 	var stack := get_stack()
-	
 	var tm := OS.get_time()
-	var callee: Dictionary = stack[2] if stack.size() > 2 else stack[1]
+	var callee: Dictionary
+	
+	if not stack.empty():
+		callee = stack[2] if stack.size() > 2 else stack[1]
+	else:
+		callee = {
+			"source": "Unknown",
+			"line": 0
+		}
+			
 	var logmsg = "[%s][%02d:%02d:%02d][%s:%03d] %s" % [
 		type, 
 		tm.hour, 

@@ -1,6 +1,5 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://scenes/simple_terrain.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scripts/systems/world_system.gd" type="Script" id=3]
 [ext_resource path="res://scripts/nodes/fly_by_camera.gd" type="Script" id=4]
 [ext_resource path="res://scripts/systems/combat_system.gd" type="Script" id=6]
@@ -10,9 +9,6 @@
 
 [node name="WorldSystem" type="Node" parent="."]
 script = ExtResource( 3 )
-
-[node name="MeshInstance" parent="WorldSystem" instance=ExtResource( 2 )]
-transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0 )
 
 [node name="FlyByCamera" type="Camera" parent="WorldSystem"]
 transform = Transform( -0.292138, 0.616535, -0.731122, 0, 0.764471, 0.644658, 0.956376, 0.188329, -0.223331, 0, 22.7738, 13.9738 )

@@ -9,6 +9,8 @@ func _init(size: int) -> void:
 	_buffer = PoolByteArray()
 	_buffer.resize(size * size)
 
+func from(buffer: PoolByteArray) -> void:
+	_buffer = buffer
 
 func set_at(x: int, y: int, value: int) -> void:
 	_buffer[calc_index(x, y)] = value
@@ -46,6 +48,10 @@ func size() -> int:
 
 func buffer_size() -> int:
 	return _buffer.size()
+
+
+func buffer() -> PoolByteArray:
+	return _buffer
 
 
 func scale(value: int) -> void:

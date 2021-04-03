@@ -41,12 +41,21 @@ func _set_random_tip() -> void:
 	_tip.text = tip_text
 
 
-func _start_loading() -> void:
+func _start_loading() ->  void:
+	var file = File.new()
+	if file.file_exists(terrain_file_name):
+		_start_terrain_loading()
+	else:
+		Systems.channel.download_channel_data()
+		Log.ok(Systems.channel.connect("channel_data_downloaded", self, "_start_terrain_loading"))
+
+
+func _start_terrain_loading() -> void:
 	_loading_thread = Thread.new()
-	Log.ok(_loading_thread.start(self, "_load_terrain", "user://terrain.tmp"))
+	Log.ok(_loading_thread.start(self, "_t_load_terrain", terrain_file_name))
 
-
-func _load_terrain(path: String) ->  void:
+# _t_ means this function is called inside a thread
+func _t_load_terrain(path: String) -> void:
 	var height_map := PackedHeightMap.new(0)
 	height_map.load_from_resource(path)
 	

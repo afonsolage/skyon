@@ -30,6 +30,8 @@ export(int) var places_path_noise_rate := 40
 export(int) var places_path_thickness := 5
 export(Array, Color) var height_colors := []
 
+export(int) var height_map_seed := 0
+
 export(bool) var disable_randomness := false
 
 func _ready():
@@ -43,7 +45,7 @@ func set_update(_value):
 func generate():
 	var height_map := PackedHeightMap.new(0)
 	if is_generate_height_map:
-		height_map = _create_height_map()
+		height_map = generate_height_map()
 	else:
 		height_map.load_from_resource("user://terrain.tmp")
 	
@@ -70,8 +72,8 @@ func generate_mesh_instance_node(height_map: PackedHeightMap) -> Terrain:
 	var meshInstance := Terrain.new()
 	meshInstance.mesh = mesh
 	meshInstance.name = "Terrain"
-	meshInstance.set_script(load("res://scripts/nodes/terrain.gd"))
 	meshInstance.height_map = height_map
+	meshInstance.scale = Vector3(0.5, 0.5, 0.5)
 
 	if is_generate_collisions:
 		var static_body = StaticBody.new()
@@ -400,7 +402,7 @@ func _create_indexes(planes: Dictionary) -> PoolIntArray:
 	return indexes
 
 
-func _create_height_map() -> PackedHeightMap:
+func generate_height_map() -> PackedHeightMap:
 	var height_map_generator := HeightMapGenerator.new()
 	
 	height_map_generator.is_generate_terrain = is_generate_terrain
@@ -425,7 +427,7 @@ func _create_height_map() -> PackedHeightMap:
 	height_map_generator.disable_randomness = disable_randomness
 	
 	
-	var full_height_map := height_map_generator.generate()
+	var full_height_map := height_map_generator.generate(height_map_seed)
 	return _pack_height_map(full_height_map)
 
 

@@ -224,6 +224,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/nodes/player.gd"
 }, {
+"base": "MeshInstance",
+"class": "Terrain",
+"language": "GDScript",
+"path": "res://scripts/nodes/terrain.gd"
+}, {
+"base": "Spatial",
+"class": "TerrainGenerator",
+"language": "GDScript",
+"path": "res://scripts/shared/terrain_generator.gd"
+}, {
 "base": "Node",
 "class": "WorldSystem",
 "language": "GDScript",
@@ -273,6 +283,8 @@ _global_script_class_icons={
 "NetSystem": "",
 "PackedHeightMap": "",
 "Player": "",
+"Terrain": "",
+"TerrainGenerator": "",
 "WorldSystem": ""
 }
 
