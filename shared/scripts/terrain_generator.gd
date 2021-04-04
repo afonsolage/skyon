@@ -6,7 +6,6 @@ export(bool) var update := false setget set_update
 
 export(bool) var is_generate_height_map := false
 export(bool) var is_generate_terrain := true
-export(bool) var is_merge_faces := true
 export(bool) var is_generate_border := true
 export(bool) var is_generate_places := true
 export(bool) var is_connect_places := true
@@ -96,14 +95,22 @@ func generate_mesh_instance_node(height_map: PackedHeightMap) -> Terrain:
 	
 	return meshInstance
 
+func generate_collisions_mesh(height_map: PackedHeightMap) -> PoolVector3Array:
+	var collisions := PoolVector3Array()
+	
+	var planes := _create_planes(height_map)
+	
+	for side in planes:
+		var vertices: PoolVector3Array = planes[side]
+		collisions.append_array(vertices)
+	
+	return collisions
+
+
 func _generate_terrain_mesh(height_map: PackedHeightMap) -> Array:
 	print("Generating a new terrain mesh!")
 	
 	var planes := _create_planes(height_map)
-	
-	if is_merge_faces:
-		_merge_faces(planes, height_map)
-	
 	var indexes := _create_indexes(planes)
 	
 	var mat := SpatialMaterial.new()
@@ -170,7 +177,6 @@ func _get_side_normal(side: String) -> Vector3:
 
 
 func _create_planes(height_map: PackedHeightMap) -> Dictionary:
-	
 	var right := PoolVector3Array()
 	var left := PoolVector3Array()
 	var front := PoolVector3Array()
@@ -185,13 +191,18 @@ func _create_planes(height_map: PackedHeightMap) -> Dictionary:
 		left.append_array(_left_vertices(height_map, x, h, z))
 		front.append_array(_front_vertices(height_map, x, h, z))
 		back.append_array(_back_vertices(height_map, x, h, z))
-			
-	return {
+	
+	var planes = {
 		"right": right,
 		"front": front,
 		"left": left,
 		"back": back,
 	}
+	
+	_merge_faces(planes, height_map)
+		
+	return planes
+
 
 #    
 #   v1         v2
@@ -443,5 +454,7 @@ func _pack_height_map(height_map: HeightMap) -> PackedHeightMap:
 			Log.e("Invalid height: %d" % packed_h)
 		
 		packed_height_map.set_at_index(i, packed_h)
+	
+	packed_height_map._connections = height_map._connections
 	
 	return packed_height_map

@@ -105,28 +105,24 @@ func generate_places(map: HeightMap) -> void:
 	
 	var dir_idx = randi() % 4
 	var dir:Vector2 = DIRS[dir_idx]
-	var connections := []
 	
-	for _i in range(DIRS.size()):
+	for i in range(DIRS.size()):
 		if not first_connection_generated or randi() % 100 > 30:
 			first_connection_generated = true
-			connections.push_back(dir)
 			dir_idx = (dir_idx + 1) % DIRS.size()
 			dir = DIRS[dir_idx]
-		
 	
-	for connection_dir in connections:
-		var max_offset := size - (border_connection_size * 3)
-		var rnd := (randi() % max_offset) + border_connection_size
-		
-		var x = rnd if connection_dir.x == 0 else 0 if connection_dir.x == -1 else size - border_connection_size - 1
-		var y = rnd if connection_dir.y == 0 else 0 if connection_dir.y == -1 else size - border_connection_size - 1
-		
-		create_square(x, y, border_connection_size, border_connection_size, map, true)
-# warning-ignore:integer_division
-# warning-ignore:integer_division
-		var center = Vector2(int(x + border_connection_size / 2), int(y + border_connection_size / 2))
-		places.push_back(center)
+			var max_offset := size - (border_connection_size * 3)
+			var rnd := (randi() % max_offset) + border_connection_size
+			
+			var x = rnd if dir.x == 0 else 0 if dir.x == -1 else size - border_connection_size - 1
+			var y = rnd if dir.y == 0 else 0 if dir.y == -1 else size - border_connection_size - 1
+			
+			create_square(x, y, border_connection_size, border_connection_size, map, true)
+	# warning-ignore:integer_division
+			var center = Vector2(int(x + border_connection_size / 2), int(y + border_connection_size / 2))
+			places.push_back(center)
+			map.set_connections(i, center)
 	
 	for _i in range(places_count):
 		var x = randi() % (size - offset * 3) + offset

@@ -1,13 +1,17 @@
 class_name HeightMap
 
 var _buffer: PoolRealArray
+var _connections: PoolVector2Array
 var _size := 0
 
 func init(size: int):
 	_size = size
 	_buffer.resize(size * size)
-#	for i in size * size:
-#		_buffer[i] = 0
+	
+	_connections.push_back(Vector2.ZERO)
+	_connections.push_back(Vector2.ZERO)
+	_connections.push_back(Vector2.ZERO)
+	_connections.push_back(Vector2.ZERO)
 
 
 func set_at(x: int, y: int, value: float) -> void:
@@ -36,6 +40,10 @@ func size() -> int:
 
 func buffer_size() -> int:
 	return _buffer.size()
+
+
+func set_connections(idx: int, location: Vector2) -> void:
+	_connections[idx] = location
 
 
 func scale(value: float) -> void:

@@ -2,6 +2,7 @@ class_name PackedHeightMap
 extends Node
 
 var _buffer: PoolByteArray
+var _connections: PoolVector2Array
 var _size: int
 
 func _init(size: int) -> void:

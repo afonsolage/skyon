@@ -15,6 +15,11 @@ _global_script_classes=[ {
 "path": "res://scripts/components/ai_component.gd"
 }, {
 "base": "Node",
+"class": "AtlasSystem",
+"language": "GDScript",
+"path": "res://scripts/systems/atlas_system.gd"
+}, {
+"base": "Node",
 "class": "BTreeNode",
 "language": "GDScript",
 "path": "res://scripts/shared/behaviour_tree/base/btree_node.gd"
@@ -184,6 +189,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scenes/debug_view.gd"
 }, {
+"base": "Reference",
+"class": "FileUtils",
+"language": "GDScript",
+"path": "res://scripts/shared/file_utils.gd"
+}, {
 "base": "Object",
 "class": "GravityComponent",
 "language": "GDScript",
@@ -203,6 +213,11 @@ _global_script_classes=[ {
 "class": "Log",
 "language": "GDScript",
 "path": "res://scripts/shared/log.gd"
+}, {
+"base": "Reference",
+"class": "MapComponent",
+"language": "GDScript",
+"path": "res://scripts/components/map_component.gd"
 }, {
 "base": "KinematicBody",
 "class": "Mob",
@@ -246,6 +261,7 @@ _global_script_classes=[ {
 } ]
 _global_script_class_icons={
 "AIComponent": "",
+"AtlasSystem": "",
 "BTreeNode": "",
 "BTreeNodeComposite": "",
 "BTreeNodeCompositeSelector": "res://scripts/shared/behaviour_tree/base/icons/selector.png",
@@ -280,10 +296,12 @@ _global_script_class_icons={
 "CombatComponent": "",
 "CombatSystem": "",
 "DebugView": "",
+"FileUtils": "",
 "GravityComponent": "",
 "HeightMap": "",
 "HeightMapGenerator": "",
 "Log": "",
+"MapComponent": "",
 "Mob": "",
 "MobSystem": "",
 "NetSystem": "",
