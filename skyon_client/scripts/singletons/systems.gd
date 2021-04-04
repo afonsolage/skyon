@@ -1,7 +1,5 @@
 extends Node
 
-signal on_channel_data_downloaded
-
 var net: NetSystem
 var channel: ChannelSystem
 

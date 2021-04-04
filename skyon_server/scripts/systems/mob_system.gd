@@ -8,7 +8,7 @@ onready var mob_res := preload("res://scenes/mobs/mob.tscn")
 func _ready():
 	_channel_id = Systems.get_current_channel_id(self)
 	
-#	spawn_mob()
+	spawn_mob()
 	pass
 
 

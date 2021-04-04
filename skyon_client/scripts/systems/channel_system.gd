@@ -47,9 +47,9 @@ remote func __join_channel(joined_channel_id: int) -> void:
 	Systems.add_child(loading_system)
 
 
-remote func __set_channel_data(channel_id: int, channel_data: Dictionary) -> void:
+remote func __set_channel_data(c_id: int, channel_data: Dictionary) -> void:
 	var height_map := PackedHeightMap.new(channel_data.height_map.size)
 	height_map.from(channel_data.height_map.buffer)
-	height_map.save_to_resource("user://%d.hm" % channel_id)
+	height_map.save_to_resource("user://%d.hm" % c_id)
 	
 	self.emit_signal("channel_data_downloaded")

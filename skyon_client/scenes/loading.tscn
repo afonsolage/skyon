@@ -3,9 +3,9 @@
 [ext_resource path="res://scenes/loading_animation.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scripts/systems/loading_system.gd" type="Script" id=2]
 
-[sub_resource type="CurveTexture" id=2]
+[sub_resource type="CurveTexture" id=1]
 
-[sub_resource type="ViewportTexture" id=1]
+[sub_resource type="ViewportTexture" id=2]
 viewport_path = NodePath("LoadingScreen/Viewport")
 
 [node name="LoadingSystem" type="Node"]
@@ -32,36 +32,23 @@ gui_disable_input = true
 anchor_right = 2.0
 anchor_bottom = 1.0
 margin_right = -1024.0
-texture = SubResource( 2 )
+texture = SubResource( 1 )
 expand = true
 __meta__ = {
 "_edit_use_anchors_": true
 }
 
-[node name="ViewportContainer" type="ViewportContainer" parent="LoadingScreen"]
+[node name="TextureRect2" type="TextureRect" parent="LoadingScreen"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -158.0
-margin_top = -120.5
-margin_right = 158.0
-margin_bottom = 120.5
-__meta__ = {
-"_edit_use_anchors_": true
-}
-
-[node name="TextureRect" type="TextureRect" parent="LoadingScreen/ViewportContainer"]
-anchor_left = 0.100783
-anchor_top = 0.00724638
-anchor_right = 0.100783
-anchor_bottom = 0.00724638
-margin_left = 8.078
-margin_top = 7.745
-margin_right = 108.078
-margin_bottom = 107.745
+margin_left = -120.956
+margin_top = -115.91
+margin_right = 279.044
+margin_bottom = 284.09
 rect_scale = Vector2( 0.6, 0.6 )
-texture = SubResource( 1 )
+texture = SubResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }

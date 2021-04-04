@@ -2,6 +2,7 @@ class_name ChannelSystem
 extends Node
 
 signal channel_loaded(channel_id)
+signal channel_unloaded(channel_id)
 
 const DATA_FOLDER = "user://channel/"
 
@@ -21,7 +22,17 @@ func _init() -> void:
 func _ready() -> void:
 	Log.d("Initializing Channel System")
 	
+	request_load_channel(1)
+	request_load_channel(2)
+	request_load_channel(3)
+	
 	Log.ok(Systems.net.connect("session_connected", self, "_on_session_connected"))
+
+
+func _unhandled_input(event):
+	if get_child_count() > 0:
+		if Systems.debug_view.selected_channel_id > -1:
+			get_node(str(Systems.debug_view.selected_channel_id))._input(event)
 
 
 func is_channel_loaded(channel_id: int) -> bool:
@@ -44,6 +55,8 @@ func unload_channel(channel_id: int) -> void:
 	Log.d("Unloading channel %d" % channel_id)
 	
 	self.get_node(str(channel_id)).queue_free()
+	
+	self.emit_signal("channel_unloaded", channel_id)
 
 
 func send_channel_data(channel_id: int, session_id: int) -> void:
@@ -94,8 +107,12 @@ func _t_load_channel(channel_id: int) -> void:
 
 func _finish_channel_load(channel_id: int, terrain: Terrain) -> void:
 	var channel = _channel_instance_res.instance()
+	var world = channel.get_node("WorldSystem") as Node
 	
-	channel.get_node("WorldSystem").add_child(terrain)
+#	var offset = self.get_child_count() * 50
+#	world.translate(Vector3(0, offset, 0))
+	world.add_child(terrain)
+	
 	channel.name = str(channel_id)
 	
 	self.add_child(channel)
@@ -123,7 +140,8 @@ func _get_channel_data(channel_id: int) -> Dictionary:
 
 func _on_session_connected(session_id: int) -> void:
 	# TODO change this to be called from a DB result or something like that
-	rpc_id(session_id, "__join_channel", int(rand_range(2, 200)))
+#	rpc_id(session_id, "__join_channel", int(rand_range(2, 200)))
+	rpc_id(session_id, "__join_channel", 3)
 
 
 func _on_channel_loaded(channel_id: int) -> void:

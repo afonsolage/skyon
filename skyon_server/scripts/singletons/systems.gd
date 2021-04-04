@@ -3,12 +3,15 @@ extends Node
 var net : NetSystem
 var channel: ChannelSystem
 
+var debug_view: DebugView
+
 func _ready() -> void:
 	Log.d("Initializing Core Systems")
 	randomize()
 	
 	_init_net_system()
 	_init_channel_system()
+	_init_debug_view()
 
 # System-wide...systems
 
@@ -22,6 +25,12 @@ func _init_channel_system() -> void:
 	channel = ChannelSystem.new()
 	channel.name = "ChannelSystem"
 	add_child(channel)
+
+
+func _init_debug_view() -> void:
+	debug_view = preload("res://scenes/debug_view.tscn").instance()
+	
+	add_child(debug_view)
 
 
 # Channel-wide functions
