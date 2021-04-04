@@ -19,7 +19,7 @@ export(int) var tip_change_interval: float = 5.0
 var load_map_index: int
 
 var _tip_change_timeout: float = 0.0
-var _loading_thread: Thread
+
 
 onready var _tip = $LoadingScreen/Tip
 onready var _game_world_scene = preload("res://scenes/game_world.tscn")
@@ -50,51 +50,90 @@ func _get_load_map_path() -> String:
 
 
 func _start_loading() ->  void:
-	var file = File.new()
-	if file.file_exists(_get_load_map_path()):
-		_start_terrain_loading()
+	if FileUtils.exists(_get_load_map_path()):
+		_start_map_loading()
 	else:
 		Systems.channel.download_channel_data()
-		Log.ok(Systems.channel.connect("channel_data_downloaded", self, "_start_terrain_loading"))
+		Log.ok(Systems.channel.connect("channel_data_downloaded", self, "_on_channel_data_downloaded"))
 
 
-func _start_terrain_loading() -> void:
-	_loading_thread = Thread.new()
-	Log.ok(_loading_thread.start(self, "_t_load_terrain", load_map_index))
-
-# _t_ means this function is called inside a thread
-func _t_load_terrain(path: String) -> void:
-	var height_map := PackedHeightMap.new(0)
-	height_map.load_from_resource(path)
+func _start_map_loading() -> void:
+	var thread := Thread.new()
+	var loading_map_instance := LoadingMapInstance.new()
+	loading_map_instance.deferred_object = self
+	loading_map_instance.deferred_method = "_on_map_instance_loaded"
+	loading_map_instance.deferred_args = [thread]
 	
-	var terrain_generator = TerrainGenerator.new()
-	terrain_generator.size = height_map.size()
-	
-	# TODO: Load from biome pallet
-	terrain_generator.height_colors = [
-		Color.blue,
-		Color.blue,
-		Color.blue,
-		Color.blue,
-		Color.blue,
-		Color.yellow,
-		Color.yellowgreen,
-		Color.green,
-		Color.saddlebrown,
-		Color.saddlebrown,
-		Color.darkgray,
-	]
-	
-	var terrain := terrain_generator.generate_mesh_instance_node(height_map) as Terrain
-	self.call_deferred("_load_ended", terrain)
+	Log.ok(thread.start(loading_map_instance, "_t_load_map", _get_load_map_path()))
+#	loading_map_instance._t_load_map(_get_load_map_path())
 
 
-func _load_ended(terrain: Terrain) -> void:
-	_loading_thread.wait_to_finish()
-	_loading_thread = null
+func _on_channel_data_downloaded(map_instance: MapInstance) -> void:
+	if OS.is_debug_build():
+		var received_map_pos := map_instance.map_component.position
+		var index := int(received_map_pos.x) * MapComponent.SIZE + int(received_map_pos.y)
+		if not index == load_map_index:
+			Log.e("Received map is difference from loading one! %d != %d" % [index, load_map_index])
+			return
+			
+	var thread := Thread.new()
+	
+	var loading_map_generator := LoadingMapGenerator.new()
+	loading_map_generator.save_path = _get_load_map_path()
+	loading_map_generator.deferred_object = self
+	loading_map_generator.deferred_method = "_on_map_instance_loaded"
+	loading_map_generator.deferred_args = [thread]
+	
+	Log.ok(thread.start(loading_map_generator, "_t_generate_map", map_instance))
+#	loading_map_generator._t_generate_map(map_instance)
+
+
+func _on_map_instance_loaded(map_instance: MapInstance, args: Array) -> void:
+	var thread := args[0] as Thread
+	var _res = thread.wait_to_finish()
 	
 	self.emit_signal("loading_ended", {
-		"terrain": terrain
+		"map_instance": map_instance
 	})
 	
 	self.queue_free()
+
+
+class LoadingMapGenerator:
+	extends Node
+	
+	var save_path: String
+	var deferred_object: Object
+	var deferred_method: String
+	var deferred_args: Array
+	
+	func _t_generate_map(map_instance: MapInstance) -> void:
+		var generator := TerrainGenerator.new()
+		generator.height_colors = map_instance.map_component.height_pallet
+		
+		var packed_height_map := PackedHeightMap.new(MapComponent.SIZE)
+		packed_height_map._buffer = map_instance.map_component.height_map
+		
+		var result := generator.generate_terrain_mesh(packed_height_map)
+		map_instance.map_component.mesh = result[0]
+		map_instance.map_component.collisions = result[1]
+
+		map_instance.save_to(save_path)
+
+		if is_instance_valid(deferred_object):
+			deferred_object.call_deferred(deferred_method, map_instance, deferred_args)
+
+
+class LoadingMapInstance:
+	extends Node
+	
+	var deferred_object: Object
+	var deferred_method: String
+	var deferred_args: Array
+
+	func _t_load_map(load_path: String) -> void:
+		var map_instance := MapInstance.new()
+		map_instance.load_from(load_path)
+		
+		if is_instance_valid(deferred_object):
+			deferred_object.call_deferred(deferred_method, map_instance, deferred_args)

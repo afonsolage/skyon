@@ -112,57 +112,58 @@ func generate_collisions_mesh(height_map: PackedHeightMap) -> PoolVector3Array:
 	return collisions
 
 
-func _generate_terrain_mesh(height_map: PackedHeightMap) -> Array:
+func generate_terrain_mesh(height_map: PackedHeightMap) -> Array:
 	print("Generating a new terrain mesh!")
 	
 	var planes := _create_planes(height_map)
-	var indexes := _create_indexes(planes)
+	var indices := _create_indexes(planes)
 	
 	var mat := SpatialMaterial.new()
 	mat.albedo_color = Color.white;
 	mat.vertex_color_use_as_albedo = true
 	
-	var vertex_list = PoolVector3Array()
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	
-	st.set_material(mat)
+	var vertices = PoolVector3Array()
+	var normals = PoolVector3Array()
+	var colors = PoolColorArray()
 
 	for side in planes:
-		var vertices: PoolVector3Array = planes[side]
-		for i in range(0, vertices.size(), 4):
-			var h = vertices[i].y - 1
+		var side_vertices: PoolVector3Array = planes[side]
+		var normal := _get_side_normal(side)
+		for i in range(0, side_vertices.size(), 4):
+			var h = side_vertices[i].y - 1
 			var c = height_colors[h]
 			
-			var normal := _get_side_normal(side)
-			st.add_normal(normal)
-			st.add_color(c)
-			st.add_vertex(vertices[i])
-			vertex_list.push_back(vertices[i])
+			vertices.push_back(side_vertices[i])
+			normals.push_back(normal)
+			colors.push_back(c)
 			
-			st.add_normal(normal)
-			st.add_color(c)
-			st.add_vertex(vertices[i + 1])
-			vertex_list.push_back(vertices[i + 1])
+			vertices.push_back(side_vertices[i + 1])
+			normals.push_back(normal)
+			colors.push_back(c)
 			
-			st.add_normal(normal)
-			st.add_color(c)
-			st.add_vertex(vertices[i + 2])
-			vertex_list.push_back(vertices[i + 2])
+			vertices.push_back(side_vertices[i + 2])
+			normals.push_back(normal)
+			colors.push_back(c)
 			
-			st.add_normal(normal)
-			st.add_color(c)
-			st.add_vertex(vertices[i + 3])
-			vertex_list.push_back(vertices[i + 3])
+			vertices.push_back(side_vertices[i + 3])
+			normals.push_back(normal)
+			colors.push_back(c)
 
 	var collision_shape_faces := PoolVector3Array()
-	for i in indexes:
-		st.add_index(i)
-		collision_shape_faces.push_back(vertex_list[i])
+	
+	for i in indices:
+		collision_shape_faces.push_back(vertices[i])
 
-
-	var new_mesh = Mesh.new()
-	var _res = st.commit(new_mesh)
+	var arrays = []
+	arrays.resize(ArrayMesh.ARRAY_MAX)
+	arrays[ArrayMesh.ARRAY_VERTEX] = vertices
+	arrays[ArrayMesh.ARRAY_NORMAL] = normals
+	arrays[ArrayMesh.ARRAY_INDEX] = indices
+	arrays[ArrayMesh.ARRAY_COLOR] = colors
+	
+	var new_mesh = ArrayMesh.new()
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	new_mesh.surface_set_material(0, mat)
 	
 	return [new_mesh, collision_shape_faces]
 

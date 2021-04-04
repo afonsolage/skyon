@@ -22,12 +22,6 @@ func _init() -> void:
 func _ready() -> void:
 	Log.d("Initializing Channel System")
 	
-	request_load_channel(1)
-	request_load_channel(2)
-	request_load_channel(3)
-	request_load_channel(4)
-	request_load_channel(5)
-	
 	Log.ok(Systems.net.connect("session_connected", self, "_on_session_connected"))
 
 
@@ -62,7 +56,7 @@ func send_channel_data(channel_id: int, session_id: int) -> void:
 	Log.d("Sending channel data %d to session %d" % [channel_id, session_id])
 	
 	var data := _get_channel_data(channel_id)
-	rpc_id(session_id, "__set_channel_data", channel_id, data)
+	rpc_id(session_id, "__save_channel_data", channel_id, data)
 
 # Since GDScript can't use varargs, we need to store our custom data in an array
 func _on_map_component_loaded(map: MapComponent, data: Array) -> void:
@@ -94,7 +88,7 @@ func _get_channel_data(channel_id: int) -> Dictionary:
 	var map_instance = Systems.get_world(channel_id).map_instance as MapInstance
 	
 	return {
-		"map": map_instance.get_serializable_data()
+		"map": map_instance.serialize()
 	}
 
 

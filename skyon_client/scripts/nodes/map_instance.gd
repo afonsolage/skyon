@@ -5,8 +5,13 @@ const SCALE = 0.5
 
 var map_component: MapComponent
 
+func _init():
+	map_component = MapComponent.new()
+
 func _ready():
 	self.scale = Vector3(SCALE, SCALE, SCALE)
+
+	self.mesh = map_component.mesh
 	
 	var static_body = StaticBody.new()
 	static_body.add_to_group("Terrain")
@@ -28,6 +33,13 @@ func serialize() -> Array:
 	]
 
 
-func deserialize(buffer: Array):
-	map_component = MapComponent.new()
+func deserialize(buffer: Array) -> void:
 	map_component.deserialize(buffer[0])
+
+
+func save_to(path: String) -> void:
+	map_component.save_to(path)
+
+
+func load_from(path: String) -> void:
+	map_component.load_from(path)

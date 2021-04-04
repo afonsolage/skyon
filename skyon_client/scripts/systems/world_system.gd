@@ -2,10 +2,11 @@ class_name WorldSystem
 extends Node
 
 var main_player : MainPlayer
+var map_instance: MapInstance
 
 var _last_state_time : int = 0
 
-onready var _terrain: Terrain = $Terrain
+
 onready var _mobs: Node = $Mobs
 onready var _mob_res := preload("res://scenes/mobs/mob.tscn")
 
@@ -17,6 +18,11 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_process_gravity(delta)
 	_send_state()
+
+
+func set_map_instance(instance: MapInstance) -> void:
+	map_instance = instance
+	self.add_child(instance)
 
 
 func get_camera() -> Camera:
