@@ -3,6 +3,8 @@ extends Node
 
 signal loading_ended(loaded_assets)
 
+const MAPS_PATH = "user://maps/"
+
 const TIPS = [
 	"Dose anyone actually read these?",
 	"Imagine something really funny here",
@@ -14,7 +16,7 @@ const TIPS = [
 
 export(int) var tip_change_interval: float = 5.0
 
-var terrain_file_name: String = "user://terrain.tmp"
+var load_map_index: int
 
 var _tip_change_timeout: float = 0.0
 var _loading_thread: Thread
@@ -23,6 +25,8 @@ onready var _tip = $LoadingScreen/Tip
 onready var _game_world_scene = preload("res://scenes/game_world.tscn")
 
 func _ready() -> void:
+	FileUtils.ensure_user_path_exists(MAPS_PATH)
+	
 	_tip_change_timeout = tip_change_interval
 	_set_random_tip()
 	_start_loading()
@@ -41,9 +45,13 @@ func _set_random_tip() -> void:
 	_tip.text = tip_text
 
 
+func _get_load_map_path() -> String:
+	return "%s/%d" % [MAPS_PATH, load_map_index]
+
+
 func _start_loading() ->  void:
 	var file = File.new()
-	if file.file_exists(terrain_file_name):
+	if file.file_exists(_get_load_map_path()):
 		_start_terrain_loading()
 	else:
 		Systems.channel.download_channel_data()
@@ -52,7 +60,7 @@ func _start_loading() ->  void:
 
 func _start_terrain_loading() -> void:
 	_loading_thread = Thread.new()
-	Log.ok(_loading_thread.start(self, "_t_load_terrain", terrain_file_name))
+	Log.ok(_loading_thread.start(self, "_t_load_terrain", load_map_index))
 
 # _t_ means this function is called inside a thread
 func _t_load_terrain(path: String) -> void:

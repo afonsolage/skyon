@@ -41,7 +41,7 @@ remote func __join_channel(joined_channel_id: int) -> void:
 	
 	var loading_system = _loading_res.instance() as LoadingSystem
 
-	loading_system.terrain_file_name = "user://%d.hm" % joined_channel_id
+	loading_system.load_map_index = joined_channel_id
 	loading_system.connect("loading_ended", self, "_on_loading_ended")
 	
 	Systems.add_child(loading_system)

@@ -47,7 +47,7 @@ func request_load_channel(channel_id: int) -> void:
 		return
 	
 	var map_pos := Systems.atlas.calc_map_pos(channel_id) as Vector2
-	Systems.atlas.get_map_deferred(map_pos, self, "_finish_channel_load", [channel_id])
+	Systems.atlas.get_map_deferred(map_pos, self, "_on_map_component_loaded", [channel_id])
 
 
 func unload_channel(channel_id: int) -> void:
@@ -64,47 +64,8 @@ func send_channel_data(channel_id: int, session_id: int) -> void:
 	var data := _get_channel_data(channel_id)
 	rpc_id(session_id, "__set_channel_data", channel_id, data)
 
-#
-## _t_ means this function is called inside a thread
-#func _t_load_channel(channel_id: int) -> void:
-#	Log.d("Loading channel %d" % channel_id)
-#
-#	var height_map := PackedHeightMap.new(0)
-#	var file_path := "%s/%d.hm" % [DATA_FOLDER, channel_id]
-#	if File.new().file_exists(file_path):
-#		Log.d("Height map %d already exists, loading it" % channel_id)
-#		height_map.load_from_resource(file_path)
-#	else:
-#		Log.d("Height map %d doesn't exists, generating a new one" % channel_id)
-#		var terrain_generator := TerrainGenerator.new()
-#		terrain_generator.height_map_seed = channel_id
-#
-#		height_map = terrain_generator.generate_height_map()
-#
-#		height_map.save_to_resource(file_path)
-#
-#	var terrain_generator := TerrainGenerator.new()
-#	# TODO: Load from biome pallet
-#	terrain_generator.height_colors = [
-#		Color.blue,
-#		Color.blue,
-#		Color.blue,
-#		Color.blue,
-#		Color.blue,
-#		Color.yellow,
-#		Color.yellowgreen,
-#		Color.green,
-#		Color.saddlebrown,
-#		Color.saddlebrown,
-#		Color.darkgray,
-#	]
-#
-#	var terrain := terrain_generator.generate_mesh_instance_node(height_map)
-#	self.call_deferred("_finish_channel_load", channel_id, terrain)
-#
-
-
-func _finish_channel_load(map: MapComponent, data: Array) -> void:
+# Since GDScript can't use varargs, we need to store our custom data in an array
+func _on_map_component_loaded(map: MapComponent, data: Array) -> void:
 	var channel = _channel_instance_res.instance()
 	var world = channel.get_node("WorldSystem") as Node
 	var channel_id = data[0] as int
