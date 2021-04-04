@@ -1,11 +1,12 @@
 class_name WorldSystem
 extends Node
 
+var map_instance: MapInstance
 
 var _player_states: Dictionary
 var _uid_cnt: int = 1
 
-onready var terrain = $Terrain
+
 onready var _player_res = preload("res://scenes/characters/player.tscn")
 onready var _players = $Players
 onready var _mobs = $Mobs
@@ -18,6 +19,11 @@ func _physics_process(delta: float) -> void:
 	_process_gravity(delta)
 	_process_player_states(_player_states.duplicate(true))
 	_broadcast_states()
+
+
+func set_map_instance(map: MapInstance) -> void:
+	self.add_child(map)
+	map_instance = map
 
 
 func add_mob(mob: Spatial) -> void:

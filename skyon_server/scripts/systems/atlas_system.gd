@@ -21,13 +21,12 @@ func calc_map_pos(index: int) -> Vector2:
 
 
 func get_map_deferred(map_pos: Vector2, object: Object, method: String, args: Array = []) -> void:
-
-		_deferred_calls[map_pos] = {
-			"object": object,
-			"method": method,
-			"args": args
-		}
-		_start_map_loading(map_pos)
+	_deferred_calls[map_pos] = {
+		"object": object,
+		"method": method,
+		"args": args
+	}
+	_start_map_loading(map_pos)
 
 
 func _start_map_loading(map_pos: Vector2) -> void:
@@ -71,8 +70,10 @@ func _t_load_or_generate_map(map_pos: Vector2) -> void:
 	var map: MapComponent
 	
 	if _map_exists(map_pos):
+		Log.d("Map %s already exists, loading it" % map_pos)
 		map = _load_map(map_pos)
 	else:
+		Log.d("Map %s doesn't exists, generating it" % map_pos)
 		map = MapComponent.new()
 		map.position = map_pos
 		
@@ -83,9 +84,10 @@ func _t_load_or_generate_map(map_pos: Vector2) -> void:
 		# TODO: Load biome settings
 		generator.octaves = int(rand_range(2, 7))
 		generator.persistance = rand_range(0.1, 0.9)
-		generator.period = rand_range(1.0, 20.0)
-		generator.border_size = int(rand_range(10, 50))
+		generator.period = rand_range(10.0, 20.0)
+		generator.border_size = int(rand_range(30, 100))
 		
+		Log.d("[Map %s] Generating height map" % map_pos)
 		var packed_height_map := generator.generate_height_map()
 		
 		map.height_map = packed_height_map.buffer()
@@ -104,7 +106,10 @@ func _t_load_or_generate_map(map_pos: Vector2) -> void:
 			Color.saddlebrown,
 			Color.darkgray,
 		]
+		Log.d("[Map %s] Generating collisions map" % map_pos)
 		map.collisions = generator.generate_collisions_mesh(packed_height_map)
+		Log.d("[Map %s] Generating saving to disk" % map_pos)
 		map.save_to(_get_map_path(map_pos))
 	
+	Log.d("[Map %s] Generation completed" % map_pos)
 	self.call_deferred("_finish_map_loading", map)

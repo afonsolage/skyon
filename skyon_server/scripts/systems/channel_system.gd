@@ -25,6 +25,8 @@ func _ready() -> void:
 	request_load_channel(1)
 	request_load_channel(2)
 	request_load_channel(3)
+	request_load_channel(4)
+	request_load_channel(5)
 	
 	Log.ok(Systems.net.connect("session_connected", self, "_on_session_connected"))
 
@@ -44,11 +46,8 @@ func request_load_channel(channel_id: int) -> void:
 		Log.d("Already loading channel %d. Nothing to do." % channel_id)
 		return
 	
-	var thread = Thread.new()
-	Log.ok(thread.start(self, "_t_load_channel", channel_id))
-	_loading_threads[channel_id] = thread
-	Log.d("Loading thread started!")
-#	_t_load_channel(channel_id)
+	var map_pos := Systems.atlas.calc_map_pos(channel_id) as Vector2
+	Systems.atlas.get_map_deferred(map_pos, self, "_finish_channel_load", [channel_id])
 
 
 func unload_channel(channel_id: int) -> void:
@@ -65,53 +64,55 @@ func send_channel_data(channel_id: int, session_id: int) -> void:
 	var data := _get_channel_data(channel_id)
 	rpc_id(session_id, "__set_channel_data", channel_id, data)
 
+#
+## _t_ means this function is called inside a thread
+#func _t_load_channel(channel_id: int) -> void:
+#	Log.d("Loading channel %d" % channel_id)
+#
+#	var height_map := PackedHeightMap.new(0)
+#	var file_path := "%s/%d.hm" % [DATA_FOLDER, channel_id]
+#	if File.new().file_exists(file_path):
+#		Log.d("Height map %d already exists, loading it" % channel_id)
+#		height_map.load_from_resource(file_path)
+#	else:
+#		Log.d("Height map %d doesn't exists, generating a new one" % channel_id)
+#		var terrain_generator := TerrainGenerator.new()
+#		terrain_generator.height_map_seed = channel_id
+#
+#		height_map = terrain_generator.generate_height_map()
+#
+#		height_map.save_to_resource(file_path)
+#
+#	var terrain_generator := TerrainGenerator.new()
+#	# TODO: Load from biome pallet
+#	terrain_generator.height_colors = [
+#		Color.blue,
+#		Color.blue,
+#		Color.blue,
+#		Color.blue,
+#		Color.blue,
+#		Color.yellow,
+#		Color.yellowgreen,
+#		Color.green,
+#		Color.saddlebrown,
+#		Color.saddlebrown,
+#		Color.darkgray,
+#	]
+#
+#	var terrain := terrain_generator.generate_mesh_instance_node(height_map)
+#	self.call_deferred("_finish_channel_load", channel_id, terrain)
+#
 
-# _t_ means this function is called inside a thread
-func _t_load_channel(channel_id: int) -> void:
-	Log.d("Loading channel %d" % channel_id)
-	
-	var height_map := PackedHeightMap.new(0)
-	var file_path := "%s/%d.hm" % [DATA_FOLDER, channel_id]
-	if File.new().file_exists(file_path):
-		Log.d("Height map %d already exists, loading it" % channel_id)
-		height_map.load_from_resource(file_path)
-	else:
-		Log.d("Height map %d doesn't exists, generating a new one" % channel_id)
-		var terrain_generator := TerrainGenerator.new()
-		terrain_generator.height_map_seed = channel_id
-		
-		height_map = terrain_generator.generate_height_map()
-		
-		height_map.save_to_resource(file_path)
-	
-	var terrain_generator := TerrainGenerator.new()
-	# TODO: Load from biome pallet
-	terrain_generator.height_colors = [
-		Color.blue,
-		Color.blue,
-		Color.blue,
-		Color.blue,
-		Color.blue,
-		Color.yellow,
-		Color.yellowgreen,
-		Color.green,
-		Color.saddlebrown,
-		Color.saddlebrown,
-		Color.darkgray,
-	]
-	
-	var terrain := terrain_generator.generate_mesh_instance_node(height_map)
-	self.call_deferred("_finish_channel_load", channel_id, terrain)
-	
 
-
-func _finish_channel_load(channel_id: int, terrain: Terrain) -> void:
+func _finish_channel_load(map: MapComponent, data: Array) -> void:
 	var channel = _channel_instance_res.instance()
 	var world = channel.get_node("WorldSystem") as Node
+	var channel_id = data[0] as int
 	
-#	var offset = self.get_child_count() * 50
-#	world.translate(Vector3(0, offset, 0))
-	world.add_child(terrain)
+	var map_instance = MapInstance.new()
+	map_instance.map_component = map
+	
+	world.set_map_instance(map_instance)
 	
 	channel.name = str(channel_id)
 	
@@ -129,19 +130,16 @@ func _is_already_loading(channel_id: int) -> bool:
 
 
 func _get_channel_data(channel_id: int) -> Dictionary:
-	var terrain = Systems.get_world(channel_id).terrain as Terrain
+	var map_instance = Systems.get_world(channel_id).map_instance as MapInstance
+	
 	return {
-		"height_map": {
-			"size": terrain.height_map.size(),
-			"buffer": terrain.height_map.buffer()
-		}
+		"map": map_instance.get_serializable_data()
 	}
 
 
 func _on_session_connected(session_id: int) -> void:
 	# TODO change this to be called from a DB result or something like that
-#	rpc_id(session_id, "__join_channel", int(rand_range(2, 200)))
-	rpc_id(session_id, "__join_channel", 3)
+	rpc_id(session_id, "__join_channel", 0)
 
 
 func _on_channel_loaded(channel_id: int) -> void:

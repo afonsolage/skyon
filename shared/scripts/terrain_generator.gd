@@ -51,58 +51,63 @@ func generate():
 	if is_save_height_map:
 		height_map.save_to_resource("user://terrain.tmp")
 	
-	if is_generate_mesh_instance:
-		var terrain := generate_mesh_instance_node(height_map)
-		
-		if self.has_node("Terrain"):
-			self.get_node("Terrain").free()
-			
-		self.add_child(terrain)
-		
-		if Engine.editor_hint:
-			terrain.owner = get_tree().get_edited_scene_root()
-		
-
-func generate_mesh_instance_node(height_map: PackedHeightMap) -> Terrain:
-	var result := _generate_terrain_mesh(height_map)
-	var mesh: Mesh = result[0]
-	var collision_shape_faces: PoolVector3Array = result[1]
-	
-	var meshInstance := Terrain.new()
-	meshInstance.mesh = mesh
-	meshInstance.name = "Terrain"
-	meshInstance.height_map = height_map
-	meshInstance.scale = Vector3(0.5, 0.5, 0.5)
-
-	if is_generate_collisions:
-		var static_body = StaticBody.new()
-		static_body.add_to_group("Terrain")
-		meshInstance.add_child(static_body)
-		
-		if Engine.editor_hint:
-			static_body.owner = get_tree().get_edited_scene_root()
-		
-		var concave_shape = ConcavePolygonShape.new()
-		concave_shape.set_faces(collision_shape_faces)
-		
-		var collision_shape = CollisionShape.new()
-		collision_shape.shape = concave_shape
-		
-		static_body.add_child(collision_shape)
-		
-		if Engine.editor_hint:
-			collision_shape.owner = get_tree().get_edited_scene_root()
-	
-	return meshInstance
+#	if is_generate_mesh_instance:
+#		var terrain := generate_mesh_instance_node(height_map)
+#
+#		if self.has_node("Terrain"):
+#			self.get_node("Terrain").free()
+#
+#		self.add_child(terrain)
+#
+#		if Engine.editor_hint:
+#			terrain.owner = get_tree().get_edited_scene_root()
+#
+#
+#func generate_mesh_instance_node(height_map: PackedHeightMap) -> Terrain:
+#	var result := _generate_terrain_mesh(height_map)
+#	var mesh: Mesh = result[0]
+#	var collision_shape_faces: PoolVector3Array = result[1]
+#
+#	var meshInstance := Terrain.new()
+#	meshInstance.mesh = mesh
+#	meshInstance.name = "Terrain"
+#	meshInstance.height_map = height_map
+#	meshInstance.scale = Vector3(0.5, 0.5, 0.5)
+#
+#	if is_generate_collisions:
+#		var static_body = StaticBody.new()
+#		static_body.add_to_group("Terrain")
+#		meshInstance.add_child(static_body)
+#
+#		if Engine.editor_hint:
+#			static_body.owner = get_tree().get_edited_scene_root()
+#
+#		var concave_shape = ConcavePolygonShape.new()
+#		concave_shape.set_faces(collision_shape_faces)
+#
+#		var collision_shape = CollisionShape.new()
+#		collision_shape.shape = concave_shape
+#
+#		static_body.add_child(collision_shape)
+#
+#		if Engine.editor_hint:
+#			collision_shape.owner = get_tree().get_edited_scene_root()
+#
+#	return meshInstance
 
 func generate_collisions_mesh(height_map: PackedHeightMap) -> PoolVector3Array:
-	var collisions := PoolVector3Array()
-	
 	var planes := _create_planes(height_map)
+	var indexes := _create_indexes(planes)
 	
+	var vertices := PoolVector3Array()
 	for side in planes:
-		var vertices: PoolVector3Array = planes[side]
-		collisions.append_array(vertices)
+		vertices.append_array(planes[side])
+	
+	var collisions := PoolVector3Array()
+	collisions.resize(indexes.size())
+	
+	for i in indexes:
+		collisions.push_back(vertices[i])
 	
 	return collisions
 

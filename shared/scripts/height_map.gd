@@ -1,11 +1,17 @@
 class_name HeightMap
 
 var _buffer: PoolRealArray
+var _connections: PoolVector2Array
 var _size := 0
 
-func init(size: int) -> void:
+func init(size: int):
 	_size = size
 	_buffer.resize(size * size)
+	
+	_connections.push_back(Vector2.ZERO)
+	_connections.push_back(Vector2.ZERO)
+	_connections.push_back(Vector2.ZERO)
+	_connections.push_back(Vector2.ZERO)
 
 
 func set_at(x: int, y: int, value: float) -> void:
@@ -28,16 +34,6 @@ func calc_index(x: int, y: int) -> int:
 	return x * _size + y
 
 
-func calc_pos(index: int) -> Vector2:
-# warning-ignore:integer_division
-	return Vector2(index / _size, index % _size)
-
-
-func is_pos_valid(pos: Vector2) -> bool:
-	var idx := calc_index(int(pos.x), int(pos.y))
-	return idx > 0 and idx < _buffer.size()
-
-
 func size() -> int:
 	return _size
 
@@ -46,38 +42,10 @@ func buffer_size() -> int:
 	return _buffer.size()
 
 
+func set_connections(idx: int, location: Vector2) -> void:
+	_connections[idx] = location
+
+
 func scale(value: float) -> void:
 	for i in _buffer.size():
 		_buffer[i] = _buffer[i] * value
-
-
-func save_to_resource(path: String) -> void:
-	var file := File.new()
-	Log.ok(file.open(path, File.WRITE))
-	file.store_var(_size)
-	file.store_var(_buffer)
-	file.close()
-
-
-func load_from_resource(path: String) -> void:
-	var file := File.new()
-	Log.ok(file.open(path, File.READ))
-	_size = file.get_var() as int
-	_buffer = file.get_var() as PoolRealArray
-	file.close()
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	

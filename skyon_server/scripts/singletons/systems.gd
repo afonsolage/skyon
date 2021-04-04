@@ -11,8 +11,8 @@ func _ready() -> void:
 	randomize()
 	
 	_init_net_system()
-	_init_channel_system()
 	_init_atlas_system()
+	_init_channel_system()
 	
 	_init_debug_view()
 
