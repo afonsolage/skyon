@@ -8,15 +8,11 @@ const DATA_FOLDER = "user://channel/"
 
 var _channel_instance_res = preload("res://scenes/channel_instance.tscn")
 var _pending_channel_data: Dictionary
-var _loading_threads: Dictionary
+var _pending_channel_join: Dictionary
+var _channel_requested: Array
 
 func _init() -> void:
 	Log.ok(connect("channel_loaded", self, "_on_channel_loaded"))
-
-	var directory := Directory.new()
-	if not directory.dir_exists(DATA_FOLDER):
-		Log.ok(directory.open("user://channel"))
-		Log.ok(directory.make_dir_recursive(DATA_FOLDER))
 
 
 func _ready() -> void:
@@ -35,13 +31,16 @@ func is_channel_loaded(channel_id: int) -> bool:
 	return self.has_node(str(channel_id))
 
 
-func request_load_channel(channel_id: int) -> void:
+func request_load_channel(channel_id: int) -> bool:
 	if _is_already_loading(channel_id):
 		Log.d("Already loading channel %d. Nothing to do." % channel_id)
-		return
+		return false
 	
+	_channel_requested.push_back(channel_id)
 	var map_pos := Systems.atlas.calc_map_pos(channel_id) as Vector2
 	Systems.atlas.get_map_deferred(map_pos, self, "_on_map_component_loaded", [channel_id])
+	
+	return true
 
 
 func unload_channel(channel_id: int) -> void:
@@ -72,16 +71,15 @@ func _on_map_component_loaded(map: MapComponent, data: Array) -> void:
 	channel.name = str(channel_id)
 	
 	self.add_child(channel)
-	if _loading_threads.has(channel_id):
-		_loading_threads[channel_id].wait_to_finish()
-		var _erased = _loading_threads.erase(channel_id)
+	if _channel_requested.has(channel_id):
+		_channel_requested.erase(channel_id)
 	
 	Log.d("Channel loaded!")
 	self.emit_signal("channel_loaded", channel_id)
 
 
 func _is_already_loading(channel_id: int) -> bool:
-	return _loading_threads.has(channel_id)
+	return _channel_requested.has(channel_id)
 
 
 func _get_channel_data(channel_id: int) -> Dictionary:
@@ -94,21 +92,42 @@ func _get_channel_data(channel_id: int) -> Dictionary:
 
 func _on_session_connected(session_id: int) -> void:
 	# TODO change this to be called from a DB result or something like that
-	rpc_id(session_id, "__join_channel", 0)
+	join_channel(session_id, 0)
+
+
+func join_channel(session_id: int, channel_id: int) -> void:
+	if is_channel_loaded(channel_id):
+		send_join_channel(session_id, channel_id)
+	else:
+		if request_load_channel(channel_id):
+			if not _pending_channel_join.has(channel_id):
+				_pending_channel_join[channel_id] = []
+			
+			_pending_channel_join[channel_id].push_back(session_id)
+
+
+func send_join_channel(session_id: int, channel_id: int) -> void:
+	rpc_id(session_id, "__join_channel", channel_id)
 
 
 func _on_channel_loaded(channel_id: int) -> void:
-	if not _pending_channel_data.has(channel_id):
-		Log.d("No one was waiting for channel %d " % channel_id)
-		return
+	if _pending_channel_data.has(channel_id):
+		var sessions := _pending_channel_data[channel_id] as Array
+		var _erased = _pending_channel_data.erase(channel_id)
 
-	var sessions := _pending_channel_data[channel_id] as Array
-	var _erased = _pending_channel_data.erase(channel_id)
+		Log.d("Sessions waiting for channel data %s " % sessions)
 
-	Log.d("Sessions waiting for channel %s " % sessions)
-
-	for session_id in sessions:
-		send_channel_data(channel_id, session_id)
+		for session_id in sessions:
+			send_channel_data(channel_id, session_id)
+		
+	if _pending_channel_join.has(channel_id):
+		var sessions = _pending_channel_join[channel_id] as Array
+		var _erased = _pending_channel_join.erase(channel_id)
+		
+		Log.d("Sessions waiting for channel join %s " % sessions)
+		
+		for session_id in sessions:
+			send_join_channel(session_id, channel_id)
 
 
 remote func __get_channel_data(channel_id: int) -> void:
@@ -116,9 +135,9 @@ remote func __get_channel_data(channel_id: int) -> void:
 	if is_channel_loaded(channel_id):
 		send_channel_data(channel_id, session_id)
 	else:
-		if not _pending_channel_data.has(channel_id):
-			_pending_channel_data[channel_id] = []
+		if request_load_channel(channel_id):
+			if not _pending_channel_data.has(channel_id):
+				_pending_channel_data[channel_id] = []
+			
+			_pending_channel_data[channel_id].push_back(session_id)
 		
-		_pending_channel_data[channel_id].push_back(session_id)
-		
-		request_load_channel(channel_id)

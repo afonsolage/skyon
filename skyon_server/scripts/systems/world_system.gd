@@ -137,4 +137,5 @@ func _on_player_area_of_interest_exited(body: PhysicsBody, player: Player) -> vo
 		Log.d("Skipping the area exited since %s doesn't have get_full_state" % body.name)
 		return
 	
-	rpc_id(player.session_id, "__exit_from_area_of_interest", body.name)
+	if Systems.net.is_session_valid(player.session_id):
+		rpc_id(player.session_id, "__exit_from_area_of_interest", body.name)
