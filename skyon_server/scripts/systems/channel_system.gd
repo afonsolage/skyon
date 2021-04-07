@@ -14,6 +14,8 @@ var _channel_requested: Array
 func _init() -> void:
 	Log.ok(connect("channel_loaded", self, "_on_channel_loaded"))
 
+	request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
+
 
 func _ready() -> void:
 	Log.d("Initializing Channel System")

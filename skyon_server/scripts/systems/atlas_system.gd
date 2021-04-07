@@ -10,7 +10,7 @@ const ATLAS_AXIS_OFFSET = 23169 #-
 
 func _ready():
 	FileUtils.ensure_user_path_exists(ATLAS_PATH)
-
+	
 
 func calc_map_pos_index(map_pos: Vector2) -> int:
 	return int(map_pos.x + ATLAS_AXIS_OFFSET) * ATLAS_AXIS_SIZE + int(map_pos.y + ATLAS_AXIS_OFFSET)

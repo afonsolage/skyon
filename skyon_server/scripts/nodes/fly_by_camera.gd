@@ -16,12 +16,25 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _is_mouse_hidden():
 		if event is InputEventMouseMotion:
 			_mouse_move = event.relative
-	if not _is_mouse_hidden() and event is InputEventMouseButton:
+		elif event is InputEventMouseButton:
+			var mouse_btn_evt = event as InputEventMouseButton
+			if not mouse_btn_evt.pressed:
+				return
+			
+			match mouse_btn_evt.button_index:
+				BUTTON_WHEEL_UP:
+					move_speed += 1
+				BUTTON_WHEEL_DOWN:
+					move_speed -= 1
+				BUTTON_MIDDLE:
+					move_speed = 5
+			
+			move_speed = clamp(move_speed, 0.5, 100)
+	elif not _is_mouse_hidden() and event is InputEventMouseButton:
 		var mouse_btn_evt = event as InputEventMouseButton
 		if mouse_btn_evt.pressed and mouse_btn_evt.button_index == BUTTON_LEFT:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-
-
+			
 func _physics_process(delta: float) -> void:
 	if not _is_mouse_hidden():
 		return
