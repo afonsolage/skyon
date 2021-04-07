@@ -24,7 +24,7 @@ func _ready() -> void:
 func _unhandled_input(event):
 	if get_child_count() > 0:
 		if Systems.debug_view.selected_channel_id > -1:
-			get_node(str(Systems.debug_view.selected_channel_id))._input(event)
+			get_node(str(Systems.debug_view.selected_channel_id))._unhandled_input(event)
 
 
 func is_channel_loaded(channel_id: int) -> bool:
@@ -92,7 +92,11 @@ func _get_channel_data(channel_id: int) -> Dictionary:
 
 func _on_session_connected(session_id: int) -> void:
 	# TODO change this to be called from a DB result or something like that
-	join_channel(session_id, 0)
+	join_channel_map(session_id, Vector2(0, 0))
+
+
+func join_channel_map(session_id: int, map_pos: Vector2) -> void:
+	join_channel(session_id, Systems.atlas.calc_map_pos_index(map_pos))
 
 
 func join_channel(session_id: int, channel_id: int) -> void:
@@ -132,6 +136,12 @@ func _on_channel_loaded(channel_id: int) -> void:
 
 remote func __get_channel_data(channel_id: int) -> void:
 	var session_id := get_tree().get_rpc_sender_id()
+	
+	if not Systems.atlas.is_valid_map_index(channel_id):
+		Log.e("Invalid map index (%d) request by session %d" % [channel_id, session_id])
+		Systems.net.disconnect_session(session_id)
+		return
+	
 	if is_channel_loaded(channel_id):
 		send_channel_data(channel_id, session_id)
 	else:

@@ -10,9 +10,9 @@ onready var add_map_y := $Control/HBoxContainer/VBoxContainer/HBoxContainer/AddM
 var _generation_poll := []
 
 func _ready() -> void:
-	for x in range(0, 10):
-		for y in range(0, 10):
-			_generation_poll.push_back(Vector2(x, y))
+#	for x in range(0, 10):
+#		for y in range(0, 10):
+#			_generation_poll.push_back(Vector2(x, y))
 	
 	check_poll()
 

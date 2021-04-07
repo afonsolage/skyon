@@ -69,13 +69,6 @@ func _start_map_loading() -> void:
 
 
 func _on_channel_data_downloaded(map_instance: MapInstance) -> void:
-	if OS.is_debug_build():
-		var received_map_pos := map_instance.map_component.position
-		var index := int(received_map_pos.x) * MapComponent.SIZE + int(received_map_pos.y)
-		if not index == load_map_index:
-			Log.e("Received map is difference from loading one! %d != %d" % [index, load_map_index])
-			return
-			
 	var thread := Thread.new()
 	
 	var loading_map_generator := LoadingMapGenerator.new()
@@ -84,8 +77,8 @@ func _on_channel_data_downloaded(map_instance: MapInstance) -> void:
 	loading_map_generator.deferred_method = "_on_map_instance_loaded"
 	loading_map_generator.deferred_args = [thread]
 	
-	Log.ok(thread.start(loading_map_generator, "_t_generate_map", map_instance))
-#	loading_map_generator._t_generate_map(map_instance)
+#	Log.ok(thread.start(loading_map_generator, "_t_generate_map", map_instance))
+	loading_map_generator._t_generate_map(map_instance)
 
 
 func _on_map_instance_loaded(map_instance: MapInstance, args: Array) -> void:
@@ -109,7 +102,7 @@ class LoadingMapGenerator:
 
 	func _t_generate_map(map_instance: MapInstance) -> void:
 		var generator := TerrainGenerator.new()
-		generator.height_colors = map_instance.map_component.height_pallet
+		generator.settings.height_colors = map_instance.map_component.height_pallet
 
 		var packed_height_map := PackedHeightMap.new(MapComponent.SIZE)
 		packed_height_map._buffer = map_instance.map_component.height_map

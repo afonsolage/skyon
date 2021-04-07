@@ -131,8 +131,8 @@ func generate_connections(map: HeightMap) -> void:
 			elif existing_connection.y == max_offset:
 				existing_connection.y = 0
 
-			create_square(existing_connection.x, 
-					existing_connection.y, 
+			create_square(int(existing_connection.x),
+					int(existing_connection.y), 
 					border_connection_size, 
 					border_connection_size, 
 					map)
@@ -205,21 +205,9 @@ func generate_connection(map: HeightMap, dir: Vector2) -> Vector2:
 func create_square(sx: int, sy: int, swidth: int, sheight: int, map: HeightMap) -> void:
 	var rect := Rect2(sx, sy, swidth, sheight)
 	var map_rect = Rect2(0, 0, size, size)
-	var half_size:Vector2 = (rect.end - rect.position) / 2
-	var center := Vector2(rect.position.x + int(half_size.x), rect.position.y + int(half_size.y))
 		
 	if not map_rect.encloses(rect):
 		return
-	
-# warning-ignore:integer_division
-	var sborder_thickness := int(float((swidth + sheight) / 2 / 5.0))
-	var border_rect = Rect2(rect.position.x - sborder_thickness, 
-		rect.position.y - sborder_thickness,  
-		rect.end.x + (sborder_thickness * 2) - 1, 
-		rect.end.y + (sborder_thickness * 2) - 1)
-		
-# warning-ignore:integer_division
-	var connection_rect :Rect2 = map_rect.grow(-border_connection_size/2)
 	
 	for pixel_x in range(rect.position.x, rect.end.x):
 		for pixel_y in range(rect.position.y, rect.end.y):
@@ -230,37 +218,8 @@ func create_square(sx: int, sy: int, swidth: int, sheight: int, map: HeightMap) 
 			
 			var h := 0.5 #TODO Find a better way to place this const
 			
-#			if not connection or connection_rect.has_point(pixel_point):
-#				h = map.get_at(pixel_x, pixel_y)
-#				var dist :float = (pixel_point - center).length()
-#				var diff :float = (half_size.length() - dist) / half_size.length()
-#				var diff_h = h - 0.5
-#				h -= diff_h * diff 
-			
 			map.set_at(pixel_x, pixel_y, h)
 
-#	if is_smooth_connection_border:
-#		var point := center
-#		var walk_left := 1
-#
-#		var dir_cnt := 0
-#		var dir: Vector2 = DIRS[dir_cnt]
-#		var dir_mod := 0
-#
-#		while border_rect.has_point(point):
-#			if map_rect.has_point(point) && not rect.has_point(point):
-#				smooth_pixel(int(point.x), int(point.y), map)
-#
-#			walk_left -= 1
-#
-#			if walk_left <= 0:
-#				dir_mod += 1
-#				dir = DIRS[dir_mod % 4]
-#
-#				dir_cnt += (1 if dir_mod % 2 == 1 else 0)
-#				walk_left = dir_cnt
-#
-#			point += dir
 
 
 func smooth_pixel(x: int, y: int, map: HeightMap) -> void:
@@ -300,6 +259,8 @@ func connect_connections(map: HeightMap) -> void:
 		if not connection == Vector2.ZERO and not connection == Vector2(-1,-1):
 			places.push_back(connection)
 	
+# warning-ignore:integer_division
+# warning-ignore:integer_division
 	places.push_back(Vector2(map.size() / 2, map.size() / 2))
 	
 	for i in map._connections.size():

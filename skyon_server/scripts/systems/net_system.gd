@@ -50,3 +50,7 @@ func is_session_valid(session_id: int) -> bool:
 
 func get_sessions() -> PoolIntArray:
 	return get_tree().get_network_connected_peers()
+
+
+func disconnect_session(session_id: int) -> void:
+	_net.disconnect_peer(session_id)

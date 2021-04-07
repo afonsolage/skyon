@@ -1,7 +1,7 @@
 class_name MapComponent
 extends Reference
 
-const SIZE = 128
+const SIZE = 512
 
 var position: Vector2
 var height_map: PoolByteArray

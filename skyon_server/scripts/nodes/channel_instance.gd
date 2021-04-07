@@ -1,5 +1,5 @@
 extends Viewport
 
 
-func _input(event):
-	get_camera()._input(event)
+func _unhandled_input(event):
+	get_camera()._unhandled_input(event)
