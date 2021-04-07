@@ -8,6 +8,7 @@ var height_map: PoolByteArray
 var connections: PoolVector2Array
 var height_pallet: PoolColorArray
 var collisions: PoolVector3Array
+
 # TODO: Add resources, mob spawn points, npcs and such
 
 

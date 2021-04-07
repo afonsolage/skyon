@@ -4,6 +4,7 @@ extends Control
 var selected_channel_id := -1
 
 var _channel_item_id: Dictionary = {}
+var _current_camera: Camera = null
 
 onready var _texture_render = $Control/RenderView
 onready var _item_list: ItemList = $Control/VBoxContainer/ItemList
@@ -13,16 +14,15 @@ func _ready() -> void:
 	Log.ok(Systems.channel.connect("channel_loaded", self, "_on_channel_loaded"))
 	Log.ok(Systems.channel.connect("channel_unloaded", self, "_on_channel_unloaded"))
 
-
 func _process(_delta: float) -> void:
 	if selected_channel_id == -1 or Systems.channel.get_child_count() == 0:
 		return
 	
 	if not _texture_render.texture:
 		var vp = _get_selected_viewport()
-		vp.get_camera().enable()
+		_current_camera = vp.get_camera()
+		_current_camera.enable()
 		_texture_render.texture = vp.get_texture()
-
 
 func _on_channel_loaded(channel_id: int) -> void:
 	var item_idx = _item_list.get_item_count()

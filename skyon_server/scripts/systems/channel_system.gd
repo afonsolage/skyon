@@ -14,7 +14,7 @@ var _channel_requested: Array
 func _init() -> void:
 	Log.ok(connect("channel_loaded", self, "_on_channel_loaded"))
 
-	request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
+	var _success := request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
 
 
 func _ready() -> void:
@@ -59,6 +59,42 @@ func send_channel_data(channel_id: int, session_id: int) -> void:
 	var data := _get_channel_data(channel_id)
 	rpc_id(session_id, "__save_channel_data", channel_id, data)
 
+
+func join_channel_map(session_id: int, map_pos: Vector2) -> void:
+	join_channel(session_id, Systems.atlas.calc_map_pos_index(map_pos))
+
+
+func join_channel(session_id: int, channel_id: int) -> void:
+	if is_channel_loaded(channel_id):
+		send_join_channel(session_id, channel_id)
+	else:
+		if request_load_channel(channel_id):
+			if not _pending_channel_join.has(channel_id):
+				_pending_channel_join[channel_id] = []
+			
+			_pending_channel_join[channel_id].push_back(session_id)
+
+
+func send_join_channel(session_id: int, channel_id: int) -> void:
+	rpc_id(session_id, "__join_channel", channel_id)
+
+
+func _on_map_connection_area_entered(player: Player, area_id: int, channel_id: int) -> void:
+	if area_id < 0 or area_id > HeightMapGenerator.DIRS.size():
+		Log.e("Invalid area_id received (%d) for player %s on chanel %d" % [area_id, player, channel_id])
+		return
+	
+	var world := Systems.get_world(channel_id) as WorldSystem
+	var position := world.map_instance.map_component.position
+	var next_map_dir := HeightMapGenerator.DIRS[area_id] as Vector2
+	var next_map_pos := position + next_map_dir
+	
+	Log.d("Moving player from map %s to map %s" % [position, next_map_pos])
+	
+	var session_id = player.session_id
+	join_channel_map(session_id, next_map_pos)
+
+
 # Since GDScript can't use varargs, we need to store our custom data in an array
 func _on_map_component_loaded(map: MapComponent, data: Array) -> void:
 	var channel = _channel_instance_res.instance()
@@ -66,7 +102,9 @@ func _on_map_component_loaded(map: MapComponent, data: Array) -> void:
 	var channel_id = data[0] as int
 	
 	var map_instance = MapInstance.new()
+	map_instance.name = "Map"
 	map_instance.map_component = map
+	map_instance.connect("connection_area_entered", self, "_on_map_connection_area_entered", [channel_id])
 	
 	world.set_map_instance(map_instance)
 	
@@ -97,24 +135,6 @@ func _on_session_connected(session_id: int) -> void:
 	join_channel_map(session_id, Vector2(0, 0))
 
 
-func join_channel_map(session_id: int, map_pos: Vector2) -> void:
-	join_channel(session_id, Systems.atlas.calc_map_pos_index(map_pos))
-
-
-func join_channel(session_id: int, channel_id: int) -> void:
-	if is_channel_loaded(channel_id):
-		send_join_channel(session_id, channel_id)
-	else:
-		if request_load_channel(channel_id):
-			if not _pending_channel_join.has(channel_id):
-				_pending_channel_join[channel_id] = []
-			
-			_pending_channel_join[channel_id].push_back(session_id)
-
-
-func send_join_channel(session_id: int, channel_id: int) -> void:
-	rpc_id(session_id, "__join_channel", channel_id)
-
 
 func _on_channel_loaded(channel_id: int) -> void:
 	if _pending_channel_data.has(channel_id):
@@ -139,7 +159,7 @@ func _on_channel_loaded(channel_id: int) -> void:
 remote func __get_channel_data(channel_id: int) -> void:
 	var session_id := get_tree().get_rpc_sender_id()
 	
-	if not Systems.atlas.is_valid_map_index(channel_id):
+	if channel_id < 0:
 		Log.e("Invalid map index (%d) request by session %d" % [channel_id, session_id])
 		Systems.net.disconnect_session(session_id)
 		return

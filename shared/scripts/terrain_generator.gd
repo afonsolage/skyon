@@ -92,6 +92,28 @@ func generate_collisions_mesh(height_map: PackedHeightMap) -> PoolVector3Array:
 	return collisions
 
 
+func generate_connections_area(heigth_map: PackedHeightMap) -> Array:
+	var connections_areas := []
+	
+	for i in heigth_map._connections:
+		var connection := heigth_map._connections[i] as Vector2
+		
+		if connection == Vector2.ZERO or connection == Vector2(-1, -1):
+			continue
+		
+		var box_size := settings.border_connection_size as float
+		var box_shape = BoxShape.new()
+		box_shape.extents = Vector3(box_size, box_size, box_size)
+		
+		var shape = CollisionShape.new()
+		shape.shape = box_shape
+		
+		var area := Area.new()
+		area.name = "connection %i" % i
+	
+	return connections_areas
+
+
 func generate_terrain_mesh(height_map: PackedHeightMap, collisions: bool = true) -> Array:
 	Log.d("Generating a new terrain mesh!")
 	
