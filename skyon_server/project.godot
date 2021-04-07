@@ -254,6 +254,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/shared/terrain_generator.gd"
 }, {
+"base": "Resource",
+"class": "TerrainGeneratorSettings",
+"language": "GDScript",
+"path": "res://scripts/shared/terrain_generator_settings.gd"
+}, {
 "base": "Node",
 "class": "WorldSystem",
 "language": "GDScript",
@@ -309,6 +314,7 @@ _global_script_class_icons={
 "PackedHeightMap": "",
 "Player": "",
 "TerrainGenerator": "",
+"TerrainGeneratorSettings": "",
 "WorldSystem": ""
 }
 

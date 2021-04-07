@@ -2,78 +2,58 @@ tool
 class_name TerrainGenerator
 extends Spatial
 
-export(bool) var update := false setget set_update
+export(Resource) var settings := TerrainGeneratorSettings.new() as Resource
 
-export(bool) var is_generate_height_map := false
-export(bool) var is_generate_terrain := true
-export(bool) var is_generate_border := true
-export(bool) var is_generate_places := true
-export(bool) var is_connect_places := true
-export(bool) var is_smooth_connection_border := true
-export(bool) var is_normalize_height := true
-export(bool) var is_generate_mesh_instance := true
-export(bool) var is_generate_collisions := true
-export(bool) var is_save_height_map := false
+onready var add_map_x := $Control/HBoxContainer/VBoxContainer/HBoxContainer/AddMapX
+onready var add_map_y := $Control/HBoxContainer/VBoxContainer/HBoxContainer/AddMapY
 
-export(float) var map_scale := 10.0;
-export(int) var size := 512
-export(int) var octaves := 5
-export(float) var persistance := 0.2
-export(float) var period := 20.0
-export(int) var border_size := 30
-export(float) var border_thickness := 0.05
-export(bool) var border_montains := true
-export(int) var border_connection_size := 8
-export(int) var places_count := 5
-export(int) var places_path_noise_rate := 40
-export(int) var places_path_thickness := 5
-export(Array, Color) var height_colors := []
+var _generation_poll := []
 
-export(int) var height_map_seed := 0
-
-export(bool) var disable_randomness := false
-
-func _ready():
-	generate()
-
-
-func set_update(_value):
-	update = false
-	generate()
-
-func generate():
-	var height_map := PackedHeightMap.new(0)
-	if is_generate_height_map:
-		height_map = generate_height_map()
-	else:
-		height_map.load_from_resource("user://terrain.tmp")
+func _ready() -> void:
+	for x in range(0, 10):
+		for y in range(0, 10):
+			_generation_poll.push_back(Vector2(x, y))
 	
-	if is_save_height_map:
-		height_map.save_to_resource("user://terrain.tmp")
+	check_poll()
+
+func check_poll() -> void:
+	if not _generation_poll.empty():
+		var map_position := _generation_poll.pop_front() as Vector2
+		Systems.atlas.get_map_deferred(map_position, self, "_on_map_get")
+
+
+func _on_map_get(map_component: MapComponent) -> void:
+	var map_instance = MapInstance.new()
+	map_instance.map_component = map_component
 	
-#	if is_generate_mesh_instance:
-#		var terrain := generate_mesh_instance_node(height_map)
-#
-#		if self.has_node("Terrain"):
-#			self.get_node("Terrain").free()
-#
-#		self.add_child(terrain)
-#
-#		if Engine.editor_hint:
-#			terrain.owner = get_tree().get_edited_scene_root()
-#
-#
-#func generate_mesh_instance_node(height_map: PackedHeightMap) -> Terrain:
-#	var result := _generate_terrain_mesh(height_map)
-#	var mesh: Mesh = result[0]
+	var packed_height_map := PackedHeightMap.new(settings.size)
+	packed_height_map._buffer = map_instance.map_component.height_map
+	
+	var result := generate_terrain_mesh(packed_height_map, false)
+	var mesh = result[0]
+	
+	map_instance.mesh = mesh
+	
+	var position := Vector3(map_component.position.x * settings.size, 0, map_component.position.y * settings.size)
+	map_instance.translation = position * 0.5
+	
+	self.add_child(map_instance)
+
+	if Engine.editor_hint:
+		map_instance.owner = get_tree().get_edited_scene_root()
+	
+	check_poll()
+
+
+func generate_mesh_instance_node(height_map: PackedHeightMap) -> MapInstance:
+	var result := generate_terrain_mesh(height_map, false)
+	var mesh: Mesh = result[0]
 #	var collision_shape_faces: PoolVector3Array = result[1]
-#
-#	var meshInstance := Terrain.new()
-#	meshInstance.mesh = mesh
-#	meshInstance.name = "Terrain"
-#	meshInstance.height_map = height_map
+
+	var map_instance := MapInstance.new()
+	map_instance.map_component.mesh = mesh
 #	meshInstance.scale = Vector3(0.5, 0.5, 0.5)
-#
+
 #	if is_generate_collisions:
 #		var static_body = StaticBody.new()
 #		static_body.add_to_group("Terrain")
@@ -92,8 +72,8 @@ func generate():
 #
 #		if Engine.editor_hint:
 #			collision_shape.owner = get_tree().get_edited_scene_root()
-#
-#	return meshInstance
+
+	return map_instance
 
 func generate_collisions_mesh(height_map: PackedHeightMap) -> PoolVector3Array:
 	var planes := _create_planes(height_map)
@@ -112,8 +92,8 @@ func generate_collisions_mesh(height_map: PackedHeightMap) -> PoolVector3Array:
 	return collisions
 
 
-func generate_terrain_mesh(height_map: PackedHeightMap) -> Array:
-	print("Generating a new terrain mesh!")
+func generate_terrain_mesh(height_map: PackedHeightMap, collisions: bool = true) -> Array:
+	Log.d("Generating a new terrain mesh!")
 	
 	var planes := _create_planes(height_map)
 	var indices := _create_indexes(planes)
@@ -131,7 +111,7 @@ func generate_terrain_mesh(height_map: PackedHeightMap) -> Array:
 		var normal := _get_side_normal(side)
 		for i in range(0, side_vertices.size(), 4):
 			var h = side_vertices[i].y - 1
-			var c = height_colors[h]
+			var c = settings.height_colors[h]
 			
 			vertices.push_back(side_vertices[i])
 			normals.push_back(normal)
@@ -151,8 +131,10 @@ func generate_terrain_mesh(height_map: PackedHeightMap) -> Array:
 
 	var collision_shape_faces := PoolVector3Array()
 	
-	for i in indices:
-		collision_shape_faces.push_back(vertices[i])
+	if collisions:
+		collision_shape_faces.resize(indices.size())
+		for i in indices:
+			collision_shape_faces.push_back(vertices[i])
 
 	var arrays = []
 	arrays.resize(ArrayMesh.ARRAY_MAX)
@@ -334,14 +316,14 @@ func _calc_height_difference(side: String, height_map: PackedHeightMap, x: int, 
 
 func _merge_faces(planes: Dictionary, height_map: PackedHeightMap) -> void:
 	var merged := PoolByteArray()
-	merged.resize(size * size)
+	merged.resize(settings.size * settings.size)
 	var merged_faces := PoolVector3Array()
 
 	for i in merged.size():
 		merged[i] = 0
 
-	for x in size:
-		for z in size:
+	for x in settings.size:
+		for z in settings.size:
 			var pos := Vector2(x, z)
 
 			if merged[height_map.calc_index(int(pos.x), int(pos.y))] == 1:
@@ -352,7 +334,7 @@ func _merge_faces(planes: Dictionary, height_map: PackedHeightMap) -> void:
 			var origin_z = z
 
 			var end_z = z + 1
-			while end_z < size:
+			while end_z < settings.size:
 				var npos := Vector2(origin_x, end_z)
 
 				var nh := int(height_map.get_at(origin_x, end_z))
@@ -366,10 +348,10 @@ func _merge_faces(planes: Dictionary, height_map: PackedHeightMap) -> void:
 
 			var end_x = origin_x
 			var done := false
-			while end_x < size and not done:
+			while end_x < settings.size and not done:
 				end_x += 1
 				
-				if end_x >= size:
+				if end_x >= settings.size:
 					break
 				
 				for tmp_z in range(origin_z, end_z + 1):
@@ -422,29 +404,26 @@ func _create_indexes(planes: Dictionary) -> PoolIntArray:
 func generate_height_map() -> PackedHeightMap:
 	var height_map_generator := HeightMapGenerator.new()
 	
-	height_map_generator.is_generate_terrain = is_generate_terrain
-	height_map_generator.is_generate_border = is_generate_border
-	height_map_generator.is_generate_places = is_generate_places
-	height_map_generator.is_connect_places = is_connect_places
-	height_map_generator.is_smooth_connection_border = is_smooth_connection_border
-	height_map_generator.is_normalize_height = is_normalize_height
+	height_map_generator.is_generate_terrain = settings.is_generate_terrain
+	height_map_generator.is_generate_border = settings.is_generate_border
+	height_map_generator.is_generate_connections = settings.is_generate_connections
+	height_map_generator.is_normalize_height = settings.is_normalize_height
 
-	height_map_generator.size = size
-	height_map_generator.octaves = octaves
-	height_map_generator.persistance = persistance
-	height_map_generator.period = period
-	height_map_generator.border_size = border_size
-	height_map_generator.border_thickness = border_thickness
-	height_map_generator.border_montains = border_montains
-	height_map_generator.border_connection_size = border_connection_size
-	height_map_generator.places_count = places_count
-	height_map_generator.places_path_noise_rate = places_path_noise_rate
-	height_map_generator.places_path_thickness = places_path_thickness
+	height_map_generator.size = settings.size
+	height_map_generator.octaves = settings.octaves
+	height_map_generator.persistance = settings.persistance
+	height_map_generator.period = settings.period
+	height_map_generator.border_size = settings.border_size
+	height_map_generator.border_thickness = settings.border_thickness
+	height_map_generator.border_montains = settings.border_montains
+	height_map_generator.border_connection_size = settings.border_connection_size
+	height_map_generator.places_count = settings.places_count
+	height_map_generator.places_path_noise_rate = settings.places_path_noise_rate
+	height_map_generator.places_path_thickness = settings.places_path_thickness
 
-	height_map_generator.disable_randomness = disable_randomness
+	height_map_generator.existing_connections = settings.surrounding_connections
 	
-	
-	var full_height_map := height_map_generator.generate(height_map_seed)
+	var full_height_map := height_map_generator.generate(settings.height_map_seed)
 	return _pack_height_map(full_height_map)
 
 
@@ -454,9 +433,9 @@ func _pack_height_map(height_map: HeightMap) -> PackedHeightMap:
 	for i in height_map.buffer_size():
 		var h := height_map.get_at_index(i)
 		
-		var packed_h = int(h * map_scale)
+		var packed_h = int(h * settings.map_scale)
 		
-		if packed_h < 0 or packed_h > map_scale:
+		if packed_h < 0 or packed_h > settings.map_scale:
 			Log.e("Invalid height: %d" % packed_h)
 		
 		packed_height_map.set_at_index(i, packed_h)
@@ -464,3 +443,13 @@ func _pack_height_map(height_map: HeightMap) -> PackedHeightMap:
 	packed_height_map._connections = height_map._connections
 	
 	return packed_height_map
+
+
+func _on_AddMapButton_pressed():
+	var map_position = Vector2.ZERO
+	map_position.x = int(add_map_x.text)
+	map_position.y = int(add_map_y.text)
+	
+	Systems.atlas.get_map_deferred(map_position, self, "_on_map_get")
+
+	

@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://scripts/shared/terrain_generator.gd" type="Script" id=1]
 [ext_resource path="res://scripts/nodes/camera_follow.gd" type="Script" id=2]
+[ext_resource path="res://scripts/nodes/map_instance.gd" type="Script" id=3]
+
+[sub_resource type="ArrayMesh" id=1]
 
 [node name="TerrainGenerator" type="Spatial"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0827637, -0.118587, -0.382313 )
@@ -20,3 +23,8 @@ size = 17.0
 far = 200.0
 script = ExtResource( 2 )
 offset = Vector3( 7, -10, -7 )
+
+[node name="MapInstance" type="MeshInstance" parent="."]
+transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0 )
+mesh = SubResource( 1 )
+script = ExtResource( 3 )

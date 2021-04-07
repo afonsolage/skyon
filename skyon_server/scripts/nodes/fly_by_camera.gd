@@ -1,15 +1,18 @@
 extends Camera
 
+export(bool) var disable_on_init := true
+
 export(float) var move_speed : float = 5.0
 export(float) var turn_speed : float = 10.0
-export(float) var boost_speed : float = 2.0
+export(float) var boost_speed : float = 5.0
 
 var _mouse_move : Vector2
 
 func _ready() -> void:
-	disable()
+	if disable_on_init:
+		disable()
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
 	if _is_mouse_hidden():
 		if event is InputEventMouseMotion:
 			_mouse_move = event.relative
@@ -18,7 +21,11 @@ func _input(event: InputEvent) -> void:
 		if mouse_btn_evt.pressed and mouse_btn_evt.button_index == BUTTON_LEFT:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
+
 func _physics_process(delta: float) -> void:
+	if not _is_mouse_hidden():
+		return
+	
 	var boost := boost_speed if Input.is_key_pressed(KEY_SHIFT) else 1.0
 	
 	if Input.is_key_pressed(KEY_W):

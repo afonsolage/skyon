@@ -6,83 +6,85 @@ extends Node
 
 const ATLAS_PATH = "user://atlas/"
 const ATLAS_AXIS_SIZE = 46_340 # sqrt(2_147_395_600)
-
-var _deferred_calls: Dictionary
-var _generation_threads: Dictionary
+const ATLAS_AXIS_OFFSET = 23169 #-
 
 func _ready():
 	FileUtils.ensure_user_path_exists(ATLAS_PATH)
 
 
 func calc_map_pos_index(map_pos: Vector2) -> int:
-	return int(map_pos.x) * ATLAS_AXIS_SIZE + int(map_pos.y)
+	return int(map_pos.x + ATLAS_AXIS_OFFSET) * ATLAS_AXIS_SIZE + int(map_pos.y + ATLAS_AXIS_OFFSET)
 
 
 func calc_map_pos(index: int) -> Vector2:
 # warning-ignore:integer_division
-	return Vector2(index / ATLAS_AXIS_SIZE, index % ATLAS_AXIS_SIZE)
+	var x := index / ATLAS_AXIS_SIZE
+	var y := index % ATLAS_AXIS_SIZE
+	return Vector2(x - ATLAS_AXIS_OFFSET, y - ATLAS_AXIS_OFFSET)
 
 
-func get_map_deferred(map_pos: Vector2, object: Object, method: String, args: Array = []) -> void:
-	_deferred_calls[map_pos] = {
-		"object": object,
-		"method": method,
-		"args": args
-	}
-	_start_map_loading(map_pos)
-
-
-func _start_map_loading(map_pos: Vector2) -> void:
+func get_map_deferred(map_pos: Vector2, object: Object, method: String, 
+		args: Array = [], generation_settings: TerrainGeneratorSettings = null) -> void:
 	var thread := Thread.new()
 	var atlas_map_generator := AtlasMapGenerator.new()
-	Log.ok(thread.start(atlas_map_generator, "_t_load_or_generate_map", [
-			map_pos,
-			calc_map_pos_index(map_pos),
-			_get_map_path(map_pos),
-			self,
-			]))
+	atlas_map_generator.deferred_object = self
+	atlas_map_generator.deferred_method = "_finish_map_loading"
+	atlas_map_generator.deferred_args = [thread, object, method, args]
 	
-	_generation_threads[map_pos] = thread
+	var thread_args = [
+		map_pos,
+		calc_map_pos_index(map_pos),
+		_get_map_path(map_pos),
+		generation_settings,
+	]
+	
+	Log.ok(thread.start(atlas_map_generator, "_t_load_or_generate_map", thread_args))
+#	atlas_map_generator._t_load_or_generate_map(thread_args)
 
 
-func _finish_map_loading(map: MapComponent) -> void:
-	var map_pos = map.position
-	
-	if _generation_threads.has(map_pos):
-		var thread := _generation_threads[map_pos] as Thread
+func _finish_map_loading(map: MapComponent, args: Array) -> void:
+	var thread := args[0] as Thread
+	if thread:
 		var _res = thread.wait_to_finish()
-		var _erased = _generation_threads.erase(map_pos)
 	
-	var dict := _deferred_calls[map_pos] as Dictionary
+	var deferred_object := args[1] as Object
 	
-	if is_instance_valid(dict.object):
-		if dict.args.empty():
-			dict.object.call_deferred(dict.method, map)
+	if is_instance_valid(deferred_object):
+		var deferred_method := args[2] as String
+		var deferred_args := args[3] as Array
+		
+		if not deferred_args or deferred_args.empty():
+			deferred_object.call_deferred(deferred_method, map)
 		else:
-			dict.object.call_deferred(dict.method, map, dict.args)
-	
-	var _erased = _deferred_calls.erase(map_pos)
+			deferred_object.call_deferred(deferred_method, map, deferred_args)
+
 
 func _get_map_path(map_pos: Vector2) -> String:
 	return "%s/%d" % [ATLAS_PATH, calc_map_pos_index(map_pos)]
 
 
-func _map_exists(map_pos: Vector2) -> bool:
+func map_exists(map_pos: Vector2) -> bool:
 	return FileUtils.exists(_get_map_path(map_pos))
 
 
 class AtlasMapGenerator:
 	extends Node
+	
+	var deferred_object: Object
+	var deferred_method: String
+	var deferred_args: Array
+	
 	# _t_ means this function is executed in a thread
 	func _t_load_or_generate_map(args: Array) -> void:
 		var map_pos = args[0] as Vector2
 		var map_index = args[1] as int
 		var map_path = args[2] as String
-		var deffered_obj = args[3] as Object
+		var generation_settings = args[3] as TerrainGeneratorSettings
 		
 		var map: MapComponent
 		
-		if FileUtils.exists(map_path):
+		if not (generation_settings and generation_settings.is_force_generation) \
+				and FileUtils.exists(map_path):
 			Log.d("Map %s already exists, loading it" % map_pos)
 			map = MapComponent.new()
 			map.load_from(map_path)
@@ -91,21 +93,6 @@ class AtlasMapGenerator:
 			map = MapComponent.new()
 			map.position = map_pos
 			
-			var generator := TerrainGenerator.new()
-			generator.height_map_seed = map_index
-			generator.size = MapComponent.SIZE
-			
-			# TODO: Load biome settings
-			generator.octaves = int(rand_range(2, 7))
-			generator.persistance = rand_range(0.1, 0.9)
-			generator.period = rand_range(10.0, 20.0)
-			generator.border_size = int(rand_range(30, 100))
-			
-			Log.d("[Map %s] Generating height map" % map_pos)
-			var packed_height_map := generator.generate_height_map()
-			
-			map.height_map = packed_height_map.buffer()
-			map.connections = packed_height_map._connections
 			# TODO: Load from biome pallet
 			map.height_pallet = [
 				Color.blue,
@@ -120,6 +107,29 @@ class AtlasMapGenerator:
 				Color.saddlebrown,
 				Color.darkgray,
 			]
+			
+			var generator := TerrainGenerator.new()
+			
+			if not generation_settings:
+				generation_settings = TerrainGeneratorSettings.new()
+				generation_settings.size = MapComponent.SIZE
+				
+				# TODO: Load biome settings
+				generation_settings.octaves = int(rand_range(2, 7))
+				generation_settings.persistance = rand_range(0.1, 0.9)
+				generation_settings.period = rand_range(10.0, 20.0)
+				generation_settings.border_size = int(rand_range(20, generation_settings.size * 0.2))
+				generation_settings.height_colors = map.height_pallet
+			
+			generation_settings.surrounding_connections = _t_get_surrounding_connections(map_pos)
+			generation_settings.height_map_seed = map_index
+			generator.settings = generation_settings
+			
+			Log.d("[Map %s] Generating height map" % map_pos)
+			var packed_height_map := generator.generate_height_map()
+			
+			map.height_map = packed_height_map.buffer()
+			map.connections = packed_height_map._connections
 			Log.d("[Map %s] Generating collisions map" % map_pos)
 			map.collisions = generator.generate_collisions_mesh(packed_height_map)
 			Log.d("[Map %s] Generating saving to disk" % map_pos)
@@ -127,5 +137,38 @@ class AtlasMapGenerator:
 		
 		Log.d("[Map %s] Generation completed" % map_pos)
 		
-		if is_instance_valid(deffered_obj):
-			deffered_obj.call_deferred("_finish_map_loading", map)
+		if is_instance_valid(deferred_object):
+			deferred_object.call_deferred(deferred_method, map, deferred_args)
+
+
+	func _t_get_surrounding_connections(map_pos: Vector2) -> PoolVector2Array:
+		var connections = PoolVector2Array([
+			Vector2.ZERO,
+			Vector2.ZERO,
+			Vector2.ZERO,
+			Vector2.ZERO,
+		])
+		
+		for i in HeightMapGenerator.DIRS.size():
+			var dir := HeightMapGenerator.DIRS[i] as Vector2
+			var neighbor_pos := map_pos + dir
+			
+			if Systems.atlas.map_exists(neighbor_pos):
+				var neighbor_path = Systems.atlas._get_map_path(neighbor_pos)
+				var neighbor_map = MapComponent.new()
+				
+				neighbor_map.load_from(neighbor_path)
+				
+				match dir:
+					Vector2.RIGHT:
+						connections[i] = neighbor_map.connections[2] # LEFT
+					Vector2.UP:
+						connections[i] = neighbor_map.connections[3] # DOWN
+					Vector2.LEFT:
+						connections[i] = neighbor_map.connections[0] # RIGHT
+					Vector2.DOWN:
+						connections[i] = neighbor_map.connections[1] # UP
+					_:
+						Log.e("Invalid direction: %s" % dir)
+
+		return connections

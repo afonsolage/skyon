@@ -101,19 +101,19 @@ func _on_map_instance_loaded(map_instance: MapInstance, args: Array) -> void:
 
 class LoadingMapGenerator:
 	extends Node
-	
+
 	var save_path: String
 	var deferred_object: Object
 	var deferred_method: String
 	var deferred_args: Array
-	
+
 	func _t_generate_map(map_instance: MapInstance) -> void:
 		var generator := TerrainGenerator.new()
 		generator.height_colors = map_instance.map_component.height_pallet
-		
+
 		var packed_height_map := PackedHeightMap.new(MapComponent.SIZE)
 		packed_height_map._buffer = map_instance.map_component.height_map
-		
+
 		var result := generator.generate_terrain_mesh(packed_height_map)
 		map_instance.map_component.mesh = result[0]
 		map_instance.map_component.collisions = result[1]
