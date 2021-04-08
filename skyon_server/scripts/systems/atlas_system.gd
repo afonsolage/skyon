@@ -118,7 +118,7 @@ class AtlasMapGenerator:
 				generation_settings.octaves = int(rand_range(2, 7))
 				generation_settings.persistance = rand_range(0.1, 0.9)
 				generation_settings.period = rand_range(10.0, 20.0)
-				generation_settings.border_size = int(rand_range(20, generation_settings.size * 0.2))
+				generation_settings.border_size = int(rand_range(30, 60))
 				generation_settings.height_colors = map.height_pallet
 			
 			generation_settings.surrounding_connections = _t_get_surrounding_connections(map_pos)

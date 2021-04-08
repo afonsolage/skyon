@@ -14,10 +14,10 @@ var _channel_requested: Array
 func _init() -> void:
 	Log.ok(connect("channel_loaded", self, "_on_channel_loaded"))
 
-	var _success := request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
-	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 0)))
-	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 1)))
-	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 1)))
+#	var _success := request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
+#	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 0)))
+#	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 1)))
+#	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 1)))
 
 
 func _ready() -> void:

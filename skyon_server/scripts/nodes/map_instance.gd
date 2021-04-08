@@ -42,24 +42,7 @@ func _setup_connections() -> void:
 			Consts.Direction.UP:
 				area.rotation_degrees = Vector3(0, -90, 0)
 			
-		
-#		var shape := BoxShape.new()
-#		shape.extents = Vector3(shape_size, shape_size, shape_size)
-#
-#		var collision = CollisionShape.new()
-#		collision.shape = shape
-#
-#		var area_position := Vector3(connection.x, shape_size / 2, connection.y) + shape.extents / 2
-#		var area := Area.new()
-#		area.name = "ConnectionArea%d" % i
-#		area.translation = area_position
-#		area.scale = SCALE_VECTOR
-#		area.collision_layer = 0
-#		area.collision_mask = 0
-#		area.set_collision_mask_bit(2, true)
-#		Log.ok(area.connect("body_entered", self, "_on_connection_area_entered", [i]))
-#		
-#		area.add_child(collision)
+		Log.ok(area.connect("on_body_entered", self, "_on_connection_area_entered", [side]))
 		
 		connections.add_child(area)
 

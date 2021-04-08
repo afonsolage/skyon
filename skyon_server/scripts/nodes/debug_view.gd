@@ -26,7 +26,7 @@ func _process(_delta: float) -> void:
 
 func _on_channel_loaded(channel_id: int) -> void:
 	var item_idx = _item_list.get_item_count()
-	_item_list.add_item("Channel %d" % channel_id)
+	_item_list.add_item("Channel %s" % Systems.atlas.calc_map_pos(channel_id))
 	_channel_item_id[channel_id] = item_idx
 	_item_list.set_item_metadata(item_idx, channel_id)
 

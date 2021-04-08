@@ -1,6 +1,8 @@
 class_name HeightMapGenerator
 
+const MIN_MAP_MARGIN := 2
 const DIRS := [Vector2.RIGHT, Vector2.UP, Vector2.LEFT, Vector2.DOWN]
+const REV_DIRS := [Vector2.LEFT, Vector2.DOWN, Vector2.RIGHT, Vector2.UP]
 
 var is_generate_terrain := true
 var is_generate_border := true
@@ -69,12 +71,19 @@ func generate_terrain(map: HeightMap) -> void:
 func generate_border(map: HeightMap) -> void:
 	var border_left := border_size
 	var border_up := border_size
-	var border_right := size - border_size
-	var border_down := size - border_size
+	var border_right := size - 1 - border_size
+	var border_down := size - 1 - border_size
+	
+	var map_rect = Rect2(MIN_MAP_MARGIN, MIN_MAP_MARGIN, size - MIN_MAP_MARGIN * 2, size - MIN_MAP_MARGIN * 2)
+	var inner_rect := Rect2(
+			border_left, 
+			border_up, 
+			border_right - border_left,
+			border_down - border_up)
 	
 	for x in range(size):
 		for y in range(size):
-			if x > border_left && x < border_right && y > border_up && y < border_down:
+			if inner_rect.has_point(Vector2(x, y)):
 				continue
 			
 			var border_thickness_x := 0
@@ -83,9 +92,9 @@ func generate_border(map: HeightMap) -> void:
 				border_thickness_x = border_left - x
 			elif x > border_right:
 				border_thickness_x = x - border_right
-			
+
 			var border_thickness_y := 0
-			
+
 			if y < border_up:
 				border_thickness_y = border_up - y
 			elif y > border_down:
@@ -97,7 +106,8 @@ func generate_border(map: HeightMap) -> void:
 
 
 func generate_connections(map: HeightMap) -> void:
-	var max_offset := size - border_connection_size
+	var min_offset := 2
+	var max_offset := size - border_connection_size - min_offset
 	var connection_count := 0
 	
 	for connection in existing_connections:
@@ -121,15 +131,18 @@ func generate_connections(map: HeightMap) -> void:
 		elif existing_connection == Vector2(-1, -1):
 			continue
 		else:
-			if existing_connection.x == 0:
+			if existing_connection.x == min_offset:
 				existing_connection.x = max_offset
 			elif existing_connection.x == max_offset:
-				existing_connection.x = 0
+				existing_connection.x = min_offset
 				
-			if existing_connection.y == 0:
+			if existing_connection.y == min_offset:
 				existing_connection.y = max_offset
 			elif existing_connection.y == max_offset:
-				existing_connection.y = 0
+				existing_connection.y = min_offset
+
+			var rev_dir := REV_DIRS[i] as Vector2
+			existing_connection += MIN_MAP_MARGIN * rev_dir
 
 			create_square(int(existing_connection.x),
 					int(existing_connection.y), 
@@ -150,6 +163,11 @@ func generate_connection(map: HeightMap, dir: Vector2) -> Vector2:
 	
 	var connection_x := rnd if dir.x == 0 else 0 if dir.x == -1 else max_offset
 	var connection_y := rnd if dir.y == 0 else 0 if dir.y == -1 else max_offset
+	
+	var rev_dir := dir * -1
+	var offset := rev_dir * MIN_MAP_MARGIN
+	connection_x += offset.x
+	connection_y += offset.y
 	
 	create_square(connection_x,
 		connection_y, 
@@ -204,13 +222,13 @@ func generate_connection(map: HeightMap, dir: Vector2) -> Vector2:
 
 func create_square(sx: int, sy: int, swidth: int, sheight: int, map: HeightMap) -> void:
 	var rect := Rect2(sx, sy, swidth, sheight)
-	var map_rect = Rect2(0, 0, size, size)
-		
+	var map_rect = Rect2(MIN_MAP_MARGIN, MIN_MAP_MARGIN, size - MIN_MAP_MARGIN * 2, size - MIN_MAP_MARGIN * 2)
+	
 	if not map_rect.encloses(rect):
 		return
 	
-	for pixel_x in range(rect.position.x, rect.end.x):
-		for pixel_y in range(rect.position.y, rect.end.y):
+	for pixel_x in range(rect.position.x, rect.end.x + 1):
+		for pixel_y in range(rect.position.y, rect.end.y + 1):
 			var pixel_point = Vector2(pixel_x, pixel_y)
 			
 			if not map_rect.has_point(pixel_point):
@@ -223,7 +241,7 @@ func create_square(sx: int, sy: int, swidth: int, sheight: int, map: HeightMap) 
 
 
 func smooth_pixel(x: int, y: int, map: HeightMap) -> void:
-	var map_rect = Rect2(0, 0, size, size)
+	var map_rect = Rect2(MIN_MAP_MARGIN, MIN_MAP_MARGIN, size - MIN_MAP_MARGIN * 2, size - MIN_MAP_MARGIN * 2)
 	var h := 0.0
 	var count := 0
 	
@@ -254,27 +272,23 @@ class DistanceSorter:
 
 func connect_connections(map: HeightMap) -> void:
 	var places := []
+	var offset = Vector2(border_connection_size / 2, border_connection_size / 2)
 	
 	for connection in map._connections:
 		if not connection == Vector2.ZERO and not connection == Vector2(-1,-1):
-			places.push_back(connection)
+			places.push_back(connection - offset)
 	
 # warning-ignore:integer_division
 # warning-ignore:integer_division
-	places.push_back(Vector2(map.size() / 2, map.size() / 2))
+	var center_offset_x := int(rand_range(-20, 20))
+	var center_offset_y := int(rand_range(-20, 20))
+	var center := Vector2(map.size() / 2 + center_offset_x, map.size() / 2 + center_offset_y)
 	
 	for i in map._connections.size():
 		if map._connections[i] == Vector2.ZERO or map._connections[i] == Vector2(-1, -1):
 			continue
 		
-		var from := map._connections[i]
-		var to := from
-		
-		while to == from:
-			var to_idx = randi() % places.size()
-			to = places[to_idx]
-		
-		generate_path(from, to, map)
+		generate_path(map._connections[i] + offset, center, map)
 
 
 static func sort_by_distance(a, b) -> bool:
@@ -321,7 +335,7 @@ func generate_path(origin: Vector2, dest: Vector2, map: HeightMap) -> void:
 
 
 func draw_path(path, map: HeightMap) -> void:
-	var map_rect = Rect2(0, 0, size, size)
+	var map_rect = Rect2(MIN_MAP_MARGIN, MIN_MAP_MARGIN, size - MIN_MAP_MARGIN * 2, size - MIN_MAP_MARGIN * 2)
 	
 	for p in path:
 		for dir in DIRS:
