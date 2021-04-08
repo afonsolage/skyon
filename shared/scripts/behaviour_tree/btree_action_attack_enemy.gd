@@ -4,8 +4,11 @@ extends BTreeNodeLeafAction
 var _combat_system: CombatSystem
 
 func _ready() -> void:
-	var channel_id = Systems.get_current_channel_id(self)
-	_combat_system = Systems.get_combat(channel_id)
+	if ProjectSettings.get_setting("global/SERVER"):
+		var channel_id = Systems.get_current_channel_id(self)
+		_combat_system = Systems.get_combat(channel_id)
+	else:
+		_combat_system = Systems.combat
 
 func _tick(data: Dictionary) -> int:
 	if not "combat" in data.actor:

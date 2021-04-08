@@ -57,6 +57,7 @@ extents = Vector3( 0.5, 0.8, 0.5 )
 ]]
 collision_layer = 4
 script = ExtResource( 4 )
+move_speed = 30.0
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 root_node = NodePath("../Body/Model/base_character")
@@ -85,11 +86,14 @@ transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 0, 0
 
 [node name="base_character" parent="Body/Model" instance=ExtResource( 1 )]
 
+[node name="Skeleton" parent="Body/Model/base_character/BodyArmature" index="0"]
+bones/12/bound_children = [ NodePath("HandRAttachment") ]
+
 [node name="Body" parent="Body/Model/base_character/BodyArmature/Skeleton" index="0"]
 material/0 = ExtResource( 5 )
 
 [node name="HandRAttachment" type="BoneAttachment" parent="Body/Model/base_character/BodyArmature/Skeleton" index="1"]
-transform = Transform( -0.208015, 0.0482771, 0.976934, 0.959591, 0.20359, 0.194261, -0.189516, 0.977865, -0.0886761, -0.252233, 0.36142, 0.0552174 )
+transform = Transform( -0.227347, 0.041226, 0.972941, 0.972244, 0.0663345, 0.224373, -0.0552897, 0.996945, -0.0551628, -0.250611, 0.329418, 0.0316598 )
 bone_name = "hand_attachment_r"
 
 [node name="1h_sword" parent="Body/Model/base_character/BodyArmature/Skeleton/HandRAttachment" instance=ExtResource( 2 )]

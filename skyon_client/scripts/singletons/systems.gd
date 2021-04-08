@@ -7,6 +7,7 @@ var world: WorldSystem
 var combat: CombatSystem
 var input: InputSystem
 var player: PlayerSystem
+var ui: UISystem
 
 func _ready() -> void:
 	randomize()
@@ -15,6 +16,19 @@ func _ready() -> void:
 	_init_net_system()
 	_init_channel_system()
 
+func update_channel_systems(channel_instance: ChannelInstance) -> void:
+	if not channel_instance:
+		world = null
+		combat = null
+		input = null
+		player = null
+	else:
+		world = channel_instance.world
+		combat = channel_instance.combat
+		input = channel_instance.input
+		player = channel_instance.player
+		ui = channel_instance.ui
+	
 
 # System-wide...systems
 
@@ -28,33 +42,7 @@ func _init_channel_system() -> void:
 	channel = ChannelSystem.new()
 	channel.name = "ChannelSystem"
 	self.add_child(channel)
-
-
-# Channel-wide systems
-
-func _get_world() -> WorldSystem:
-	if not world and has_node("/root/Main/WorldSystem"):
-		world = get_node("/root/Main/WorldSystem") as WorldSystem
 	
-	return world
+	channel.connect("channel_changed", self, "_on_channel_id_changed")
 
 
-func _get_combat() -> CombatSystem:
-	if not combat and has_node("/root/Main/CombatSystem"):
-		combat = get_node("/root/Main/CombatSystem") as CombatSystem
-	
-	return combat
-
-
-func _get_input() -> InputSystem:
-	if not input and has_node("/root/Main/InputSystem"):
-		input = get_node("/root/Main/InputSystem") as InputSystem
-	
-	return input
-
-
-func _get_player() -> PlayerSystem:
-	if not player and has_node("/root/Main/PlayerSystem"):
-		player = get_node("/root/Main/PlayerSystem") as PlayerSystem
-	
-	return player

@@ -160,6 +160,11 @@ _global_script_classes=[ {
 "path": "res://scripts/shared/behaviour_tree/base/btree_root.gd"
 }, {
 "base": "Node",
+"class": "ChannelInstance",
+"language": "GDScript",
+"path": "res://scripts/nodes/channel_instance.gd"
+}, {
+"base": "Node",
 "class": "ChannelSystem",
 "language": "GDScript",
 "path": "res://scripts/systems/channel_system.gd"
@@ -310,6 +315,7 @@ _global_script_class_icons={
 "BTreeNodeLeaftActionClearTarget": "",
 "BTreeResult": "",
 "BTreeRoot": "res://scripts/shared/behaviour_tree/base/icons/root.png",
+"ChannelInstance": "",
 "ChannelSystem": "",
 "CombatComponent": "",
 "CombatSystem": "",
@@ -363,6 +369,10 @@ Systems="*res://scripts/singletons/systems.gd"
 [gdunit3]
 
 report/error_notification=true
+
+[global]
+
+SERVER=false
 
 [input]
 

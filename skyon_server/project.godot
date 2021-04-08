@@ -338,6 +338,10 @@ Consts="*res://scripts/singletons/consts.gd"
 
 window/vsync/use_vsync=false
 
+[global]
+
+SERVER=true
+
 [input]
 
 move_forward={

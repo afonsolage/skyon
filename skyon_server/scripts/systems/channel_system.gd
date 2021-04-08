@@ -36,16 +36,13 @@ func is_channel_loaded(channel_id: int) -> bool:
 	return self.has_node(str(channel_id))
 
 
-func request_load_channel(channel_id: int) -> bool:
+func request_load_channel(channel_id: int) -> void:
 	if _is_already_loading(channel_id):
 		Log.d("Already loading channel %d. Nothing to do." % channel_id)
-		return false
 	
 	_channel_requested.push_back(channel_id)
 	var map_pos := Systems.atlas.calc_map_pos(channel_id) as Vector2
 	Systems.atlas.get_map_deferred(map_pos, self, "_on_map_component_loaded", [channel_id])
-	
-	return true
 
 
 func unload_channel(channel_id: int) -> void:
@@ -71,12 +68,14 @@ func join_channel(session_id: int, channel_id: int) -> void:
 	if is_channel_loaded(channel_id):
 		send_join_channel(session_id, channel_id)
 	else:
-		if request_load_channel(channel_id):
-			if not _pending_channel_join.has(channel_id):
-				_pending_channel_join[channel_id] = []
-			
-			_pending_channel_join[channel_id].push_back(session_id)
-
+		request_load_channel(channel_id)
+		
+		if not _pending_channel_join.has(channel_id):
+			_pending_channel_join[channel_id] = []
+		
+		_pending_channel_join[channel_id].push_back(session_id)
+		
+		rpc_id(session_id, "__wait_for_join_channel")
 
 func send_join_channel(session_id: int, channel_id: int) -> void:
 	rpc_id(session_id, "__join_channel", channel_id)
@@ -94,7 +93,7 @@ func _on_map_connection_area_entered(player: Player, area_id: int, channel_id: i
 	
 	Log.d("Moving player from map %s to map %s" % [position, next_map_pos])
 	
-	rpc_id(player.session_id, "", Systems.atlas.calc_map_pos_index(next_map_pos))
+	join_channel_map(player.session_id, next_map_pos)
 
 
 # Since GDScript can't use varargs, we need to store our custom data in an array

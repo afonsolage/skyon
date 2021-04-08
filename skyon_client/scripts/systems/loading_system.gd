@@ -22,14 +22,15 @@ var _tip_change_timeout: float = 0.0
 
 
 onready var _tip = $LoadingScreen/Tip
-onready var _game_world_scene = preload("res://scenes/game_world.tscn")
 
 func _ready() -> void:
 	FileUtils.ensure_user_path_exists(MAPS_PATH)
 	
 	_tip_change_timeout = tip_change_interval
 	_set_random_tip()
-	_start_loading()
+	
+	if load_map_index != -1:
+		start_loading()
 
 
 func _process(delta: float) -> void:
@@ -40,6 +41,14 @@ func _process(delta: float) -> void:
 		_set_random_tip()
 
 
+func start_loading() ->  void:
+	if FileUtils.exists(_get_load_map_path()):
+		_start_map_loading()
+	else:
+		Systems.channel.download_channel_data()
+		Log.ok(Systems.channel.connect("channel_data_downloaded", self, "_on_channel_data_downloaded"))
+
+
 func _set_random_tip() -> void:
 	var tip_text = TIPS[rand_range(0, TIPS.size())]
 	_tip.text = tip_text
@@ -47,14 +56,6 @@ func _set_random_tip() -> void:
 
 func _get_load_map_path() -> String:
 	return "%s/%d" % [MAPS_PATH, load_map_index]
-
-
-func _start_loading() ->  void:
-	if FileUtils.exists(_get_load_map_path()):
-		_start_map_loading()
-	else:
-		Systems.channel.download_channel_data()
-		Log.ok(Systems.channel.connect("channel_data_downloaded", self, "_on_channel_data_downloaded"))
 
 
 func _start_map_loading() -> void:
@@ -86,7 +87,8 @@ func _on_map_instance_loaded(map_instance: MapInstance, args: Array) -> void:
 	var _res = thread.wait_to_finish()
 	
 	self.emit_signal("loading_ended", {
-		"map_instance": map_instance
+		"map_instance": map_instance,
+		"map_index": load_map_index,
 	})
 	
 	self.queue_free()

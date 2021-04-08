@@ -96,7 +96,7 @@ remote func join_world() -> void:
 	
 	var player := _player_res.instance() as Player
 	player.name = "P%d" % session_id
-	player.translate(Vector3(30, 30, 30))
+	player.translate(Vector3(200, 30, 200))
 	player.add_to_group("StateSync")
 	Log.ok(player.connect("area_of_interest_entered", 
 			self, "_on_player_area_of_interest_entered", [player]))
@@ -105,7 +105,7 @@ remote func join_world() -> void:
 			
 	_players.add_child(player)
 
-	rpc_id(session_id, "__spawn_main_player", Vector3(30, 10, 30), session_id)
+	rpc_id(session_id, "__spawn_main_player", Vector3(200, 30, 200), session_id)
 
 
 remote func set_player_state(state: Dictionary) -> void:
@@ -129,6 +129,7 @@ func _on_player_area_of_interest_entered(body: PhysicsBody, player: Player) -> v
 
 	var state: Dictionary = body.get_full_state()
 	rpc_id(player.session_id, "__enter_on_area_of_interest", body.name, state)
+	remove_player_state(player.session_id)
 
 
 func _on_player_area_of_interest_exited(body: PhysicsBody, player: Player) -> void:

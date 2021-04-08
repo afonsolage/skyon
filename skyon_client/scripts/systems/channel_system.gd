@@ -1,11 +1,9 @@
 class_name ChannelSystem
 extends Node
 
-signal channel_data_downloaded(map_instance)
+var channel_id: int = -1
 
-var channel_id: int = 0
-
-onready var _game_world_res := preload("res://scenes/game_world.tscn")
+onready var _channel_instance_res := preload("res://scenes/channel_instance.tscn")
 onready var _loading_res := preload("res://scenes/loading.tscn")
 
 func download_channel_data() -> void:
@@ -17,17 +15,35 @@ func _on_loading_ended(loaded_assets: Dictionary) -> void:
 
 
 func _load_world(loaded_assets: Dictionary) -> void:
-	var game_world = _game_world_res.instance()
-	game_world.name = str(channel_id)
+	channel_id = loaded_assets.map_index
 	
-	Systems.world = game_world.get_node("WorldSystem")
-	Systems.combat = game_world.get_node("CombatSystem")
-	Systems.input = game_world.get_node("InputSystem")
-	Systems.player = game_world.get_node("PlayerSystem")
+	var channel_instance = _channel_instance_res.instance() as ChannelInstance
+	channel_instance.name = str(channel_id)
 	
-	Systems.world.set_map_instance(loaded_assets.map_instance)
+	self.add_child(channel_instance)
 	
-	self.add_child(game_world)
+	channel_instance.world.set_map_instance(loaded_assets.map_instance)
+	
+	Systems.update_channel_systems(channel_instance)
+
+
+remote func __wait_for_join_channel() -> void:
+	Log.d("Waiting for channel to be ready")
+	
+	if get_child_count() > 0:
+		for i in get_child_count():
+			get_child(i).queue_free()
+	
+	channel_id = -1
+	Systems.update_channel_systems(null)
+	
+	var loading_system = _loading_res.instance() as LoadingSystem
+	loading_system.name = "LoadingSystem"
+	
+	loading_system.load_map_index = -1
+	loading_system.connect("loading_ended", self, "_on_loading_ended")
+	
+	Systems.add_child(loading_system)
 
 
 remote func __join_channel(joined_channel_id: int) -> void:
@@ -37,14 +53,21 @@ remote func __join_channel(joined_channel_id: int) -> void:
 		for i in get_child_count():
 			get_child(i).queue_free()
 	
-	channel_id = joined_channel_id
+	channel_id = -1
+	Systems.update_channel_systems(null)
 	
-	var loading_system = _loading_res.instance() as LoadingSystem
+	var loading_system: LoadingSystem
+	if Systems.has_node("LoadingSystem"):
+		loading_system = Systems.get_node("LoadingSystem")
+		loading_system.load_map_index = joined_channel_id
+		loading_system.start_loading()
+	else:
+		loading_system = _loading_res.instance() as LoadingSystem
 
-	loading_system.load_map_index = joined_channel_id
-	loading_system.connect("loading_ended", self, "_on_loading_ended")
-	
-	Systems.add_child(loading_system)
+		loading_system.load_map_index = joined_channel_id
+		loading_system.connect("loading_ended", self, "_on_loading_ended")
+		
+		Systems.add_child(loading_system)
 
 
 remote func __save_channel_data(_c_id: int, channel_data: Dictionary) -> void:
