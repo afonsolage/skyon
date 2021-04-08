@@ -15,6 +15,9 @@ func _init() -> void:
 	Log.ok(connect("channel_loaded", self, "_on_channel_loaded"))
 
 	var _success := request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
+	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 0)))
+	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 1)))
+	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 1)))
 
 
 func _ready() -> void:
@@ -91,8 +94,7 @@ func _on_map_connection_area_entered(player: Player, area_id: int, channel_id: i
 	
 	Log.d("Moving player from map %s to map %s" % [position, next_map_pos])
 	
-	var session_id = player.session_id
-	join_channel_map(session_id, next_map_pos)
+	rpc_id(player.session_id, "", Systems.atlas.calc_map_pos_index(next_map_pos))
 
 
 # Since GDScript can't use varargs, we need to store our custom data in an array

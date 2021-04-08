@@ -31,8 +31,6 @@ script = ExtResource( 4 )
 
 [node name="Mobs" type="Spatial" parent="WorldSystem"]
 
-[node name="OmniLight" type="OmniLight" parent="WorldSystem"]
-
 [node name="Gizmo" parent="WorldSystem" instance=ExtResource( 5 )]
 transform = Transform( 20, 0, 0, 0, 20, 0, 0, 0, 20, 0, 0, 0 )
 

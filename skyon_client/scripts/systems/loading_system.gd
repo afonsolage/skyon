@@ -77,8 +77,8 @@ func _on_channel_data_downloaded(map_instance: MapInstance) -> void:
 	loading_map_generator.deferred_method = "_on_map_instance_loaded"
 	loading_map_generator.deferred_args = [thread]
 	
-#	Log.ok(thread.start(loading_map_generator, "_t_generate_map", map_instance))
-	loading_map_generator._t_generate_map(map_instance)
+	Log.ok(thread.start(loading_map_generator, "_t_generate_map", map_instance))
+#	loading_map_generator._t_generate_map(map_instance)
 
 
 func _on_map_instance_loaded(map_instance: MapInstance, args: Array) -> void:

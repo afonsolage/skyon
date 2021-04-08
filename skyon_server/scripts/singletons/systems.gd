@@ -55,12 +55,12 @@ func get_current_channel_id(channel_node: Node) -> int:
 
 
 func get_world(channel_id: int) -> WorldSystem:
-	if not has_node("ChannelSystem/%d" % channel_id):
-		Log.e("Channel id not found %d" % channel_id)
-		return null
-	else:
-		return get_node("ChannelSystem/%d/WorldSystem" % channel_id) as WorldSystem
+	return get_node("ChannelSystem/%d/WorldSystem" % channel_id) as WorldSystem
 
 
 func get_combat(channel_id: int) -> CombatSystem:
 	return get_node("ChannelSystem/%d/CombatSystem" % channel_id) as CombatSystem
+
+
+func get_mob(channel_id: int) -> MobSystem:
+	return get_node("ChannelSystem/%d/MobSystem" % channel_id) as MobSystem

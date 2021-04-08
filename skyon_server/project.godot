@@ -184,10 +184,15 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/systems/combat_system.gd"
 }, {
+"base": "Spatial",
+"class": "ConnectionArea",
+"language": "GDScript",
+"path": "res://scripts/nodes/connection_area.gd"
+}, {
 "base": "Control",
 "class": "DebugView",
 "language": "GDScript",
-"path": "res://scenes/debug_view.gd"
+"path": "res://scripts/nodes/debug_view.gd"
 }, {
 "base": "Reference",
 "class": "FileUtils",
@@ -300,6 +305,7 @@ _global_script_class_icons={
 "ChannelSystem": "",
 "CombatComponent": "",
 "CombatSystem": "",
+"ConnectionArea": "",
 "DebugView": "",
 "FileUtils": "",
 "GravityComponent": "",
@@ -326,6 +332,7 @@ run/main_scene="res://scenes/main.tscn"
 [autoload]
 
 Systems="*res://scripts/singletons/systems.gd"
+Consts="*res://scripts/singletons/consts.gd"
 
 [display]
 

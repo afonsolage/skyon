@@ -8,6 +8,8 @@ const SCALE_VECTOR = Vector3(SCALE, SCALE, SCALE)
 
 var map_component: MapComponent
 
+onready var _connection_area_res := preload("res://scenes/connection_area.tscn")
+
 func _ready() -> void:
 	self.scale = SCALE_VECTOR
 	
@@ -19,31 +21,45 @@ func _setup_connections() -> void:
 	var connections := Spatial.new()
 	connections.name = "Connections"
 	
-	for i in map_component.connections.size():
-		var connection := map_component.connections[i]
+	for side in map_component.connections.size():
+		var connection := map_component.connections[side]
 		if connection == Vector2.ZERO or connection == Vector2(-1, -1):
 			continue
 		
-		
-		var shape := BoxShape.new()
 		var shape_size := 8 * 1.2
-		shape.extents = Vector3(shape_size, shape_size, shape_size)
-		
-		var collision = CollisionShape.new()
-		collision.shape = shape
-		
-		var area_position := Vector3(connection.x, shape_size / 2, connection.y) + shape.extents / 2
-		var area := Area.new()
-		area.name = "ConnectionArea%d" % i
+		var area_position := Vector3(connection.x + shape_size / 2, shape_size, connection.y + shape_size / 2)
+		var area := _connection_area_res.instance() as ConnectionArea
+		area.name = "ConnectionArea%d" % side
 		area.translation = area_position
 		area.scale = SCALE_VECTOR
-		area.collision_layer = 0
-		area.collision_mask = 0
-		area.set_collision_mask_bit(2, true)
-		Log.ok(area.connect("body_entered", self, "_on_connection_area_entered", [i]))
+		area.scale *= shape_size
 		
+		match side:
+			Consts.Direction.RIGHT:
+				area.rotation_degrees = Vector3(0, 180, 0)
+			Consts.Direction.DOWN:
+				area.rotation_degrees = Vector3(0, 90, 0)
+			Consts.Direction.UP:
+				area.rotation_degrees = Vector3(0, -90, 0)
+			
 		
-		area.add_child(collision)
+#		var shape := BoxShape.new()
+#		shape.extents = Vector3(shape_size, shape_size, shape_size)
+#
+#		var collision = CollisionShape.new()
+#		collision.shape = shape
+#
+#		var area_position := Vector3(connection.x, shape_size / 2, connection.y) + shape.extents / 2
+#		var area := Area.new()
+#		area.name = "ConnectionArea%d" % i
+#		area.translation = area_position
+#		area.scale = SCALE_VECTOR
+#		area.collision_layer = 0
+#		area.collision_mask = 0
+#		area.set_collision_mask_bit(2, true)
+#		Log.ok(area.connect("body_entered", self, "_on_connection_area_entered", [i]))
+#		
+#		area.add_child(collision)
 		
 		connections.add_child(area)
 

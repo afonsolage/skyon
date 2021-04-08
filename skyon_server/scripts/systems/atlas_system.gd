@@ -149,8 +149,8 @@ class AtlasMapGenerator:
 			Vector2.ZERO,
 		])
 		
-		for i in HeightMapGenerator.DIRS.size():
-			var dir := HeightMapGenerator.DIRS[i] as Vector2
+		for i in Consts.DIRS.size():
+			var dir := Consts.DIRS[i] as Vector2
 			var neighbor_pos := map_pos + dir
 			
 			if Systems.atlas.map_exists(neighbor_pos):
@@ -161,13 +161,13 @@ class AtlasMapGenerator:
 				
 				match dir:
 					Vector2.RIGHT:
-						connections[i] = neighbor_map.connections[2] # LEFT
+						connections[i] = neighbor_map.connections[Consts.Direction.LEFT]
 					Vector2.UP:
-						connections[i] = neighbor_map.connections[3] # DOWN
+						connections[i] = neighbor_map.connections[Consts.Direction.DOWN]
 					Vector2.LEFT:
-						connections[i] = neighbor_map.connections[0] # RIGHT
+						connections[i] = neighbor_map.connections[Consts.Direction.RIGHT]
 					Vector2.DOWN:
-						connections[i] = neighbor_map.connections[1] # UP
+						connections[i] = neighbor_map.connections[Consts.Direction.UP]
 					_:
 						Log.e("Invalid direction: %s" % dir)
 
