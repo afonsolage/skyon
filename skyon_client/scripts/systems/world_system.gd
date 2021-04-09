@@ -12,7 +12,7 @@ onready var _mob_res := preload("res://scenes/mobs/mob.tscn")
 
 func _ready() -> void:
 	Log.d("Initializing World System")
-	rpc_id(1, "join_world")
+	rpc_id(1, "__join_world")
 
 
 func _physics_process(delta: float) -> void:
@@ -65,7 +65,7 @@ func _send_state() -> void:
 		
 	var state := main_player.get_state()
 	state.T = OS.get_ticks_msec()
-	rpc_unreliable_id(1, "set_player_state", state)
+	rpc_unreliable_id(1, "__set_player_state", state)
 
 
 func _process_gravity(delta: float) -> void:

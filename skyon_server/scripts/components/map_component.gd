@@ -12,6 +12,10 @@ var collisions: PoolVector3Array
 # TODO: Add resources, mob spawn points, npcs and such
 
 
+func _to_string() -> String:
+	return "(%d, %d)" % [position.x, position.y]
+
+
 func save_to(path: String) -> void:
 	var file := File.new()
 	Log.ok(file.open_compressed(path, File.WRITE, File.COMPRESSION_ZSTD))

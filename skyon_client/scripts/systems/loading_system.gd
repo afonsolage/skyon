@@ -45,7 +45,7 @@ func start_loading() ->  void:
 	if FileUtils.exists(_get_load_map_path()):
 		_start_map_loading()
 	else:
-		Systems.channel.download_channel_data()
+		Systems.channel.download_channel_data(load_map_index)
 		Log.ok(Systems.channel.connect("channel_data_downloaded", self, "_on_channel_data_downloaded"))
 
 

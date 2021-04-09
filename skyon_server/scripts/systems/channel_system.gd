@@ -37,7 +37,9 @@ func is_channel_loaded(channel_id: int) -> bool:
 
 
 func request_load_channel(channel_id: int) -> void:
-	if _is_already_loading(channel_id):
+	if is_channel_loaded(channel_id):
+		return
+	elif _is_already_loading(channel_id):
 		Log.d("Already loading channel %d. Nothing to do." % channel_id)
 	
 	_channel_requested.push_back(channel_id)
@@ -75,49 +77,29 @@ func join_channel(session_id: int, channel_id: int) -> void:
 		
 		_pending_channel_join[channel_id].push_back(session_id)
 		
-		rpc_id(session_id, "__wait_for_join_channel")
+		rpc_id(session_id, "__wait_to_join_channel")
 
 func send_join_channel(session_id: int, channel_id: int) -> void:
 	rpc_id(session_id, "__join_channel", channel_id)
 
 
-func _on_map_connection_area_entered(player: Player, area_id: int, channel_id: int) -> void:
-	if area_id < 0 or area_id > HeightMapGenerator.DIRS.size():
-		Log.e("Invalid area_id received (%d) for player %s on chanel %d" % [area_id, player, channel_id])
-		return
-	
-	var world := Systems.get_world(channel_id) as WorldSystem
-	var position := world.map_instance.map_component.position
-	var next_map_dir := HeightMapGenerator.DIRS[area_id] as Vector2
-	var next_map_pos := position + next_map_dir
-	
-	Log.d("Moving player from map %s to map %s" % [position, next_map_pos])
-	
-	join_channel_map(player.session_id, next_map_pos)
-
-
 # Since GDScript can't use varargs, we need to store our custom data in an array
 func _on_map_component_loaded(map: MapComponent, data: Array) -> void:
-	var channel = _channel_instance_res.instance()
-	var world = channel.get_node("WorldSystem") as Node
 	var channel_id = data[0] as int
 	
-	var map_instance = MapInstance.new()
-	map_instance.name = "Map"
-	map_instance.map_component = map
-	map_instance.connect("connection_area_entered", self, "_on_map_connection_area_entered", [channel_id])
-	
-	world.set_map_instance(map_instance)
-	
+	var channel = _channel_instance_res.instance()
 	channel.name = str(channel_id)
 	
+	var world = channel.get_node("WorldSystem") as Node
+	world.setup_map_instance(map)
+	
 	self.add_child(channel)
+	
 	if _channel_requested.has(channel_id):
 		_channel_requested.erase(channel_id)
 	
 	Log.d("Channel loaded!")
 	self.emit_signal("channel_loaded", channel_id)
-
 
 func _is_already_loading(channel_id: int) -> bool:
 	return _channel_requested.has(channel_id)

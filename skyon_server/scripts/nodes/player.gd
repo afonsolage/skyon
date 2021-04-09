@@ -24,6 +24,10 @@ func _ready() -> void:
 	combat.defense *= 3
 
 
+func _to_string() -> String:
+	return self.name
+
+
 func get_state() -> Dictionary:
 	return {
 		"P": self.translation,

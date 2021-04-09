@@ -17,6 +17,10 @@ func _ready() -> void:
 	_setup_connections()
 
 
+func _to_string() -> String:
+	return "MapInstance %s" % map_component
+
+
 func _setup_connections() -> void:
 	var connections := Spatial.new()
 	connections.name = "Connections"

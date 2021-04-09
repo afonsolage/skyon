@@ -9,6 +9,11 @@ onready var ai_root := $AIRoot
 
 var current_action: String = "Idle"
 
+
+func _to_string() -> String:
+	return self.name
+
+
 func get_state() -> Dictionary:
 	return {
 		"P": self.translation,

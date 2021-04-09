@@ -42,7 +42,5 @@ func _init_channel_system() -> void:
 	channel = ChannelSystem.new()
 	channel.name = "ChannelSystem"
 	self.add_child(channel)
-	
-	channel.connect("channel_changed", self, "_on_channel_id_changed")
 
 

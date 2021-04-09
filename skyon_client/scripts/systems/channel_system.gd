@@ -1,13 +1,15 @@
 class_name ChannelSystem
 extends Node
 
+signal channel_data_downloaded(map_instance)
+
 var channel_id: int = -1
 
 onready var _channel_instance_res := preload("res://scenes/channel_instance.tscn")
 onready var _loading_res := preload("res://scenes/loading.tscn")
 
-func download_channel_data() -> void:
-	rpc_id(1, "__get_channel_data", channel_id)
+func download_channel_data(download_channel_id: int) -> void:
+	rpc_id(1, "__get_channel_data", download_channel_id)
 
 
 func _on_loading_ended(loaded_assets: Dictionary) -> void:
@@ -27,7 +29,7 @@ func _load_world(loaded_assets: Dictionary) -> void:
 	Systems.update_channel_systems(channel_instance)
 
 
-remote func __wait_for_join_channel() -> void:
+remote func __wait_to_join_channel() -> void:
 	Log.d("Waiting for channel to be ready")
 	
 	if get_child_count() > 0:
