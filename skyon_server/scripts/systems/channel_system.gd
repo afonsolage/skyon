@@ -19,10 +19,10 @@ func _init() -> void:
 func _ready() -> void:
 	Log.d("Initializing Channel System")
 	
-	ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
-#	request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 0)))
-#	request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 1)))
-#	request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 1)))
+#	yield(ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0))), "completed")
+#	yield(ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0))), "completed")
+#	ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
+#	ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
 
 
 func _unhandled_input(event):
@@ -35,10 +35,7 @@ func is_channel_loaded(channel_id: int) -> bool:
 	return self.has_node(str(channel_id))
 
 
-func ensure_channel_is_loaded_async(channel_id: int) -> void:
-	if is_channel_loaded(channel_id):
-		return
-	
+func load_channel_async(channel_id: int) -> void:
 	if _channel_requested.has(channel_id):
 		Log.d("Already loading channel %d. Waiting for it to complete." % channel_id)
 		yield(_channel_requested[channel_id], "done")
@@ -87,7 +84,7 @@ func join_channel_map(session_id: int, map_pos: Vector2) -> void:
 func join_channel(session_id: int, channel_id: int) -> void:
 	if not is_channel_loaded(channel_id):
 		rpc_id(session_id, "__wait_to_join_channel")
-		yield(ensure_channel_is_loaded_async(channel_id), "completed")
+		yield(load_channel_async(channel_id), "completed")
 	
 	rpc_id(session_id, "__join_channel", channel_id)
 
@@ -127,7 +124,8 @@ remote func __get_channel_data(channel_id: int) -> void:
 		Systems.net.disconnect_session(session_id)
 		return
 	
-	yield(ensure_channel_is_loaded_async(channel_id), "completed")
+	if not is_channel_loaded(channel_id):
+		yield(load_channel_async(channel_id), "completed")
 	
 	Log.d("Sending channel data %d to session %d" % [channel_id, session_id])
 	var data := _get_channel_data(channel_id)

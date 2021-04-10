@@ -5,6 +5,7 @@ signal done(result)
 
 var _thread: Thread
 
+
 func run(args: Array = []):
 	_thread = Thread.new()
 	Log.ok(_thread.start(self, "_t_do_work", args))
