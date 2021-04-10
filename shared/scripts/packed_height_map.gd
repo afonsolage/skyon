@@ -75,4 +75,3 @@ func load_from_resource(path: String) -> void:
 	var tmp := file.get_var() as PoolByteArray
 	_buffer = tmp.decompress(_size * _size, File.COMPRESSION_ZSTD)
 	file.close()
-

@@ -28,7 +28,7 @@ func setup_map_instance(map: MapComponent) -> void:
 	map_instance.name = "MapInstance"
 	map_instance.map_component = map
 	
-	map_instance.connect("connection_area_entered", self, "_on_map_connection_area_entered")
+	Log.ok(map_instance.connect("connection_area_entered", self, "_on_map_connection_area_entered"))
 	
 	self.add_child(map_instance)
 

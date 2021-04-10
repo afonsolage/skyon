@@ -21,6 +21,7 @@ static func ok(err: int) -> void:
 static func _l(type: String, msg, is_err: bool = false) -> void:
 	var stack := get_stack()
 	var tm := OS.get_time()
+	var ms := OS.get_ticks_msec()
 	var callee: Dictionary
 	
 	if not stack.empty():
@@ -31,11 +32,12 @@ static func _l(type: String, msg, is_err: bool = false) -> void:
 			"line": 0
 		}
 			
-	var logmsg = "[%s][%02d:%02d:%02d][%s:%03d] %s" % [
+	var logmsg = "[%s][%02d:%02d:%02d][%d][%s:%03d] %s" % [
 		type, 
 		tm.hour, 
 		tm.minute,
 		tm.second,
+		ms,
 		callee.source.replace("res://scripts/", ""),
 		callee.line,
 		msg,

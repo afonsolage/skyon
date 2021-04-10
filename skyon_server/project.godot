@@ -189,6 +189,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/nodes/connection_area.gd"
 }, {
+"base": "Node",
+"class": "DBSystem",
+"language": "GDScript",
+"path": "res://scripts/systems/db_system.gd"
+}, {
 "base": "Control",
 "class": "DebugView",
 "language": "GDScript",
@@ -247,12 +252,17 @@ _global_script_classes=[ {
 "base": "Node",
 "class": "PackedHeightMap",
 "language": "GDScript",
-"path": "res://scripts/shared/PackedHeightMap.gd"
+"path": "res://scripts/shared/packed_height_map.gd"
 }, {
 "base": "KinematicBody",
 "class": "Player",
 "language": "GDScript",
 "path": "res://scripts/nodes/player.gd"
+}, {
+"base": "Node",
+"class": "SafeYieldThread",
+"language": "GDScript",
+"path": "res://scripts/shared/safe_yield_thread.gd"
 }, {
 "base": "Spatial",
 "class": "TerrainGenerator",
@@ -263,6 +273,11 @@ _global_script_classes=[ {
 "class": "TerrainGeneratorSettings",
 "language": "GDScript",
 "path": "res://scripts/shared/terrain_generator_settings.gd"
+}, {
+"base": "Object",
+"class": "UUID",
+"language": "GDScript",
+"path": "res://scripts/shared/uuid.gd"
 }, {
 "base": "Node",
 "class": "WorldSystem",
@@ -306,6 +321,7 @@ _global_script_class_icons={
 "CombatComponent": "",
 "CombatSystem": "",
 "ConnectionArea": "",
+"DBSystem": "",
 "DebugView": "",
 "FileUtils": "",
 "GravityComponent": "",
@@ -319,8 +335,10 @@ _global_script_class_icons={
 "NetSystem": "",
 "PackedHeightMap": "",
 "Player": "",
+"SafeYieldThread": "",
 "TerrainGenerator": "",
 "TerrainGeneratorSettings": "",
+"UUID": "",
 "WorldSystem": ""
 }
 
@@ -333,6 +351,10 @@ run/main_scene="res://scenes/main.tscn"
 
 Systems="*res://scripts/singletons/systems.gd"
 Consts="*res://scripts/singletons/consts.gd"
+
+[debug]
+
+settings/stdout/verbose_stdout=true
 
 [display]
 

@@ -74,7 +74,6 @@ func generate_border(map: HeightMap) -> void:
 	var border_right := size - 1 - border_size
 	var border_down := size - 1 - border_size
 	
-	var map_rect = Rect2(MIN_MAP_MARGIN, MIN_MAP_MARGIN, size - MIN_MAP_MARGIN * 2, size - MIN_MAP_MARGIN * 2)
 	var inner_rect := Rect2(
 			border_left, 
 			border_up, 
@@ -166,8 +165,8 @@ func generate_connection(map: HeightMap, dir: Vector2) -> Vector2:
 	
 	var rev_dir := dir * -1
 	var offset := rev_dir * MIN_MAP_MARGIN
-	connection_x += offset.x
-	connection_y += offset.y
+	connection_x += int(offset.x)
+	connection_y += int(offset.y)
 	
 	create_square(connection_x,
 		connection_y, 
@@ -272,6 +271,8 @@ class DistanceSorter:
 
 func connect_connections(map: HeightMap) -> void:
 	var places := []
+# warning-ignore:integer_division
+# warning-ignore:integer_division
 	var offset = Vector2(border_connection_size / 2, border_connection_size / 2)
 	
 	for connection in map._connections:

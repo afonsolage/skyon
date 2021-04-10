@@ -7,23 +7,22 @@ signal channel_unloaded(channel_id)
 const DATA_FOLDER = "user://channel/"
 
 var _channel_instance_res = preload("res://scenes/channel_instance.tscn")
-var _pending_channel_data: Dictionary
-var _pending_channel_join: Dictionary
-var _channel_requested: Array
+var _channel_requested: Dictionary = {}
+
+var _connected_sessions: Dictionary = {}
 
 func _init() -> void:
-	Log.ok(connect("channel_loaded", self, "_on_channel_loaded"))
-
-#	var _success := request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
-#	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 0)))
-#	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 1)))
-#	_success = request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 1)))
+	Log.ok(Systems.net.connect("session_connected", self, "_on_session_connected"))
+	Log.ok(Systems.net.connect("session_disconnected", self, "_on_session_disconnected"))
 
 
 func _ready() -> void:
 	Log.d("Initializing Channel System")
 	
-	Log.ok(Systems.net.connect("session_connected", self, "_on_session_connected"))
+	ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
+#	request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 0)))
+#	request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(0, 1)))
+#	request_load_channel(Systems.atlas.calc_map_pos_index(Vector2(1, 1)))
 
 
 func _unhandled_input(event):
@@ -36,15 +35,34 @@ func is_channel_loaded(channel_id: int) -> bool:
 	return self.has_node(str(channel_id))
 
 
-func request_load_channel(channel_id: int) -> void:
+func ensure_channel_is_loaded_async(channel_id: int) -> void:
 	if is_channel_loaded(channel_id):
 		return
-	elif _is_already_loading(channel_id):
-		Log.d("Already loading channel %d. Nothing to do." % channel_id)
 	
-	_channel_requested.push_back(channel_id)
-	var map_pos := Systems.atlas.calc_map_pos(channel_id) as Vector2
-	Systems.atlas.get_map_deferred(map_pos, self, "_on_map_component_loaded", [channel_id])
+	if _channel_requested.has(channel_id):
+		Log.d("Already loading channel %d. Waiting for it to complete." % channel_id)
+		yield(_channel_requested[channel_id], "done")
+	else:
+		var waiter = WaitingForChannel.new()
+		_channel_requested[channel_id] = waiter
+		
+		var map_pos := Systems.atlas.calc_map_pos(channel_id) as Vector2
+
+		var map := yield(Systems.atlas.load_map_async(map_pos), "completed") as MapComponent
+
+		var channel = _channel_instance_res.instance()
+		channel.name = str(channel_id)
+		
+		var world = channel.get_node("WorldSystem") as Node
+		world.setup_map_instance(map)
+		
+		self.add_child(channel)
+		
+		waiter.emit_signal("done")
+		var _erased = _channel_requested.erase(channel_id)
+		
+		Log.d("Channel loaded!")
+		self.emit_signal("channel_loaded", channel_id)
 
 
 func unload_channel(channel_id: int) -> void:
@@ -67,39 +85,12 @@ func join_channel_map(session_id: int, map_pos: Vector2) -> void:
 
 
 func join_channel(session_id: int, channel_id: int) -> void:
-	if is_channel_loaded(channel_id):
-		send_join_channel(session_id, channel_id)
-	else:
-		request_load_channel(channel_id)
-		
-		if not _pending_channel_join.has(channel_id):
-			_pending_channel_join[channel_id] = []
-		
-		_pending_channel_join[channel_id].push_back(session_id)
-		
+	if not is_channel_loaded(channel_id):
 		rpc_id(session_id, "__wait_to_join_channel")
-
-func send_join_channel(session_id: int, channel_id: int) -> void:
+		yield(ensure_channel_is_loaded_async(channel_id), "completed")
+	
 	rpc_id(session_id, "__join_channel", channel_id)
 
-
-# Since GDScript can't use varargs, we need to store our custom data in an array
-func _on_map_component_loaded(map: MapComponent, data: Array) -> void:
-	var channel_id = data[0] as int
-	
-	var channel = _channel_instance_res.instance()
-	channel.name = str(channel_id)
-	
-	var world = channel.get_node("WorldSystem") as Node
-	world.setup_map_instance(map)
-	
-	self.add_child(channel)
-	
-	if _channel_requested.has(channel_id):
-		_channel_requested.erase(channel_id)
-	
-	Log.d("Channel loaded!")
-	self.emit_signal("channel_loaded", channel_id)
 
 func _is_already_loading(channel_id: int) -> bool:
 	return _channel_requested.has(channel_id)
@@ -114,29 +105,18 @@ func _get_channel_data(channel_id: int) -> Dictionary:
 
 
 func _on_session_connected(session_id: int) -> void:
-	# TODO change this to be called from a DB result or something like that
+	if _connected_sessions.has(session_id):
+		Log.e("Connecting to a session that already exists: %d" % session_id)
+	
+	_connected_sessions[session_id] = null
+	
+	# TODO: Find a better place for this
 	join_channel_map(session_id, Vector2(0, 0))
 
 
-
-func _on_channel_loaded(channel_id: int) -> void:
-	if _pending_channel_data.has(channel_id):
-		var sessions := _pending_channel_data[channel_id] as Array
-		var _erased = _pending_channel_data.erase(channel_id)
-
-		Log.d("Sessions waiting for channel data %s " % sessions)
-
-		for session_id in sessions:
-			send_channel_data(channel_id, session_id)
-		
-	if _pending_channel_join.has(channel_id):
-		var sessions = _pending_channel_join[channel_id] as Array
-		var _erased = _pending_channel_join.erase(channel_id)
-		
-		Log.d("Sessions waiting for channel join %s " % sessions)
-		
-		for session_id in sessions:
-			send_join_channel(session_id, channel_id)
+func _on_session_disconnected(session_id: int) -> void:
+	if not _connected_sessions.erase(session_id):
+		Log.e("Removing a session that doesn't exists: %d" % session_id)
 
 
 remote func __get_channel_data(channel_id: int) -> void:
@@ -147,12 +127,13 @@ remote func __get_channel_data(channel_id: int) -> void:
 		Systems.net.disconnect_session(session_id)
 		return
 	
-	if is_channel_loaded(channel_id):
-		send_channel_data(channel_id, session_id)
-	else:
-		if request_load_channel(channel_id):
-			if not _pending_channel_data.has(channel_id):
-				_pending_channel_data[channel_id] = []
-			
-			_pending_channel_data[channel_id].push_back(session_id)
-		
+	yield(ensure_channel_is_loaded_async(channel_id), "completed")
+	
+	Log.d("Sending channel data %d to session %d" % [channel_id, session_id])
+	var data := _get_channel_data(channel_id)
+	rpc_id(session_id, "__save_channel_data", channel_id, data)
+
+
+class WaitingForChannel:
+# warning-ignore:unused_signal
+	signal done

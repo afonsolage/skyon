@@ -249,15 +249,20 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/systems/net_system.gd"
 }, {
-"base": "Node",
+"base": "Reference",
 "class": "PackedHeightMap",
 "language": "GDScript",
-"path": "res://scripts/shared/PackedHeightMap.gd"
+"path": "res://scripts/shared/packed_height_map.gd"
 }, {
 "base": "Node",
 "class": "PlayerSystem",
 "language": "GDScript",
 "path": "res://scripts/systems/player_system.gd"
+}, {
+"base": "Node",
+"class": "SafeYieldThread",
+"language": "GDScript",
+"path": "res://scripts/shared/safe_yield_thread.gd"
 }, {
 "base": "Spatial",
 "class": "SelectTarget",
@@ -278,6 +283,11 @@ _global_script_classes=[ {
 "class": "UISystem",
 "language": "GDScript",
 "path": "res://scripts/systems/ui_system.gd"
+}, {
+"base": "Object",
+"class": "UUID",
+"language": "GDScript",
+"path": "res://scripts/shared/uuid.gd"
 }, {
 "base": "Node",
 "class": "WorldSystem",
@@ -335,10 +345,12 @@ _global_script_class_icons={
 "NetSystem": "",
 "PackedHeightMap": "",
 "PlayerSystem": "",
+"SafeYieldThread": "",
 "SelectTarget": "",
 "TerrainGenerator": "",
 "TerrainGeneratorSettings": "",
 "UISystem": "",
+"UUID": "",
 "WorldSystem": ""
 }
 
