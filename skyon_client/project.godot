@@ -249,7 +249,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/systems/net_system.gd"
 }, {
-"base": "Reference",
+"base": "Node",
 "class": "PackedHeightMap",
 "language": "GDScript",
 "path": "res://scripts/shared/packed_height_map.gd"
