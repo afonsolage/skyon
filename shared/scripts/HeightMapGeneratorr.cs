@@ -1,20 +1,28 @@
 using Godot;
 using System;
 
-public class HeightMapGeneratorr : Node
-{
-    // Declare member variables here. Examples:
-    // private int a = 2;
-    // private string b = "text";
 
-    // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
+public class HeightMapGeneratorr
+{
+    public bool GenerateTerrain { get; set; } = true;
+    public bool GenerateBorder { get; set; } = true;
+    public bool GenerateConnections { get; set; } = true;
+    public bool NormalizeHeight { get; set; } = true;
+
+    public int Size { get; set; }
+    public int Octaves { get; set; }
+    public float Persistence { get; set; }
+    public float Period { get; set; }
+    public int BorderSize { get; set;}
+    public float BorderThickness { get; set; }
+    public bool BorderMontains { get; set; }
+    public int BorderConnectionSize { get; set; }
+    public int PathNoiseRate { get; set; }
+    public int PathThickness { get; set; }
+    
+    public void test()
     {
         
     }
 
-    public override void _Process(float delta)
-    {
-        GD.Print("Testing");
-    }
 }

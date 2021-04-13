@@ -1,0 +1,2 @@
+﻿45427
+/usr/games/godot_mono_3.2.3-stable/Godot_v3.2.3-stable_mono_x11.64

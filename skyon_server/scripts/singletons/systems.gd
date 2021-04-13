@@ -3,6 +3,7 @@ extends Node
 var net : NetSystem
 var channel: ChannelSystem
 var atlas: AtlasSystem
+var db: DBSystem
 
 var debug_view: DebugView
 
@@ -10,13 +11,19 @@ func _ready() -> void:
 	Log.d("Initializing Core Systems")
 	randomize()
 	
+	_init_db_system()
 	_init_net_system()
 	_init_atlas_system()
 	_init_channel_system()
-	
 	_init_debug_view()
 
 # System-wide...systems
+
+func _init_db_system() -> void:
+	db = DBSystem.new()
+	db.name = "DBSystem"
+	add_child(db)
+
 
 func _init_net_system() -> void:
 	net = NetSystem.new()
