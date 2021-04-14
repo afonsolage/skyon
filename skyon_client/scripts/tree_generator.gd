@@ -1,11 +1,12 @@
 tool
+class_name TreeGenerator
 extends Spatial
 
-export(bool) var updated := false setget _generate
-export(bool) var enabled := false
+export(bool) var click_to_update := false setget _generate
+export(bool) var active := false
 
-export(float) var trunk_size := 2.0
-export(int) var trunk_segments := 4
+export(float) var trunk_size := 5.0
+export(int) var trunk_segments := 5
 export(float) var trunk_width := 0.5
 export(Color) var trunk_color := Color.brown
 
@@ -13,43 +14,54 @@ export(Color) var leaves_color := Color.green
 export(float) var leaves_scale := 1.0
 export(Vector3) var leaves_noise := Vector3(0.5, 0.5, 0.5)
 
-func _ready() -> void:
-	_generate(true)
+var _rnd := RandomNumberGenerator.new()
 
+func _ready():
+	var tree = generate_tree(Vector3.ZERO)
+	add_child(tree)
 
-func _generate(_value) -> void:
-	updated = false
-	
-	if not enabled:
+func _generate(_v):
+	if not active:
 		return
 	
 	for i in get_child_count():
-		var child := get_child(i)
-		if child.name.begins_with("Trunk") or child.name.begins_with("Leaves"):
-			child.queue_free()
+		if get_child(i).name == "Env":
+			continue
+		else:
+			get_child(i).queue_free()
 	
-	var b4 = OS.get_ticks_usec()
+	click_to_update = false
+	var tree = generate_tree(Vector3.ZERO)
+	tree.name = "Tree"
+	add_child(tree)
+	tree.owner = get_tree().edited_scene_root
+	
+	for i in tree.get_child_count():
+		get_child(i).owner = get_tree().edited_scene_root
+
+
+func generate_tree(position: Vector3) -> Spatial:
+	var tree = Spatial.new()
+	tree.translation = position
+	
+	#_rnd.seed = (int(position.x) << 16) + int(position.z)
+	
 	var mesh_instance := generate_trunk()
 	mesh_instance.name = "Trunk"
 	
-	add_child(mesh_instance)
-	mesh_instance.owner = get_tree().edited_scene_root
+	tree.add_child(mesh_instance)
 	
-	var after = OS.get_ticks_usec()
-	Log.d("Trunk Took: %d" % [after - b4])
-	
-	b4 = OS.get_ticks_usec()
-	
-	leaves_scale = rand_range(0.5, 1.5)
+	leaves_scale = _rnd.randf_range(1.0, 1.5)
 	
 	mesh_instance = generate_leaves()
 	mesh_instance.name = "Leaves"
 	mesh_instance.translation.y = trunk_size + leaves_scale
 	
-	add_child(mesh_instance)
-	mesh_instance.owner = get_tree().edited_scene_root
-	after = OS.get_ticks_usec()
-	Log.d("Leaves Took: %d" % [after - b4])
+	tree.add_child(mesh_instance)
+	
+	tree.rotation_degrees.y = _rnd.randf_range(-180, 180)
+	
+	return tree
 
 
 func generate_trunk() -> MeshInstance:
@@ -60,10 +72,10 @@ func generate_trunk() -> MeshInstance:
 	var indices := PoolIntArray()
 	
 	var segments_offset := PoolVector3Array()
-	for i in range(0, trunk_segments + 1, 1):
-		var x := rand_range(0, trunk_width) - trunk_width / 2.0;
-		var y := rand_range(0, trunk_width) - trunk_width / 2.0;
-		var z := rand_range(0, trunk_width) - trunk_width / 2.0;
+	for _i in range(0, trunk_segments + 1, 1):
+		var x := _rnd.randf_range(-trunk_width, trunk_width);
+		var y := _rnd.randf_range(-trunk_width, trunk_width);
+		var z := _rnd.randf_range(-trunk_width, trunk_width);
 
 		segments_offset.push_back(Vector3(x, y, z))
 	
@@ -92,29 +104,29 @@ func generate_trunk() -> MeshInstance:
 		vertices.push_back(Vector3(origin, y, trunk_width) + y_offset)
 		vertices.push_back(Vector3(origin, y1, trunk_width) + y1_offset)
 		vertices.push_back(Vector3(trunk_width, y1, trunk_width) + y1_offset)
-		
+
 		normals.push_back(Vector3.FORWARD)
 		normals.push_back(Vector3.FORWARD)
 		normals.push_back(Vector3.FORWARD)
 		normals.push_back(Vector3.FORWARD)
-		
+
 		# Right
 		vertices.push_back(Vector3(trunk_width, y, origin) + y_offset)
 		vertices.push_back(Vector3(trunk_width, y, trunk_width) + y_offset)
 		vertices.push_back(Vector3(trunk_width, y1, trunk_width) + y1_offset)
 		vertices.push_back(Vector3(trunk_width, y1, origin) + y1_offset)
-		
+
 		normals.push_back(Vector3.RIGHT)
 		normals.push_back(Vector3.RIGHT)
 		normals.push_back(Vector3.RIGHT)
 		normals.push_back(Vector3.RIGHT)
-		
+
 		# Left
 		vertices.push_back(Vector3(origin, y, trunk_width) + y_offset)
 		vertices.push_back(Vector3(origin, y, origin) + y_offset)
 		vertices.push_back(Vector3(origin, y1, origin) + y1_offset)
 		vertices.push_back(Vector3(origin, y1, trunk_width) + y1_offset)
-		
+
 		normals.push_back(Vector3.LEFT)
 		normals.push_back(Vector3.LEFT)
 		normals.push_back(Vector3.LEFT)
@@ -147,6 +159,19 @@ func generate_trunk() -> MeshInstance:
 	new_mesh.surface_set_material(0, mat)
 	
 	mesh_instance.mesh = new_mesh
+	
+#	var box_shape = BoxShape.new()
+#	box_shape.extents = Vector3(trunk_width * 2, trunk_size / 2.0, trunk_width * 2)
+#
+#	var shape = CollisionShape.new()
+#	shape.shape = box_shape
+#
+#	var static_body = StaticBody.new()
+#	static_body.translation.y = trunk_size / 2.0
+#	static_body.add_child(shape)
+#
+#	mesh_instance.add_child(static_body)
+	
 	
 	return mesh_instance
 
@@ -187,15 +212,26 @@ func generate_leaves() -> MeshInstance:
 	
 	mesh_instance.mesh = new_mesh
 	
+	var sphere_shape = SphereShape.new()
+	sphere_shape.radius = leaves_scale * 2
+	
+	var shape = CollisionShape.new()
+	shape.shape = sphere_shape
+	
+	var static_body = StaticBody.new()
+	static_body.add_child(shape)
+	
+	mesh_instance.add_child(static_body)
+	
 	return mesh_instance
 
 
 func _get_noise_vector3(bottom: bool = false) -> Vector3:
 	return Vector3(
-		rand_range(-leaves_noise.x, leaves_noise.x),
+		_rnd.randf_range(-leaves_noise.x, leaves_noise.x),
 		# Forces leaves to grow up
-		rand_range(-leaves_noise.y / (1.0 if not bottom else 10.0), leaves_noise.y),
-		rand_range(-leaves_noise.z, leaves_noise.z)
+		_rnd.randf_range(-leaves_noise.y / (1.0 if not bottom else 10.0), leaves_noise.y),
+		_rnd.randf_range(-leaves_noise.z, leaves_noise.z)
 	)
 
 

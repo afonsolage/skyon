@@ -81,7 +81,7 @@ class LoadingMapGenerator:
 		var result := generator.generate_terrain_mesh(packed_height_map)
 		map_instance.map_component.mesh = result[0]
 		map_instance.map_component.collisions = result[1]
-
+		
 		map_instance.save_to(save_path)
 
 		done(map_instance)
@@ -95,4 +95,15 @@ class LoadingMapInstance:
 	func _t_do_work(_args: Array) -> void:
 		var map_instance := MapInstance.new()
 		map_instance.load_from(load_path)
+		
+		var tree_generator := TreeGenerator.new()
+		
+		var height_map := map_instance.map_component.height_map
+		for i in 512:
+			var x = randi() % MapComponent.SIZE
+			var z = randi() % MapComponent.SIZE
+			var h = height_map[x * MapComponent.SIZE + z]
+			var tree = tree_generator.generate_tree(Vector3(x, h, z))
+			map_instance.add_child(tree)
+		
 		done(map_instance)
