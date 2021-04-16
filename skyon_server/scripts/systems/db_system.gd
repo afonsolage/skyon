@@ -80,7 +80,7 @@ func _t_restore(cmd: DBCommand) -> Dictionary:
 
 
 class DBCommand:
-	signal completed(result)
+#	signal completed(result)
 
 	var is_store: bool
 	var data: Dictionary

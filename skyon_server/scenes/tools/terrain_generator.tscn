@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://scripts/shared/terrain_generator.gd" type="Script" id=1]
-[ext_resource path="res://scripts/shared/terrain_generator_settings.gd" type="Script" id=2]
+[ext_resource path="res://scripts/shared/voxel_generator.gd" type="Script" id=1]
+[ext_resource path="res://scripts/shared/voxel_terrain_settings.gd" type="Script" id=2]
 [ext_resource path="res://scripts/nodes/fly_by_camera.gd" type="Script" id=3]
 
 [sub_resource type="Resource" id=1]

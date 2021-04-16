@@ -1,16 +1,19 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://scripts/tree_generator.gd" type="Script" id=1]
+[ext_resource path="res://scripts/shared/tree_generator.gd" type="Script" id=1]
 
 [node name="TreeGenerator" type="Spatial"]
 script = ExtResource( 1 )
 active = true
-trunk_size = 2.0
-trunk_segments = 6
+trunk_height_base = 5.0
+trunk_height_variation = 2.0
+trunk_segments = 8
 trunk_width = 0.25
 trunk_color = Color( 0.427451, 0.27451, 0.0823529, 1 )
-leaves_scale = 0.92934
-leaves_noise = Vector3( 0.3, 0.7, 0.3 )
+trunk_base_scale = 0.438108
+trunk_thickness = 1.62656
+leaves_noise = Vector3( 0, 0.5, 0 )
+leaves_scale_base = 1.0
 
 [node name="Env" type="Node" parent="."]
 
@@ -22,5 +25,7 @@ size = 17.0
 far = 200.0
 
 [node name="DirectionalLight" type="DirectionalLight" parent="Env"]
+transform = Transform( -0.999992, 2.91036e-11, 0.00399673, -0.00397858, 0.095203, -0.99545, -0.000380501, -0.995458, -0.0952022, -6.88738, 16.3779, -1.75875 )
 
-[node name="Tree2" type="Spatial" parent="."]
+[node name="Tree" type="Spatial" parent="."]
+transform = Transform( -0.062739, 0, -0.99803, 0, 1, 0, 0.99803, 0, -0.062739, 0, 0, 0 )

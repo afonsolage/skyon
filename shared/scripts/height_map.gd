@@ -49,3 +49,7 @@ func set_connections(idx: int, location: Vector2) -> void:
 func scale(value: float) -> void:
 	for i in _buffer.size():
 		_buffer[i] = _buffer[i] * value
+
+
+func connections() -> PoolVector2Array:
+	return _connections

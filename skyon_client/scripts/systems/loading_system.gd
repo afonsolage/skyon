@@ -72,13 +72,13 @@ class LoadingMapGenerator:
 	var save_path: String
 
 	func _t_do_work(_args: Array) -> void:
-		var generator := TerrainGenerator.new()
+		var generator := VoxelGenerator.new()
 		generator.settings.height_colors = map_instance.map_component.height_pallet
 
-		var packed_height_map := PackedHeightMap.new(MapComponent.SIZE)
-		packed_height_map._buffer = map_instance.map_component.height_map
+		var voxel_map := VoxelMap.new(MapComponent.SIZE)
+		voxel_map._buffer = map_instance.map_component.height_map
 
-		var result := generator.generate_terrain_mesh(packed_height_map)
+		var result := generator.generate_terrain_mesh(voxel_map)
 		map_instance.map_component.mesh = result[0]
 		map_instance.map_component.collisions = result[1]
 		

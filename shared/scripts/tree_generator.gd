@@ -2,19 +2,28 @@ tool
 class_name TreeGenerator
 extends Spatial
 
+const VERTEX_PER_SQUARE = 4
+const VERTEX_PER_SEGMENT = 16
+
 export(bool) var click_to_update := false setget _generate
 export(bool) var active := false
 
-export(float) var trunk_size := 5.0
+export(float) var trunk_height_base := 6.0
+export(float) var trunk_height_variation := 3.0
 export(int) var trunk_segments := 5
 export(float) var trunk_width := 0.5
 export(Color) var trunk_color := Color.brown
+export(float) var trunk_base_scale := 3.0
+export(float) var trunk_thickness := 0.5
 
 export(Color) var leaves_color := Color.green
-export(float) var leaves_scale := 1.0
-export(Vector3) var leaves_noise := Vector3(0.5, 0.5, 0.5)
+export(Vector3) var leaves_noise := Vector3(0.2, 0.2, 0.2)
+export(float) var leaves_scale_base := 1.5
+export(float) var leaves_scale_variation := 0.5
 
 var _rnd := RandomNumberGenerator.new()
+var _trunk_height := 0.0
+var _leaves_scale := 0.0
 
 func _ready():
 	var tree = generate_tree(Vector3.ZERO)
@@ -44,18 +53,21 @@ func generate_tree(position: Vector3) -> Spatial:
 	var tree = Spatial.new()
 	tree.translation = position
 	
-	#_rnd.seed = (int(position.x) << 16) + int(position.z)
+	_rnd.seed = (int(position.x) << 16) + int(position.z)
+	
+	_trunk_height = trunk_height_base + _rnd.randf_range(-trunk_height_variation, trunk_height_variation)
+	_leaves_scale = leaves_scale_base + _rnd.randf_range(-leaves_scale_variation, leaves_scale_variation)
+	trunk_base_scale = _trunk_height * 0.05
+	trunk_thickness = _rnd.randf_range(1.3, 1.7)
 	
 	var mesh_instance := generate_trunk()
 	mesh_instance.name = "Trunk"
 	
 	tree.add_child(mesh_instance)
 	
-	leaves_scale = _rnd.randf_range(1.0, 1.5)
-	
 	mesh_instance = generate_leaves()
 	mesh_instance.name = "Leaves"
-	mesh_instance.translation.y = trunk_size + leaves_scale
+	mesh_instance.translation.y = _trunk_height + _leaves_scale
 	
 	tree.add_child(mesh_instance)
 	
@@ -73,14 +85,14 @@ func generate_trunk() -> MeshInstance:
 	
 	var segments_offset := PoolVector3Array()
 	for _i in range(0, trunk_segments + 1, 1):
-		var x := _rnd.randf_range(-trunk_width, trunk_width);
-		var y := _rnd.randf_range(-trunk_width, trunk_width);
-		var z := _rnd.randf_range(-trunk_width, trunk_width);
+		var x := _rnd.randf_range(-trunk_width / 4.0, trunk_width / 4.0);
+		var y := _rnd.randf_range(-trunk_width / 4.0, trunk_width / 4.0);
+		var z := _rnd.randf_range(-trunk_width / 4.0, trunk_width / 4.0);
 
 		segments_offset.push_back(Vector3(x, y, z))
 	
 	var origin := -trunk_width / 2.0
-	var segment_size := trunk_size / float(trunk_segments)
+	var segment_size := _trunk_height / float(trunk_segments)
 	for i in trunk_segments:
 		var y = segment_size * i
 		var y1 = y + segment_size
@@ -131,6 +143,23 @@ func generate_trunk() -> MeshInstance:
 		normals.push_back(Vector3.LEFT)
 		normals.push_back(Vector3.LEFT)
 		normals.push_back(Vector3.LEFT)
+	
+	var center := Vector3(-origin / 2.0, 0, -origin / 2.0)
+	for i in range(0, vertices.size(), VERTEX_PER_SQUARE):
+# warning-ignore:integer_division
+		var current_segment := i / VERTEX_PER_SEGMENT
+		var rate := clamp((trunk_segments - (current_segment * trunk_thickness)) / float(trunk_segments), 0.0, 1.0)
+		var segment_center := Vector3(center.x, vertices[i].y, center.z)
+		
+		vertices[i] = vertices[i] + ((vertices[i] - segment_center).normalized() * rate * trunk_base_scale)
+		vertices[i + 1] = vertices[i + 1] + ((vertices[i + 1] - segment_center).normalized() * rate* trunk_base_scale)
+		
+		if i + VERTEX_PER_SEGMENT < vertices.size():
+			var next_segment := current_segment + 1
+			var next_rate := clamp((trunk_segments - (next_segment * trunk_thickness)) / float(trunk_segments), 0.0, 1.0)
+			var next_segment_center := Vector3(center.x, vertices[i + 16].y, center.z)
+			vertices[i + 2] = vertices[i + 2] + ((vertices[i + 2] - next_segment_center).normalized() * next_rate * trunk_base_scale)
+			vertices[i + 3] = vertices[i + 3] + ((vertices[i + 3] - next_segment_center).normalized() * next_rate * trunk_base_scale)
 	
 	var n := 0
 	for _k in range(0, vertices.size(), 4):
@@ -213,7 +242,7 @@ func generate_leaves() -> MeshInstance:
 	mesh_instance.mesh = new_mesh
 	
 	var sphere_shape = SphereShape.new()
-	sphere_shape.radius = leaves_scale * 2
+	sphere_shape.radius = _leaves_scale * 2
 	
 	var shape = CollisionShape.new()
 	shape.shape = sphere_shape
@@ -226,11 +255,10 @@ func generate_leaves() -> MeshInstance:
 	return mesh_instance
 
 
-func _get_noise_vector3(bottom: bool = false) -> Vector3:
+func _get_noise_vector3() -> Vector3:
 	return Vector3(
 		_rnd.randf_range(-leaves_noise.x, leaves_noise.x),
-		# Forces leaves to grow up
-		_rnd.randf_range(-leaves_noise.y / (1.0 if not bottom else 10.0), leaves_noise.y),
+		_rnd.randf_range(-leaves_noise.y, leaves_noise.y),
 		_rnd.randf_range(-leaves_noise.z, leaves_noise.z)
 	)
 
@@ -240,20 +268,20 @@ func _create_iconsphere() -> PoolVector3Array:
 	var t := (1.0 + sqrt(5.0)) / 2.0
 	
 	var baseVertices := PoolVector3Array([
-		(Vector3(-1, t, 0) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(1, t, 0) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(-1, -t, 0) + _get_noise_vector3(true)) * leaves_scale,
-		(Vector3(1, -t, 0) + _get_noise_vector3(true)) * leaves_scale,
+		(Vector3(-1, t, 0) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(1, t, 0) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(-1, -t, 0) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(1, -t, 0) + _get_noise_vector3()) * _leaves_scale,
 		
-		(Vector3(0, -1, t) + _get_noise_vector3(true)) * leaves_scale,
-		(Vector3(0, 1, t) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(0, -1, -t) + _get_noise_vector3(true)) * leaves_scale,
-		(Vector3(0, 1, -t) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(0, -1, t) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(0, 1, t) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(0, -1, -t) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(0, 1, -t) + _get_noise_vector3()) * _leaves_scale,
 		
-		(Vector3(t, 0, -1) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(t, 0, 1) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(-t, 0, -1) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(-t, 0, 1) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(t, 0, -1) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(t, 0, 1) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(-t, 0, -1) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(-t, 0, 1) + _get_noise_vector3()) * _leaves_scale,
 	])
 	
 	var indices := PoolIntArray([

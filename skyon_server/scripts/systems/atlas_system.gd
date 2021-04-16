@@ -23,12 +23,14 @@ func calc_map_pos(index: int) -> Vector2:
 	return Vector2(x - ATLAS_AXIS_OFFSET, y - ATLAS_AXIS_OFFSET)
 
 
-func load_map_async(map_pos: Vector2, settings: TerrainGeneratorSettings = null) -> MapComponent:
+func load_map_async(map_pos: Vector2, settings: VoxelTerrainSettings = null) -> MapComponent:
 	var atlas_map_generator := AtlasMapGenerator.new()
 	atlas_map_generator.map_pos = map_pos
 	atlas_map_generator.map_index = calc_map_pos_index(map_pos)
 	atlas_map_generator.map_path = _get_map_path(map_pos)
 	atlas_map_generator.settings = settings
+	
+#	atlas_map_generator.run_local = true
 	
 	var map := yield(atlas_map_generator.run(), "completed") as MapComponent
 	
@@ -49,7 +51,7 @@ class AtlasMapGenerator:
 	var map_pos: Vector2
 	var map_index: int
 	var map_path: String
-	var settings: TerrainGeneratorSettings
+	var settings: VoxelTerrainSettings
 	
 	func _t_do_work(_args: Array) -> void:
 		var map: MapComponent
@@ -70,18 +72,18 @@ class AtlasMapGenerator:
 				Color.blue,
 				Color.blue,
 				Color.blue,
-				Color.yellow,
-				Color.yellowgreen,
-				Color.green,
-				Color.saddlebrown,
-				Color.saddlebrown,
+				Color.blue,
+				Color.dodgerblue,
+				Color.darkgreen,
+				Color.sienna,
+				Color.sienna,
 				Color.darkgray,
 			]
 			
-			var generator := TerrainGenerator.new()
+			var generator := VoxelGenerator.new()
 			
 			if not settings:
-				settings = TerrainGeneratorSettings.new()
+				settings = VoxelTerrainSettings.new()
 				settings.size = MapComponent.SIZE
 				
 				# TODO: Load biome settings
@@ -96,12 +98,14 @@ class AtlasMapGenerator:
 			generator.settings = settings
 			
 			Log.d("[Map %s] Generating height map" % map_pos)
-			var packed_height_map := generator.generate_height_map()
-
-			map.height_map = packed_height_map.buffer()
-			map.connections = packed_height_map._connections
+			var result := generator.generate_voxel_height_map()
+			var voxel_map := result[0] as VoxelMap
+			var connections := result[1] as PoolVector2Array
+			
+			map.height_map = voxel_map.buffer()
+			map.connections = connections
 			Log.d("[Map %s] Generating collisions map" % map_pos)
-			map.collisions = generator.generate_collisions_mesh(packed_height_map)
+			map.collisions = generator.generate_collisions_mesh(voxel_map)
 			Log.d("[Map %s] Generating saving to disk" % map_pos)
 			map.save_to(map_path)
 		

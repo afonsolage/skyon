@@ -3,12 +3,17 @@ extends Node
 
 signal done(result)
 
+var run_local: bool = false
+
 var _thread: Thread
 
-
 func run(args: Array = []):
-	_thread = Thread.new()
-	Log.ok(_thread.start(self, "_t_do_work", args))
+	if not run_local:
+		_thread = Thread.new()
+		Log.ok(_thread.start(self, "_t_do_work", args))
+	else:
+		_t_do_work(args)
+		
 	return yield(self, "done")
 
 func _t_do_work(_args: Array) -> void:
@@ -19,5 +24,6 @@ func done(result) -> void:
 	self.call_deferred("_emit", result)
 
 func _emit(result) -> void:
-	_thread.wait_to_finish()
+	if not run_local:
+		_thread.wait_to_finish()
 	self.emit_signal("done", result)
