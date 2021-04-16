@@ -45,6 +45,10 @@ func map_exists(map_pos: Vector2) -> bool:
 	return FileUtils.exists(_get_map_path(map_pos))
 
 
+func erase_map(map_pos: Vector2) -> void:
+	FileUtils.erase(_get_map_path(map_pos))
+
+
 class AtlasMapGenerator:
 	extends SafeYieldThread
 	
@@ -92,9 +96,9 @@ class AtlasMapGenerator:
 				settings.period = rand_range(10.0, 20.0)
 				settings.border_size = int(rand_range(30, 60))
 				settings.height_colors = map.height_pallet
+				settings.seed_number = map_index
 			
 			settings.surrounding_connections = _t_get_surrounding_connections()
-			settings.height_map_seed = map_index
 			generator.settings = settings
 			
 			Log.d("[Map %s] Generating height map" % map_pos)

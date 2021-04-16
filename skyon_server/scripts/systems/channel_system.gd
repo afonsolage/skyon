@@ -19,7 +19,7 @@ func _init() -> void:
 func _ready() -> void:
 	Log.d("Initializing Channel System")
 	
-	yield(load_channel_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0))), "completed")
+#	yield(load_channel_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0))), "completed")
 #	ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
 #	ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
 
@@ -27,14 +27,15 @@ func _ready() -> void:
 func _unhandled_input(event):
 	if get_child_count() > 0:
 		if Systems.debug_view.selected_channel_id > -1:
-			get_node(str(Systems.debug_view.selected_channel_id))._unhandled_input(event)
+			if is_channel_loaded(Systems.debug_view.selected_channel_id):
+				get_node(str(Systems.debug_view.selected_channel_id))._unhandled_input(event)
 
 
 func is_channel_loaded(channel_id: int) -> bool:
 	return self.has_node(str(channel_id))
 
 
-func load_channel_async(channel_id: int) -> void:
+func load_channel_async(channel_id: int, settings: VoxelTerrainSettings = null) -> void:
 	if _channel_requested.has(channel_id):
 		Log.d("Already loading channel %d. Waiting for it to complete." % channel_id)
 		yield(_channel_requested[channel_id], "done")
@@ -44,7 +45,7 @@ func load_channel_async(channel_id: int) -> void:
 		
 		var map_pos := Systems.atlas.calc_map_pos(channel_id) as Vector2
 
-		var map := yield(Systems.atlas.load_map_async(map_pos), "completed") as MapComponent
+		var map := yield(Systems.atlas.load_map_async(map_pos, settings), "completed") as MapComponent
 
 		var channel = _channel_instance_res.instance()
 		channel.name = str(channel_id)

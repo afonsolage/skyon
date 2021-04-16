@@ -2,9 +2,11 @@ class_name VoxelGenerator
 extends Spatial
 
 export(Resource) var settings := VoxelTerrainSettings.new() as Resource
-
 onready var add_map_x := $Control/HBoxContainer/VBoxContainer/HBoxContainer/AddMapX
 onready var add_map_y := $Control/HBoxContainer/VBoxContainer/HBoxContainer/AddMapY
+
+var _should_render := false
+var _should_regen := false
 
 func generate_collisions_mesh(voxel_map: VoxelMap) -> PoolVector3Array:
 	var planes := _create_planes(voxel_map)
@@ -338,7 +340,7 @@ func _create_indexes(planes: Dictionary) -> PoolIntArray:
 	for vertices in planes.values():
 		
 		if not vertices.size() % 4 == 0:
-			push_error("Invalid vertices size: %d" % vertices.size())
+			Log.e("Invalid vertices size: %d" % vertices.size())
 		
 		for _k in range(0, vertices.size(), 4):
 			indexes.push_back(n)
@@ -376,7 +378,7 @@ func generate_voxel_height_map() -> Array:
 
 	height_map_generator.existing_connections = settings.surrounding_connections
 	
-	var full_height_map := height_map_generator.generate(settings.height_map_seed)
+	var full_height_map := height_map_generator.generate(settings.seed_number)
 	return [_pack_height_map(full_height_map), full_height_map.connections()]
 
 
@@ -397,10 +399,43 @@ func _pack_height_map(height_map: HeightMap) -> VoxelMap:
 
 
 func _on_AddMapButton_pressed():
-	var map_position = Vector2.ZERO
+	var map_position := Vector2.ZERO
 	map_position.x = int(add_map_x.text)
 	map_position.y = int(add_map_y.text)
 	
-	Systems.atlas.get_map_deferred(map_position, self, "_on_map_get")
-
+	var channel_id := Systems.atlas.calc_map_pos_index(map_position) as int
 	
+	settings.seed_number = channel_id
+	
+	if Systems.channel.is_channel_loaded(channel_id):
+		Systems.channel.unload_channel(channel_id)
+		yield(get_tree(), "idle_frame")
+		yield(get_tree(), "idle_frame")
+		yield(get_tree(), "idle_frame")
+	
+	if _should_regen:
+		Systems.atlas.erase_map(map_position)
+	
+	yield(Systems.channel.load_channel_async(channel_id, settings), "completed")
+
+	if _should_render:
+		var map_instance = Systems.get_world(channel_id).map_instance as MapInstance
+		var voxel_map := VoxelMap.new(settings.size)
+		voxel_map._buffer = map_instance.map_component.height_map
+		
+		var res = generate_terrain_mesh(voxel_map, false)
+		var mesh := res[0] as Mesh
+		
+		var mesh_instance := MeshInstance.new()
+		mesh_instance.name = "MeshInstance"
+		mesh_instance.mesh = mesh
+		
+		map_instance.add_child(mesh_instance)
+
+
+func _on_ShouldRegen_toggled(button_pressed: bool) -> void:
+	_should_regen = button_pressed
+
+
+func _on_ShouldRender_toggled(button_pressed):
+	_should_render = button_pressed

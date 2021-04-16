@@ -29,9 +29,9 @@ places_count = 5
 places_path_noise_rate = 40
 places_path_thickness = 5
 height_colors = [ Color( 0.0784314, 0, 1, 1 ), Color( 0.054902, 0, 1, 1 ), Color( 0, 0.0392157, 1, 1 ), Color( 0.113725, 0, 1, 1 ), Color( 0.580392, 1, 0, 1 ), Color( 0, 1, 0.380392, 1 ), Color( 0.101961, 0.407843, 0.113725, 1 ), Color( 0.290196, 0.211765, 0.0705882, 1 ), Color( 0.32549, 0.282353, 0.207843, 1 ), Color( 0.2, 0.192157, 0.192157, 1 ), Color( 0.0941176, 0.0941176, 0.0941176, 1 ) ]
-height_map_seed = 0
+seed_number = 0
 
-[node name="TerrainGenerator" type="Spatial"]
+[node name="VoxelGenerator" type="Spatial"]
 script = ExtResource( 1 )
 settings = SubResource( 1 )
 
@@ -60,7 +60,7 @@ __meta__ = {
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Control/HBoxContainer"]
 margin_right = 143.0
-margin_bottom = 56.0
+margin_bottom = 104.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Control/HBoxContainer/VBoxContainer"]
 margin_right = 143.0
@@ -110,10 +110,24 @@ margin_bottom = 24.0
 text = "0"
 max_length = 3
 
-[node name="AddMapButton" type="Button" parent="Control/HBoxContainer/VBoxContainer"]
+[node name="ShouldRender" type="CheckBox" parent="Control/HBoxContainer/VBoxContainer"]
 margin_top = 28.0
 margin_right = 143.0
-margin_bottom = 48.0
+margin_bottom = 52.0
+text = "Render"
+
+[node name="ShouldRegen" type="CheckBox" parent="Control/HBoxContainer/VBoxContainer"]
+margin_top = 56.0
+margin_right = 143.0
+margin_bottom = 80.0
+text = "Force Regen"
+
+[node name="AddMapButton" type="Button" parent="Control/HBoxContainer/VBoxContainer"]
+margin_top = 84.0
+margin_right = 143.0
+margin_bottom = 104.0
 text = "ADD MAP"
 
+[connection signal="toggled" from="Control/HBoxContainer/VBoxContainer/ShouldRender" to="." method="_on_ShouldRender_toggled"]
+[connection signal="toggled" from="Control/HBoxContainer/VBoxContainer/ShouldRegen" to="." method="_on_ShouldRegen_toggled"]
 [connection signal="pressed" from="Control/HBoxContainer/VBoxContainer/AddMapButton" to="." method="_on_AddMapButton_pressed"]

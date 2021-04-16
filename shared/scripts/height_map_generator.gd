@@ -27,11 +27,14 @@ var existing_connections := PoolVector2Array([
 	Vector2.ZERO,
 ])
 
+var _rnd := RandomNumberGenerator.new()
+var _seed := OS.get_ticks_usec()
 
-func generate(some_seed: int = 0) -> HeightMap:
+func generate(some_seed: int) -> HeightMap:
 	Log.d("Generating a new map with seed %d" % some_seed)
 	
-	seed(some_seed)
+	_seed = some_seed
+	_rnd.seed = _seed
 		
 	var map = HeightMap.new()
 	map.init(size)
@@ -56,8 +59,8 @@ func generate(some_seed: int = 0) -> HeightMap:
 
 func generate_terrain(map: HeightMap) -> void:
 	var noise = OpenSimplexNoise.new()
-		
-	noise.seed = randi()
+	
+	noise.seed = _seed
 	noise.octaves = octaves
 	noise.period = period
 	noise.persistence = persistance
@@ -119,7 +122,7 @@ func generate_connections(map: HeightMap) -> void:
 		var dir := DIRS[i] as Vector2
 		
 		if existing_connection == Vector2.ZERO:
-			var rnd := randi() % 100
+			var rnd := _rnd.randi_range(0, 100)
 			var rate := 100 if connection_count == 0 else 100 - (connection_count * 20)
 			
 			if rnd < rate:
@@ -156,7 +159,7 @@ func generate_connections(map: HeightMap) -> void:
 func generate_connection(map: HeightMap, dir: Vector2) -> Vector2:
 	var max_offset := size - border_connection_size
 	
-	var rnd := randi() % size
+	var rnd := _rnd.randi_range(0, size - 1)
 	
 	rnd = int(clamp(rnd, border_connection_size * 2, size - border_connection_size * 2))
 	
@@ -175,48 +178,6 @@ func generate_connection(map: HeightMap, dir: Vector2) -> Vector2:
 		map)
 	
 	return Vector2(connection_x, connection_y)
-
-
-#func generate_places(map: HeightMap) -> void:
-## warning-ignore:integer_division
-#	var offset := int(size / 15)
-#	var places := []
-#
-#	var first_connection_generated := false
-#
-#	var dir_idx = randi() % 4
-#	var dir:Vector2 = DIRS[dir_idx]
-#
-#	for i in range(DIRS.size()):
-#		if not first_connection_generated or randi() % 100 > 30:
-#			first_connection_generated = true
-#			dir_idx = (dir_idx + 1) % DIRS.size()
-#			dir = DIRS[dir_idx]
-#
-#			var max_offset := size - (border_connection_size * 3)
-#			var rnd := (randi() % max_offset) + border_connection_size
-#
-#			var x = rnd if dir.x == 0 else 0 if dir.x == -1 else size - border_connection_size - 1
-#			var y = rnd if dir.y == 0 else 0 if dir.y == -1 else size - border_connection_size - 1
-#
-#			create_square(x, y, border_connection_size, border_connection_size, map, true)
-## warning-ignore:integer_division
-## warning-ignore:integer_division
-#			var center = Vector2(int(x + border_connection_size / 2), int(y + border_connection_size / 2))
-#			places.push_back(center)
-#			map.set_connections(i, center)
-#
-#	for _i in range(places_count):
-#		var x = randi() % (size - offset * 3) + offset
-#		var y = randi() % (size - offset * 3) + offset
-#		var w = randi() % offset * 2 + offset
-#		var h = randi() % offset * 2 + offset
-#
-#		create_square(x, y, w, h, map)
-#		places.push_back(Vector2(int(x + w / 2), int(y + h / 2)))
-#
-#	if is_connect_places:
-#		connect_places(places, map)
 
 
 func create_square(sx: int, sy: int, swidth: int, sheight: int, map: HeightMap) -> void:
@@ -281,8 +242,8 @@ func connect_connections(map: HeightMap) -> void:
 	
 # warning-ignore:integer_division
 # warning-ignore:integer_division
-	var center_offset_x := int(rand_range(-20, 20))
-	var center_offset_y := int(rand_range(-20, 20))
+	var center_offset_x := int(_rnd.randi_range(-20, 20))
+	var center_offset_y := int(_rnd.randi_range(-20, 20))
 	var center := Vector2(map.size() / 2 + center_offset_x, map.size() / 2 + center_offset_y)
 	
 	for i in map._connections.size():
@@ -325,7 +286,7 @@ func generate_path(origin: Vector2, dest: Vector2, map: HeightMap) -> void:
 		for dir in DIRS:
 			var next_point :Vector2 = point + dir
 			
-			if not added_noise && randi() % 100 < places_path_noise_rate:
+			if not added_noise && _rnd.randf_range(0, 100) < places_path_noise_rate:
 				added_noise = true
 				continue
 				

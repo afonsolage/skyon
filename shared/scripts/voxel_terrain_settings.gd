@@ -26,8 +26,7 @@ export(int) var places_path_noise_rate := 40
 export(int) var places_path_thickness := 5
 export(Array, Color) var height_colors := []
 
-export(int) var height_map_seed := 0
-
+export(int) var seed_number := OS.get_ticks_usec()
 
 var surrounding_connections := PoolVector2Array([
 	Vector2.ZERO,

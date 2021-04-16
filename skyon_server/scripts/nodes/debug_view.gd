@@ -20,6 +20,10 @@ func _process(_delta: float) -> void:
 	
 	if not _texture_render.texture:
 		var vp = _get_selected_viewport()
+		
+		if vp == null:
+			return
+			
 		_current_camera = vp.get_camera()
 		_current_camera.enable()
 		_texture_render.texture = vp.get_texture()
@@ -29,6 +33,9 @@ func _on_channel_loaded(channel_id: int) -> void:
 	_item_list.add_item("Channel %s" % Systems.atlas.calc_map_pos(channel_id))
 	_channel_item_id[channel_id] = item_idx
 	_item_list.set_item_metadata(item_idx, channel_id)
+	
+	if channel_id == selected_channel_id:
+		_texture_render.texture = null
 
 
 func _on_channel_unloaded(channel_id: int) -> void:
@@ -55,6 +62,11 @@ func _on_ItemList_item_selected(index):
 
 func _get_selected_viewport() -> Viewport:
 	if selected_channel_id > -1:
-		return Systems.get_world(selected_channel_id).get_parent() as Viewport
+		if Systems.channel.is_channel_loaded(selected_channel_id):
+			return Systems.get_world(selected_channel_id).get_parent() as Viewport
+		else:
+			_item_list.unselect_all()
+			selected_channel_id = -1
+			return null
 	else:
 		return null

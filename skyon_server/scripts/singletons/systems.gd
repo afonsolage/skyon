@@ -9,7 +9,6 @@ var debug_view: DebugView
 
 func _ready() -> void:
 	Log.d("Initializing Core Systems")
-	randomize()
 	
 	_init_db_system()
 	_init_net_system()
