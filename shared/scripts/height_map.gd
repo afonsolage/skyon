@@ -34,6 +34,9 @@ func calc_index(x: int, y: int) -> int:
 	return x * _size + y
 
 
+func calc_pos(index: int) -> Vector2:
+	return Vector2(index / _size, index % _size)
+
 func size() -> int:
 	return _size
 
