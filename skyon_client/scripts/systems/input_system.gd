@@ -128,7 +128,7 @@ func _select_object() -> void:
 func _select_path() -> void:
 	var result = _do_ray_cast(_click_path)
 	
-	if result.collider and result.collider is Spatial \
+	if "collider" in result and result.collider is Spatial \
 			and (result.collider as Spatial).is_in_group("Terrain"):
 		select_path(result.position)
 	elif result.collider and result.collider is Spatial \

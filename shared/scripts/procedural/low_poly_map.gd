@@ -1,4 +1,4 @@
-class_name VoxelMap
+class_name LowPolyMap
 extends Node
 
 var _buffer: PoolByteArray
@@ -9,8 +9,10 @@ func _init(size: int) -> void:
 	_buffer = PoolByteArray()
 	_buffer.resize(size * size)
 
+
 func from(buffer: PoolByteArray) -> void:
 	_buffer = buffer
+
 
 func set_at(x: int, y: int, value: int) -> void:
 	_buffer[calc_index(x, y)] = value

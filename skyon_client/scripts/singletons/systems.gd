@@ -9,8 +9,7 @@ var input: InputSystem
 var player: PlayerSystem
 var ui: UISystem
 
-func _ready() -> void:
-	randomize()
+func init_systems() -> void:
 	Log.d("Initializing systems")
 	
 	_init_net_system()

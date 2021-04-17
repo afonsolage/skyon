@@ -73,7 +73,7 @@ func _process_gravity(delta: float) -> void:
 	if main_player:
 		main_player.gravity.force -= magnitude * delta
 		var gravity = Vector3(0, main_player.gravity.force, 0)
-		main_player.gravity.force = main_player.move_and_slide(gravity, Vector3.UP).y
+		main_player.gravity.force = main_player.move_and_slide(gravity, Vector3.UP, true).y
 
 
 func _set_player_state(_id: String, _state: Dictionary):

@@ -35,7 +35,7 @@ func is_channel_loaded(channel_id: int) -> bool:
 	return self.has_node(str(channel_id))
 
 
-func load_channel_async(channel_id: int, settings: VoxelTerrainSettings = null) -> void:
+func load_channel_async(channel_id: int, settings: TerrainGenerationSettings = null) -> void:
 	if _channel_requested.has(channel_id):
 		Log.d("Already loading channel %d. Waiting for it to complete." % channel_id)
 		yield(_channel_requested[channel_id], "done")

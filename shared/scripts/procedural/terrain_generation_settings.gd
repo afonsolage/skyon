@@ -1,4 +1,4 @@
-class_name VoxelTerrainSettings
+class_name TerrainGenerationSettings
 extends Resource
 
 export(bool) var is_generate_height_map := false

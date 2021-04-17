@@ -217,17 +217,27 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "HeightMap",
 "language": "GDScript",
-"path": "res://scripts/shared/height_map.gd"
+"path": "res://scripts/shared/procedural/height_map.gd"
 }, {
 "base": "Reference",
 "class": "HeightMapGenerator",
 "language": "GDScript",
-"path": "res://scripts/shared/height_map_generator.gd"
+"path": "res://scripts/shared/procedural/height_map_generator.gd"
 }, {
 "base": "Object",
 "class": "Log",
 "language": "GDScript",
 "path": "res://scripts/shared/log.gd"
+}, {
+"base": "Reference",
+"class": "LowPolyGenerator",
+"language": "GDScript",
+"path": "res://scripts/shared/procedural/low_poly_terrain_generator.gd"
+}, {
+"base": "Reference",
+"class": "LowPolyMap",
+"language": "GDScript",
+"path": "res://scripts/shared/procedural/low_poly_map.gd"
 }, {
 "base": "Reference",
 "class": "MapComponent",
@@ -264,35 +274,20 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/shared/safe_yield_thread.gd"
 }, {
-"base": "Spatial",
+"base": "Resource",
+"class": "TerrainGenerationSettings",
+"language": "GDScript",
+"path": "res://scripts/shared/procedural/terrain_generation_settings.gd"
+}, {
+"base": "Reference",
 "class": "TreeGenerator",
 "language": "GDScript",
-"path": "res://scripts/shared/tree_generator.gd"
+"path": "res://scripts/shared/procedural/tree_generator.gd"
 }, {
 "base": "Object",
 "class": "UUID",
 "language": "GDScript",
 "path": "res://scripts/shared/uuid.gd"
-}, {
-"base": "Spatial",
-"class": "VoxelGenerator",
-"language": "GDScript",
-"path": "res://scripts/shared/voxel_generator.gd"
-}, {
-"base": "Node",
-"class": "VoxelMap",
-"language": "GDScript",
-"path": "res://scripts/shared/voxel_map.gd"
-}, {
-"base": "Resource",
-"class": "VoxelTerrainSettings",
-"language": "GDScript",
-"path": "res://scripts/shared/voxel_terrain_settings.gd"
-}, {
-"base": "Reference",
-"class": "VoxelTreeGenerator",
-"language": "GDScript",
-"path": "res://scripts/shared/voxel_tree_generator.gd"
 }, {
 "base": "Node",
 "class": "WorldSystem",
@@ -344,6 +339,8 @@ _global_script_class_icons={
 "HeightMap": "",
 "HeightMapGenerator": "",
 "Log": "",
+"LowPolyGenerator": "",
+"LowPolyMap": "",
 "MapComponent": "",
 "MapInstance": "",
 "Mob": "",
@@ -351,19 +348,16 @@ _global_script_class_icons={
 "NetSystem": "",
 "Player": "",
 "SafeYieldThread": "",
+"TerrainGenerationSettings": "",
 "TreeGenerator": "",
 "UUID": "",
-"VoxelGenerator": "",
-"VoxelMap": "",
-"VoxelTerrainSettings": "",
-"VoxelTreeGenerator": "",
 "WorldSystem": ""
 }
 
 [application]
 
 config/name="Skyon Server"
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/boostrap.tscn"
 
 [autoload]
 

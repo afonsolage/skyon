@@ -1,56 +1,37 @@
-tool
-extends Spatial
+class_name LowPolyGenerator
 
-export(bool) var update := false setget _update
-export(bool) var enabled := false
+export(Resource) var settings := TerrainGenerationSettings.new() as Resource
 
-export(int) var extent := 128
-export(float) var height_scale := 20.0
-export(float) var unit_size := 1.0
-export(float) var height_detail := 20.0
-
-func _update(_v: bool) -> void:
-	update = false
-
-	if not enabled:
-		return
+func generate_height_map() -> Array:
+	var height_map_generator := HeightMapGenerator.new()
 	
-	_generate()
+	height_map_generator.is_generate_terrain = settings.is_generate_terrain
+	height_map_generator.is_generate_border = settings.is_generate_border
+	height_map_generator.is_generate_connections = settings.is_generate_connections
+	height_map_generator.is_normalize_height = settings.is_normalize_height
+
+	height_map_generator.size = settings.size
+	height_map_generator.octaves = settings.octaves
+	height_map_generator.persistance = settings.persistance
+	height_map_generator.period = settings.period
+	height_map_generator.border_size = settings.border_size
+	height_map_generator.border_thickness = settings.border_thickness
+	height_map_generator.border_montains = settings.border_montains
+	height_map_generator.border_connection_size = settings.border_connection_size
+	height_map_generator.places_count = settings.places_count
+	height_map_generator.places_path_noise_rate = settings.places_path_noise_rate
+	height_map_generator.places_path_thickness = settings.places_path_thickness
+
+	height_map_generator.existing_connections = settings.surrounding_connections
+	
+	var full_height_map := height_map_generator.generate(settings.seed_number)
+	return [_pack_height_map(full_height_map), full_height_map.connections()]
 
 
-func _ready() -> void:
-	_generate()
-
-
-func _generate() -> void:
+func generate_terrain_mesh(low_poly_map: LowPolyMap, collisions: bool = true) -> Array:
+	Log.d("Generating a new terrain mesh!")
 	
-	for i in get_child_count():
-		var child := get_child(i)
-		if not child or child.name == "Env":
-			continue
-		else:
-			child.free()
-	
-	var height_map_generator = HeightMapGenerator.new()
-	height_map_generator.size = extent
-	height_map_generator.border_montains = true
-	var height_map := height_map_generator.generate(0) as HeightMap
-	
-	var voxel_map := VoxelMap.new(height_map.size())
-	
-	for i in height_map.buffer_size():
-		var h := height_map.get_at_index(i)
-		
-		var packed_h = int(h * height_detail) / height_detail
-		
-		if packed_h < 0 or packed_h > 1.0:
-			Log.e("Invalid height: %d" % packed_h)
-		
-		height_map.set_at_index(i, packed_h)
-		
-	height_map.scale(height_scale)
-	
-	var vertices := _calc_height_map_vertices(height_map)
+	var vertices := _calc_height_map_vertices(low_poly_map)
 	var normals := _calc_normals(vertices)
 	var indices := _calc_indices(vertices)
 	var colors := _calc_colors(vertices)
@@ -69,18 +50,66 @@ func _generate() -> void:
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	new_mesh.surface_set_material(0, mat)
 	
-	var mesh_instance = MeshInstance.new()
-	mesh_instance.name = "MeshInstance"
-	mesh_instance.mesh = new_mesh
-	mesh_instance.scale = Vector3(0.5, 0.5, 0.5)
+	var collision_shape_faces := PoolVector3Array()
+	if collisions:
+		collision_shape_faces.resize(indices.size())
+		for i in indices:
+			collision_shape_faces.push_back(vertices[i])
 	
-	add_child(mesh_instance)
-	if Engine.editor_hint:
-		mesh_instance.owner = get_tree().edited_scene_root
+	return [new_mesh, collision_shape_faces]
 
 
-func _calc_height_map_vertices(height_map: HeightMap) -> PoolVector3Array:
-	var valid_rect := Rect2(0, 0, extent, extent)
+func generate_collisions_mesh(low_poly_map: LowPolyMap) -> PoolVector3Array:
+	var vertices := _calc_height_map_vertices(low_poly_map)
+	var indices := _calc_indices(vertices)
+	
+	var collision_shape_faces := PoolVector3Array()
+	for i in indices:
+		collision_shape_faces.push_back(vertices[i])
+	
+	return collision_shape_faces
+
+
+func generate_connections_area(connections: PoolVector2Array) -> Array:
+	var connections_areas := []
+	
+	for i in connections:
+		var connection := connections[i] as Vector2
+		
+		if connection == Vector2.ZERO or connection == Vector2(-1, -1):
+			continue
+		
+		var box_size := settings.border_connection_size as float
+		var box_shape = BoxShape.new()
+		box_shape.extents = Vector3(box_size, box_size, box_size)
+		
+		var shape = CollisionShape.new()
+		shape.shape = box_shape
+		
+		var area := Area.new()
+		area.name = "connection %i" % i
+	
+	return connections_areas
+
+
+func _pack_height_map(height_map: HeightMap) -> LowPolyMap:
+	var low_poly_map := LowPolyMap.new(height_map.size())
+	
+	for i in height_map.buffer_size():
+		var h := height_map.get_at_index(i)
+		
+		var packed_h = int(h * settings.map_scale)
+		
+		if packed_h < 0 or packed_h > settings.map_scale:
+			Log.e("Invalid height: %d" % packed_h)
+		
+		low_poly_map.set_at_index(i, packed_h)
+	
+	return low_poly_map
+
+
+func _calc_height_map_vertices(height_map: LowPolyMap) -> PoolVector3Array:
+	var valid_rect := Rect2(0, 0, settings.size, settings.size)
 	var planes := {}
 	var vertices := PoolVector3Array()
 	
@@ -93,10 +122,10 @@ func _calc_height_map_vertices(height_map: HeightMap) -> PoolVector3Array:
 		var pos2 := Vector2(pos0.x + 1, pos0.y + 1)
 		var pos3 := Vector2(pos0.x, pos0.y + 1)
 		
-		var h0 := height_map.get_at(pos0.x, pos0.y)
-		var h1 := height_map.get_at(pos1.x, pos1.y)
-		var h2 := height_map.get_at(pos2.x, pos2.y)
-		var h3 := height_map.get_at(pos3.x, pos3.y)
+		var h0 := height_map.get_at(int(pos0.x), int(pos0.y))
+		var h1 := height_map.get_at(int(pos1.x), int(pos1.y))
+		var h2 := height_map.get_at(int(pos2.x), int(pos2.y))
+		var h3 := height_map.get_at(int(pos3.x), int(pos3.y))
 		
 		var plane = LowPolyPlane.new()
 		plane.v0 = Vector3(pos0.x, h0, pos0.y)
@@ -107,8 +136,8 @@ func _calc_height_map_vertices(height_map: HeightMap) -> PoolVector3Array:
 		planes[pos0] = plane
 	
 	var joined := {}
-	for x in extent - 1:
-		for z in extent - 1:
+	for x in settings.size - 1:
+		for z in settings.size - 1:
 			var pos := Vector2(x, z)
 			
 			if joined.has(pos):
@@ -117,7 +146,7 @@ func _calc_height_map_vertices(height_map: HeightMap) -> PoolVector3Array:
 			var plane := planes[pos] as LowPolyPlane
 			var end_z: int = z + 1
 
-			while end_z < extent - 1:
+			while end_z < settings.size - 1:
 				var next_pos := Vector2(x, end_z)
 				var next_plane := planes[next_pos] as LowPolyPlane
 
@@ -130,10 +159,10 @@ func _calc_height_map_vertices(height_map: HeightMap) -> PoolVector3Array:
 
 			var end_x = x
 			var is_done := false
-			while end_x < extent and not is_done:
+			while end_x < settings.size and not is_done:
 				end_x += 1
 
-				if end_x >= extent - 1:
+				if end_x >= settings.size - 1:
 					break
 
 				for tmp_z in range(z, end_z + 1):
@@ -220,7 +249,6 @@ func _calc_colors(vertices: PoolVector3Array) -> PoolColorArray:
 		Color.darkgray,
 	]
 	
-	var factor := height_scale * float(color_pallet.size() - 1)
 	var n := 0
 	for _k in range(0, vertices.size(), 4):
 		var v0 := vertices[n]
@@ -230,7 +258,7 @@ func _calc_colors(vertices: PoolVector3Array) -> PoolColorArray:
 		
 		var min_height := max(max(v0.y, v1.y), max(v2.y, v3.y))
 		
-		var color = color_pallet[int(float(min_height / height_scale) * (color_pallet.size() - 1))]
+		var color = color_pallet[int(float(min_height / settings.map_scale) * (color_pallet.size() - 1))]
 		
 		colors.push_back(color)
 		colors.push_back(color)

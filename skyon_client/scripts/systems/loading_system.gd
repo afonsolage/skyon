@@ -70,12 +70,12 @@ class LoadingMapGenerator:
 
 	var map_instance: MapInstance
 	var save_path: String
-
+	
 	func _t_do_work(_args: Array) -> void:
-		var generator := VoxelGenerator.new()
+		var generator := LowPolyGenerator.new()
 		generator.settings.height_colors = map_instance.map_component.height_pallet
 
-		var voxel_map := VoxelMap.new(MapComponent.SIZE)
+		var voxel_map := LowPolyMap.new(MapComponent.SIZE)
 		voxel_map._buffer = map_instance.map_component.height_map
 
 		var result := generator.generate_terrain_mesh(voxel_map)
@@ -95,15 +95,5 @@ class LoadingMapInstance:
 	func _t_do_work(_args: Array) -> void:
 		var map_instance := MapInstance.new()
 		map_instance.load_from(load_path)
-		
-		var tree_generator := TreeGenerator.new()
-		
-		var height_map := map_instance.map_component.height_map
-		for i in 512:
-			var x = randi() % MapComponent.SIZE
-			var z = randi() % MapComponent.SIZE
-			var h = height_map[x * MapComponent.SIZE + z]
-			var tree = tree_generator.generate_tree(Vector3(x, h, z))
-			map_instance.add_child(tree)
 		
 		done(map_instance)

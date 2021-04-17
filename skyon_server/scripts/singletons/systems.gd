@@ -7,7 +7,7 @@ var db: DBSystem
 
 var debug_view: DebugView
 
-func _ready() -> void:
+func init_systems() -> void:
 	Log.d("Initializing Core Systems")
 	
 	_init_db_system()
