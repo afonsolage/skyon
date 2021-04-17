@@ -19,7 +19,7 @@ func _init() -> void:
 func _ready() -> void:
 	Log.d("Initializing Channel System")
 	
-#	yield(load_channel_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0))), "completed")
+	yield(load_channel_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0))), "completed")
 #	ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
 #	ensure_channel_is_loaded_async(Systems.atlas.calc_map_pos_index(Vector2(0, 0)))
 

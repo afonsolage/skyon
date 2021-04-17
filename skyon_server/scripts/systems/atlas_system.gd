@@ -30,7 +30,7 @@ func load_map_async(map_pos: Vector2, settings: TerrainGenerationSettings = null
 	atlas_map_generator.map_path = _get_map_path(map_pos)
 	atlas_map_generator.settings = settings
 	
-#	atlas_map_generator.run_local = true
+	atlas_map_generator.run_local = true
 	
 	var map := yield(atlas_map_generator.run(), "completed") as MapComponent
 	
@@ -57,7 +57,11 @@ class AtlasMapGenerator:
 	var map_path: String
 	var settings: TerrainGenerationSettings
 	
+	var _rnd := RandomNumberGenerator.new()
+	
 	func _t_do_work(_args: Array) -> void:
+		_rnd.seed = map_index
+		
 		var map: MapComponent
 		
 		if not (settings and settings.is_force_generation) and FileUtils.exists(map_path):
@@ -65,59 +69,103 @@ class AtlasMapGenerator:
 			map = MapComponent.new()
 			map.load_from(map_path)
 		else:
-			Log.d("Map %s doesn't exists, generating it" % map_pos)
-			map = MapComponent.new()
-			map.position = map_pos
+			map = _t_generate_map()
 			
-			# TODO: Load from biome pallet
-			map.height_pallet = [
-				Color.blue,
-				Color.blue,
-				Color.blue,
-				Color.blue,
-				Color.blue,
-				Color.blue,
-				Color.dodgerblue,
-				Color.darkgreen,
-				Color.sienna,
-				Color.sienna,
-				Color.darkgray,
-			]
+			_t_generate_resources(map)
 			
-			var generator := LowPolyGenerator.new()
-			var rnd := RandomNumberGenerator.new()
-			rnd.seed = map_index
-			
-			if not settings:
-				settings = TerrainGenerationSettings.new()
-				settings.size = MapComponent.SIZE
-				
-				# TODO: Load biome settings
-				settings.octaves = rnd.randi_range(2, 7)
-				settings.persistance = rnd.randf_range(0.3, 0.9)
-				settings.period = rnd.randf_range(10.0, 20.0)
-				settings.border_size = rnd.randi_range(30, 60)
-				settings.height_colors = map.height_pallet
-				settings.seed_number = map_index
-			
-			settings.surrounding_connections = _t_get_surrounding_connections()
-			generator.settings = settings
-			
-			Log.d("[Map %s] Generating height map" % map_pos)
-			var result := generator.generate_height_map()
-			var voxel_map := result[0] as LowPolyMap
-			var connections := result[1] as PoolVector2Array
-			
-			map.height_map = voxel_map.buffer()
-			map.connections = connections
-			Log.d("[Map %s] Generating collisions map" % map_pos)
-			map.collisions = generator.generate_collisions_mesh(voxel_map)
-			Log.d("[Map %s] Generating saving to disk" % map_pos)
+			Log.d("[Map %s] Saving to disk" % map_pos)
 			map.save_to(map_path)
+			Log.d("[Map %s] Generation completed" % map_pos)
 		
-		Log.d("[Map %s] Generation completed" % map_pos)
 		
 		done(map)
+
+	func _t_generate_resources(map: MapComponent) -> void:
+		Log.d("[Map %s] Generating resources" % map_pos)
+		var tree_generator := TreeGenerator.new()
+		var tree_radius := 5.0
+		var existing_trees := []
+		
+		for i in map.height_map.size():
+			var height := map.get_height_at_index(i)
+			
+			var rnd := _rnd.randi() % 100
+			if height != 6 or rnd < 50 : # Todo change this later on
+				continue
+		
+			var height_position := map.calc_pos(i)
+			var position := Vector3(height_position.x, height, height_position.y)
+			
+			var should_skip := false
+			for p in existing_trees:
+				if abs(p.distance_to(position)) < tree_radius:
+					should_skip = true
+					break
+			
+			if should_skip:
+				continue
+			
+			var tree := tree_generator.generate_tree()
+			
+			map.resources[position] = {
+				"type": MapComponent.ResourceType.TREE,
+			}
+			
+			map.trees_collision[position] = tree[0]
+			existing_trees.push_back(position)
+			
+			
+	func _t_generate_map() -> MapComponent:
+		Log.d("Map %s doesn't exists, generating it" % map_pos)
+		var map := MapComponent.new()
+		map.position = map_pos
+		
+		# TODO: Load from biome pallet
+		map.height_pallet = [
+			Color.blue,
+			Color.blue,
+			Color.blue,
+			Color.blue,
+			Color.blue,
+			Color.blue,
+			Color.dodgerblue,
+			Color.darkgreen,
+			Color.sienna,
+			Color.sienna,
+			Color.darkgray,
+		]
+		
+		
+		var generator := LowPolyGenerator.new()
+		
+		
+		if not settings:
+			settings = TerrainGenerationSettings.new()
+			settings.size = MapComponent.SIZE
+			
+			# TODO: Load biome settings
+			settings.octaves = _rnd.randi_range(2, 7)
+			settings.persistance = _rnd.randf_range(0.3, 0.9)
+			settings.period = _rnd.randf_range(10.0, 20.0)
+			settings.border_size = _rnd.randi_range(30, 60)
+			settings.height_colors = map.height_pallet
+			settings.seed_number = map_index
+		
+		settings.surrounding_connections = _t_get_surrounding_connections()
+		generator.settings = settings
+		
+		Log.d("[Map %s] Generating height map" % map_pos)
+		var result := generator.generate_height_map()
+		var low_poly_map := result[0] as LowPolyMap
+		var connections := result[1] as PoolVector2Array
+		
+		map.height_map = low_poly_map.buffer()
+		map.connections = connections
+		Log.d("[Map %s] Generating collisions map" % map_pos)
+		map.terrain_collision = generator.generate_collisions_mesh(low_poly_map)
+		
+		return map
+
 
 	func _t_get_surrounding_connections() -> PoolVector2Array:
 		var connections = PoolVector2Array([

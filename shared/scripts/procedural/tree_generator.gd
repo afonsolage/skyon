@@ -1,12 +1,7 @@
-tool
 class_name TreeGenerator
-extends Spatial
 
 const VERTEX_PER_SQUARE = 4
 const VERTEX_PER_SEGMENT = 16
-
-export(bool) var click_to_update := false setget _generate
-export(bool) var active := false
 
 export(float) var trunk_height_base := 5.0
 export(float) var trunk_height_variation := 1.0
@@ -23,68 +18,29 @@ export(float) var leaves_scale_variation := 0.5
 export(int) var leaves_subdivide_level := 1
 
 var _rnd := RandomNumberGenerator.new()
-var _trunk_height := 0.0
-var _leaves_scale := 0.0
-
-var _mid_point_cache := {}
-
-func _ready():
-	var tree = generate_tree(Vector3.ZERO)
-	add_child(tree)
-
-func _generate(_v):
-	if not active:
-		return
-	
-	for i in get_child_count():
-		if get_child(i).name == "Env":
-			continue
-		else:
-			get_child(i).queue_free()
-	
-	click_to_update = false
-	var tree = generate_tree(Vector3.ZERO)
-	tree.name = "Tree"
-	add_child(tree)
-	tree.owner = get_tree().edited_scene_root
-	
-	for i in tree.get_child_count():
-		get_child(i).owner = get_tree().edited_scene_root
+var trunk_height := 0.0
+var leaves_scale := 0.0
 
 
-func generate_tree(position: Vector3, is_collision_only: bool = false ) -> Spatial:
-	var tree = Spatial.new()
-	tree.translation = position
-	
-	_rnd.seed = (int(position.x) << 16) + int(position.z)
-	
-	_trunk_height = trunk_height_base + _rnd.randf_range(-trunk_height_variation, trunk_height_variation)
-	_leaves_scale = leaves_scale_base + _rnd.randf_range(-leaves_scale_variation, leaves_scale_variation)
-	trunk_base_scale = _trunk_height * 0.1
+func generate_tree(is_collision_only: bool = false ) -> Array:
+	trunk_height = trunk_height_base + _rnd.randf_range(-trunk_height_variation, trunk_height_variation)
+	leaves_scale = leaves_scale_base + _rnd.randf_range(-leaves_scale_variation, leaves_scale_variation)
+	trunk_base_scale = trunk_height * 0.1
 	trunk_thickness = _rnd.randf_range(2, 4)
 	
-	var mesh_instance := generate_trunk(is_collision_only)
-	mesh_instance.name = "Trunk"
+	var trunk = _generate_trunk(is_collision_only)
+	var leaves: Mesh
+	if not is_collision_only:
+		leaves = _generate_leaves()
 	
-	tree.add_child(mesh_instance)
-	
-	mesh_instance = generate_leaves(is_collision_only)
-	mesh_instance.name = "Leaves"
-	mesh_instance.translation.y = _trunk_height + _leaves_scale
-	mesh_instance.scale = Vector3(_leaves_scale, _leaves_scale, _leaves_scale)
-	
-	tree.add_child(mesh_instance)
-	
-	tree.rotation_degrees.y = _rnd.randf_range(-180, 180)
-	
-	return tree
+	return [trunk[0], trunk[1], leaves]
 
 
-func generate_trunk(is_collision_only: bool) -> MeshInstance:
-	var mesh_instance = MeshInstance.new()
+func _generate_trunk(is_collision_only: bool) -> Array:
+	var new_mesh = ArrayMesh.new()
+	var vertices := PoolVector3Array()
 	
 	if not is_collision_only:
-		var vertices := PoolVector3Array()
 		var normals := PoolVector3Array()
 		var indices := PoolIntArray()
 		
@@ -97,7 +53,7 @@ func generate_trunk(is_collision_only: bool) -> MeshInstance:
 			segments_offset.push_back(Vector3(x, y, z))
 		
 		var origin := -trunk_width / 2.0
-		var segment_size := _trunk_height / float(trunk_segments)
+		var segment_size := trunk_height / float(trunk_segments)
 		for i in trunk_segments:
 			var y = segment_size * i
 			var y1 = y + segment_size
@@ -188,77 +144,50 @@ func generate_trunk(is_collision_only: bool) -> MeshInstance:
 		mat.albedo_color = trunk_color;
 		mat.vertex_color_use_as_albedo = true
 		
-		var new_mesh = ArrayMesh.new()
 		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 		new_mesh.surface_set_material(0, mat)
-		
-		mesh_instance.mesh = new_mesh
 	
-	var box_shape = BoxShape.new()
-	box_shape.extents = Vector3(trunk_width * 2, _trunk_height / 2.0, trunk_width * 2)
-
-	var shape = CollisionShape.new()
-	shape.shape = box_shape
-
-	var static_body = StaticBody.new()
-	static_body.translation.y = _trunk_height / 2.0
-	static_body.add_child(shape)
-
-	mesh_instance.add_child(static_body)
+	var collision := PoolVector3Array()
+	collision = vertices
 	
+	return [collision, new_mesh]
+
+
+func _generate_leaves() -> Mesh:
+	var new_mesh = ArrayMesh.new()
+	var vertices := _create_icosphere()
 	
-	return mesh_instance
-
-
-func generate_leaves(is_collision_only: bool) -> MeshInstance:
-	var mesh_instance = MeshInstance.new()
+	var indices := PoolIntArray()
+	var normals := PoolVector3Array()
 	
-	if not is_collision_only:
-		var vertices := _create_icosphere()
-		var indices := PoolIntArray()
-		var normals := PoolVector3Array()
-		
-		for i in vertices.size():
-			indices.push_back(i)
-		
-		for i in range(0, indices.size(), 3):
-			var a := vertices[indices[i]]
-			var b := vertices[indices[i + 1]]
-			var c := vertices[indices[i + 2]]
-			var normal := (c - a).cross(b - a).normalized()
-			
-			normals.push_back(normal)
-			normals.push_back(normal)
-			normals.push_back(normal)
-			
-		
-		var arrays = []
-		arrays.resize(ArrayMesh.ARRAY_MAX)
-		arrays[ArrayMesh.ARRAY_VERTEX] = vertices
-		arrays[ArrayMesh.ARRAY_NORMAL] = normals
-		arrays[ArrayMesh.ARRAY_INDEX] = indices
-		
-		var mat := SpatialMaterial.new()
-		mat.albedo_color = leaves_color;
-		mat.vertex_color_use_as_albedo = true
-		
-		var new_mesh = ArrayMesh.new()
-		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		new_mesh.surface_set_material(0, mat)
-		
-		mesh_instance.mesh = new_mesh
+	for i in vertices.size():
+		indices.push_back(i)
 	
-	var sphere_shape = SphereShape.new()
-
-	var shape = CollisionShape.new()
-	shape.shape = sphere_shape
-
-	var static_body = StaticBody.new()
-	static_body.add_child(shape)
-
-	mesh_instance.add_child(static_body)
+	for i in range(0, indices.size(), 3):
+		var a := vertices[indices[i]]
+		var b := vertices[indices[i + 1]]
+		var c := vertices[indices[i + 2]]
+		var normal := (c - a).cross(b - a).normalized()
+		
+		normals.push_back(normal)
+		normals.push_back(normal)
+		normals.push_back(normal)
+		
 	
-	return mesh_instance
+	var arrays = []
+	arrays.resize(ArrayMesh.ARRAY_MAX)
+	arrays[ArrayMesh.ARRAY_VERTEX] = vertices
+	arrays[ArrayMesh.ARRAY_NORMAL] = normals
+	arrays[ArrayMesh.ARRAY_INDEX] = indices
+	
+	var mat := SpatialMaterial.new()
+	mat.albedo_color = leaves_color;
+	mat.vertex_color_use_as_albedo = true
+	
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	new_mesh.surface_set_material(0, mat)
+	
+	return new_mesh
 
 
 func _get_noise_vector3() -> Vector3:
@@ -274,20 +203,20 @@ func _create_icosphere() -> PoolVector3Array:
 	var t := (1.0 + sqrt(5.0)) / 2.0
 	
 	var base_vertices := PoolVector3Array([
-		(Vector3(-1, t, 0) + _get_noise_vector3()) * _leaves_scale,
-		(Vector3(1, t, 0) + _get_noise_vector3()) * _leaves_scale,
-		(Vector3(-1, -t, 0) + _get_noise_vector3()) * _leaves_scale,
-		(Vector3(1, -t, 0) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(-1, t, 0) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(1, t, 0) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(-1, -t, 0) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(1, -t, 0) + _get_noise_vector3()) * leaves_scale,
 		
-		(Vector3(0, -1, t) + _get_noise_vector3()) * _leaves_scale,
-		(Vector3(0, 1, t) + _get_noise_vector3()) * _leaves_scale,
-		(Vector3(0, -1, -t) + _get_noise_vector3()) * _leaves_scale,
-		(Vector3(0, 1, -t) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(0, -1, t) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(0, 1, t) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(0, -1, -t) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(0, 1, -t) + _get_noise_vector3()) * leaves_scale,
 		
-		(Vector3(t, 0, -1) + _get_noise_vector3()) * _leaves_scale,
-		(Vector3(t, 0, 1) + _get_noise_vector3()) * _leaves_scale,
-		(Vector3(-t, 0, -1) + _get_noise_vector3()) * _leaves_scale,
-		(Vector3(-t, 0, 1) + _get_noise_vector3()) * _leaves_scale,
+		(Vector3(t, 0, -1) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(t, 0, 1) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(-t, 0, -1) + _get_noise_vector3()) * leaves_scale,
+		(Vector3(-t, 0, 1) + _get_noise_vector3()) * leaves_scale,
 	])
 	
 	var indices := PoolIntArray([

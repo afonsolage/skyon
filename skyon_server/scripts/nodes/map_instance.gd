@@ -15,10 +15,44 @@ func _ready() -> void:
 	
 	_setup_terrain()
 	_setup_connections()
+	_setup_resources()
 
 
 func _to_string() -> String:
 	return "MapInstance %s" % map_component
+
+
+func _setup_resources() -> void:
+	var resources := Spatial.new()
+	resources.name = "Resources"
+	
+	for resource_position in map_component.resources:
+		var res_info := map_component.resources[resource_position] as Dictionary
+		var type := res_info.type as int
+		
+		match type:
+			MapComponent.ResourceType.TREE:
+				var collisions = map_component.trees_collision[resource_position]
+				
+				var trunk_shape := ConvexPolygonShape.new()
+				trunk_shape.points = collisions
+				
+				var trunk_collision := CollisionShape.new()
+				trunk_collision.shape = trunk_shape
+				trunk_collision.name = "TrunkCollisionShape"
+				
+				var body := StaticBody.new()
+				body.name = "Tree %s" % resource_position
+				body.translation = resource_position
+				body.add_child(trunk_collision)
+				
+				resources.add_child(body)
+			_:
+				Log.e("Invalid resource type: %d at localtion %s on map %s" 
+						% [type, resource_position, self])
+		
+	
+	self.add_child(resources)
 
 
 func _setup_connections() -> void:
@@ -59,7 +93,7 @@ func _setup_terrain() -> void:
 	static_body.name = "StaticBody"
 	
 	var concave_shape = ConcavePolygonShape.new()
-	concave_shape.set_faces(map_component.collisions)
+	concave_shape.set_faces(map_component.terrain_collision)
 	
 	var collision_shape = CollisionShape.new()
 	collision_shape.shape = concave_shape
