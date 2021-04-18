@@ -92,6 +92,10 @@ func _broadcast_states() -> void:
 	for player in _players.get_children():
 		player = player as Player
 		
+		if not Systems.net.is_session_valid(player.session_id):
+			Systems.net.disconnect_session(player.session_id)
+			continue
+		
 		var state := {}
 		for body in player.get_area_of_interest_bodies():
 			if not body.is_in_group("StateSync"):

@@ -5,14 +5,24 @@ const SCALE = 0.5
 
 var map_component: MapComponent
 
-func _init():
+func _init() -> void:
 	self.name = "MapInstance"
 	map_component = MapComponent.new()
 
-func _ready():
+func _ready() -> void:
 	self.scale = Vector3(SCALE, SCALE, SCALE)
+	_setup_terrain()
+	_setup_resources()
 
-	self.mesh = map_component.mesh
+
+func _setup_resources() -> void:
+	var resources := map_component.resources_scene.instance()
+	
+	self.add_child(resources)
+
+
+func _setup_terrain() -> void:
+	self.mesh = map_component.terrain_mesh
 	
 	var static_body = StaticBody.new()
 	static_body.name = "StaticBody"
@@ -20,7 +30,7 @@ func _ready():
 	static_body.collision_mask = 0
 	
 	var concave_shape = ConcavePolygonShape.new()
-	concave_shape.set_faces(map_component.collisions)
+	concave_shape.set_faces(map_component.terrain_collision)
 	
 	var collision_shape = CollisionShape.new()
 	collision_shape.name = "CollisionShape"

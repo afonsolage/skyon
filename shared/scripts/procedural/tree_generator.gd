@@ -3,17 +3,17 @@ class_name TreeGenerator
 const VERTEX_PER_SQUARE = 4
 const VERTEX_PER_SEGMENT = 16
 
-export(float) var trunk_height_base := 5.0
-export(float) var trunk_height_variation := 1.0
+export(float) var trunk_height_base := 7.0
+export(float) var trunk_height_variation := 2.0
 export(int) var trunk_segments := 5
 export(float) var trunk_width := 0.5
 export(Color) var trunk_color := Color.brown
 export(float) var trunk_base_scale := 1.0
-export(float) var trunk_thickness := 5
+export(float) var trunk_thickness := 5.0
 
 export(Color) var leaves_color := Color.green
 export(Vector3) var leaves_noise := Vector3(0.2, 0.2, 0.2)
-export(float) var leaves_scale_base := 3
+export(float) var leaves_scale_base := 2.0
 export(float) var leaves_scale_variation := 0.5
 export(int) var leaves_subdivide_level := 1
 
@@ -22,11 +22,15 @@ var trunk_height := 0.0
 var leaves_scale := 0.0
 
 
+func set_seed(some_seed: int) -> void:
+	_rnd.seed = some_seed
+
+
 func generate_tree(is_collision_only: bool = false ) -> Array:
 	trunk_height = trunk_height_base + _rnd.randf_range(-trunk_height_variation, trunk_height_variation)
 	leaves_scale = leaves_scale_base + _rnd.randf_range(-leaves_scale_variation, leaves_scale_variation)
 	trunk_base_scale = trunk_height * 0.1
-	trunk_thickness = _rnd.randf_range(2, 4)
+	trunk_thickness = _rnd.randf_range(2.0, 4.0)
 	
 	var trunk = _generate_trunk(is_collision_only)
 	var leaves: Mesh
@@ -203,20 +207,20 @@ func _create_icosphere() -> PoolVector3Array:
 	var t := (1.0 + sqrt(5.0)) / 2.0
 	
 	var base_vertices := PoolVector3Array([
-		(Vector3(-1, t, 0) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(1, t, 0) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(-1, -t, 0) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(1, -t, 0) + _get_noise_vector3()) * leaves_scale,
+		Vector3(-1, t, 0) + _get_noise_vector3(),
+		Vector3(1, t, 0) + _get_noise_vector3(),
+		Vector3(-1, -t, 0) + _get_noise_vector3(),
+		Vector3(1, -t, 0) + _get_noise_vector3(),
 		
-		(Vector3(0, -1, t) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(0, 1, t) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(0, -1, -t) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(0, 1, -t) + _get_noise_vector3()) * leaves_scale,
+		Vector3(0, -1, t) + _get_noise_vector3(),
+		Vector3(0, 1, t) + _get_noise_vector3(),
+		Vector3(0, -1, -t) + _get_noise_vector3(),
+		Vector3(0, 1, -t) + _get_noise_vector3(),
 		
-		(Vector3(t, 0, -1) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(t, 0, 1) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(-t, 0, -1) + _get_noise_vector3()) * leaves_scale,
-		(Vector3(-t, 0, 1) + _get_noise_vector3()) * leaves_scale,
+		Vector3(t, 0, -1) + _get_noise_vector3(),
+		Vector3(t, 0, 1) + _get_noise_vector3(),
+		Vector3(-t, 0, -1) + _get_noise_vector3(),
+		Vector3(-t, 0, 1) + _get_noise_vector3(),
 	])
 	
 	var indices := PoolIntArray([
@@ -286,7 +290,7 @@ func _create_icosphere() -> PoolVector3Array:
 		indices = sub_indices
 
 	for i in vertices.size():
-		vertices[i] = vertices[i].normalized()
+		vertices[i] = vertices[i].normalized() * leaves_scale
 	
 	return vertices
 

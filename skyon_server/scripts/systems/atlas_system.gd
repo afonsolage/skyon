@@ -30,7 +30,7 @@ func load_map_async(map_pos: Vector2, settings: TerrainGenerationSettings = null
 	atlas_map_generator.map_path = _get_map_path(map_pos)
 	atlas_map_generator.settings = settings
 	
-	atlas_map_generator.run_local = true
+#	atlas_map_generator.run_local = true
 	
 	var map := yield(atlas_map_generator.run(), "completed") as MapComponent
 	
@@ -90,7 +90,7 @@ class AtlasMapGenerator:
 			var height := map.get_height_at_index(i)
 			
 			var rnd := _rnd.randi() % 100
-			if height != 6 or rnd < 50 : # Todo change this later on
+			if height != 7 or rnd < 50 : # Todo change this later on
 				continue
 		
 			var height_position := map.calc_pos(i)
@@ -105,6 +105,7 @@ class AtlasMapGenerator:
 			if should_skip:
 				continue
 			
+			tree_generator.set_seed(hash(position))
 			var tree := tree_generator.generate_tree()
 			
 			map.resources[position] = {
