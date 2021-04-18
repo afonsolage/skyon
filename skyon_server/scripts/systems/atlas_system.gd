@@ -82,6 +82,12 @@ class AtlasMapGenerator:
 
 	func _t_generate_resources(map: MapComponent) -> void:
 		Log.d("[Map %s] Generating resources" % map_pos)
+		_t_generate_trees(map)
+		
+	
+	
+	func _t_generate_trees(map: MapComponent) -> void:
+		Log.d("[Map %s] Generating trees" % map_pos)
 		var tree_generator := TreeGenerator.new()
 		var tree_radius := 5.0
 		var existing_trees := []
@@ -89,8 +95,11 @@ class AtlasMapGenerator:
 		for i in map.height_map.size():
 			var height := map.get_height_at_index(i)
 			
-			var rnd := _rnd.randi() % 100
-			if height != 7 or rnd < 50 : # Todo change this later on
+			var rnd := _rnd.randf_range(0.0, 100.0)
+			 # Todo change this later on
+			if height != 7 \
+					or rnd < 99.0 \
+					or not _t_is_flat_place(map, i, 3.0):
 				continue
 		
 			var height_position := map.calc_pos(i)
@@ -105,8 +114,8 @@ class AtlasMapGenerator:
 			if should_skip:
 				continue
 			
-			tree_generator.set_seed(hash(position))
-			var tree := tree_generator.generate_tree()
+			tree_generator.set_seed(map_index)
+			var tree := tree_generator.generate_tree(true)
 			
 			map.resources[position] = {
 				"type": MapComponent.ResourceType.TREE,
@@ -114,8 +123,8 @@ class AtlasMapGenerator:
 			
 			map.trees_collision[position] = tree[0]
 			existing_trees.push_back(position)
-			
-			
+	
+	
 	func _t_generate_map() -> MapComponent:
 		Log.d("Map %s doesn't exists, generating it" % map_pos)
 		var map := MapComponent.new()
@@ -199,3 +208,29 @@ class AtlasMapGenerator:
 						Log.e("Invalid direction: %s" % dir)
 
 		return connections
+	
+	
+	func _t_is_flat_place(map: MapComponent, index: int, radius: float) -> bool:
+		var type := map.height_map[index]
+		var center := map.calc_pos(index)
+		
+		for x in range(int(-radius), int(radius), 1):
+			for y in range(int(-radius), int(radius), 1):
+				if x == 0 and y == 0:
+					continue
+				
+				var pos := Vector2(x, y) + center
+				if pos.x < 0 or pos.y < 0 \
+						or pos.x >= MapComponent.SIZE or pos.y >= MapComponent.SIZE:
+					return false
+					
+				if abs(pos.distance_to(center)) > radius:
+					continue
+				
+				var idx := map.calc_index(pos)
+				var neighbor_type := map.height_map[idx]
+				if neighbor_type != type:
+					return false
+		
+		return true
+

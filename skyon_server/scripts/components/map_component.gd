@@ -83,3 +83,8 @@ func get_height_at_index(index: int) -> int:
 func calc_pos(index: int) -> Vector2:
 # warning-ignore:integer_division
 	return Vector2(index / SIZE, index % SIZE)
+
+
+func calc_index(pos: Vector2) -> int:
+# warning-ignore:integer_division
+	return int(pos.x) * SIZE + int(pos.y)

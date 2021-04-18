@@ -17,10 +17,12 @@ export(float) var leaves_scale_base := 2.0
 export(float) var leaves_scale_variation := 0.5
 export(int) var leaves_subdivide_level := 1
 
-var _rnd := RandomNumberGenerator.new()
 var trunk_height := 0.0
 var leaves_scale := 0.0
 
+var _rnd := RandomNumberGenerator.new()
+var _cached_trunk_material: Material
+var _cached_leaves_material: Material
 
 func set_seed(some_seed: int) -> void:
 	_rnd.seed = some_seed
@@ -44,87 +46,86 @@ func _generate_trunk(is_collision_only: bool) -> Array:
 	var new_mesh = ArrayMesh.new()
 	var vertices := PoolVector3Array()
 	
+	var segments_offset := PoolVector3Array()
+	for _i in range(0, trunk_segments + 1, 1):
+		var x := _rnd.randf_range(-trunk_width / 4.0, trunk_width / 4.0);
+		var y := _rnd.randf_range(-trunk_width / 4.0, trunk_width / 4.0);
+		var z := _rnd.randf_range(-trunk_width / 4.0, trunk_width / 4.0);
+
+		segments_offset.push_back(Vector3(x, y, z))
+	
+	var origin := -trunk_width / 2.0
+	var segment_size := trunk_height / float(trunk_segments)
+	for i in trunk_segments:
+		var y = segment_size * i
+		var y1 = y + segment_size
+		
+		var y_offset = segments_offset[i] if i > 0 else Vector3.ZERO
+		var y1_offset = segments_offset[i + 1]
+		
+		# Back
+		vertices.push_back(Vector3(origin, y, origin) + y_offset)
+		vertices.push_back(Vector3(trunk_width, y, origin) + y_offset)
+		vertices.push_back(Vector3(trunk_width, y1, origin) + y1_offset)
+		vertices.push_back(Vector3(origin, y1, origin) + y1_offset)
+		
+		# Front
+		vertices.push_back(Vector3(trunk_width, y, trunk_width) + y_offset)
+		vertices.push_back(Vector3(origin, y, trunk_width) + y_offset)
+		vertices.push_back(Vector3(origin, y1, trunk_width) + y1_offset)
+		vertices.push_back(Vector3(trunk_width, y1, trunk_width) + y1_offset)
+
+		# Right
+		vertices.push_back(Vector3(trunk_width, y, origin) + y_offset)
+		vertices.push_back(Vector3(trunk_width, y, trunk_width) + y_offset)
+		vertices.push_back(Vector3(trunk_width, y1, trunk_width) + y1_offset)
+		vertices.push_back(Vector3(trunk_width, y1, origin) + y1_offset)
+
+		# Left
+		vertices.push_back(Vector3(origin, y, trunk_width) + y_offset)
+		vertices.push_back(Vector3(origin, y, origin) + y_offset)
+		vertices.push_back(Vector3(origin, y1, origin) + y1_offset)
+		vertices.push_back(Vector3(origin, y1, trunk_width) + y1_offset)
+
+	var center := Vector3(-origin / 2.0, 0, -origin / 2.0)
+	for i in range(0, vertices.size(), VERTEX_PER_SQUARE):
+# warning-ignore:integer_division
+		var current_segment := i / VERTEX_PER_SEGMENT
+		var rate := clamp((trunk_segments - (current_segment * trunk_thickness)) / float(trunk_segments), 0.0, 1.0)
+		var segment_center := Vector3(center.x, vertices[i].y, center.z)
+		
+		vertices[i] = vertices[i] + ((vertices[i] - segment_center).normalized() * rate * trunk_base_scale)
+		vertices[i + 1] = vertices[i + 1] + ((vertices[i + 1] - segment_center).normalized() * rate* trunk_base_scale)
+		
+		if i + VERTEX_PER_SEGMENT < vertices.size():
+			var next_segment := current_segment + 1
+			var next_rate := clamp((trunk_segments - (next_segment * trunk_thickness)) / float(trunk_segments), 0.0, 1.0)
+			var next_segment_center := Vector3(center.x, vertices[i + 16].y, center.z)
+			vertices[i + 2] = vertices[i + 2] + ((vertices[i + 2] - next_segment_center).normalized() * next_rate * trunk_base_scale)
+			vertices[i + 3] = vertices[i + 3] + ((vertices[i + 3] - next_segment_center).normalized() * next_rate * trunk_base_scale)
+		
+			
 	if not is_collision_only:
 		var normals := PoolVector3Array()
+		for _i in trunk_segments:
+			for side in 4: # 4 sides
+				var normal: Vector3
+				
+				match side:
+					0: 
+						normal = Vector3.BACK
+					1:
+						normal = Vector3.FORWARD
+					2:
+						normal = Vector3.RIGHT
+					_:
+						normal = Vector3.BACK
+				
+				for _j in VERTEX_PER_SQUARE: # 4 vertices
+					normals.push_back(normal)
+		
+		
 		var indices := PoolIntArray()
-		
-		var segments_offset := PoolVector3Array()
-		for _i in range(0, trunk_segments + 1, 1):
-			var x := _rnd.randf_range(-trunk_width / 4.0, trunk_width / 4.0);
-			var y := _rnd.randf_range(-trunk_width / 4.0, trunk_width / 4.0);
-			var z := _rnd.randf_range(-trunk_width / 4.0, trunk_width / 4.0);
-
-			segments_offset.push_back(Vector3(x, y, z))
-		
-		var origin := -trunk_width / 2.0
-		var segment_size := trunk_height / float(trunk_segments)
-		for i in trunk_segments:
-			var y = segment_size * i
-			var y1 = y + segment_size
-			
-			var y_offset = segments_offset[i] if i > 0 else Vector3.ZERO
-			var y1_offset = segments_offset[i + 1]
-			
-			# Back
-			vertices.push_back(Vector3(origin, y, origin) + y_offset)
-			vertices.push_back(Vector3(trunk_width, y, origin) + y_offset)
-			vertices.push_back(Vector3(trunk_width, y1, origin) + y1_offset)
-			vertices.push_back(Vector3(origin, y1, origin) + y1_offset)
-			
-			normals.push_back(Vector3.BACK)
-			normals.push_back(Vector3.BACK)
-			normals.push_back(Vector3.BACK)
-			normals.push_back(Vector3.BACK)
-			
-			# Front
-			vertices.push_back(Vector3(trunk_width, y, trunk_width) + y_offset)
-			vertices.push_back(Vector3(origin, y, trunk_width) + y_offset)
-			vertices.push_back(Vector3(origin, y1, trunk_width) + y1_offset)
-			vertices.push_back(Vector3(trunk_width, y1, trunk_width) + y1_offset)
-
-			normals.push_back(Vector3.FORWARD)
-			normals.push_back(Vector3.FORWARD)
-			normals.push_back(Vector3.FORWARD)
-			normals.push_back(Vector3.FORWARD)
-
-			# Right
-			vertices.push_back(Vector3(trunk_width, y, origin) + y_offset)
-			vertices.push_back(Vector3(trunk_width, y, trunk_width) + y_offset)
-			vertices.push_back(Vector3(trunk_width, y1, trunk_width) + y1_offset)
-			vertices.push_back(Vector3(trunk_width, y1, origin) + y1_offset)
-
-			normals.push_back(Vector3.RIGHT)
-			normals.push_back(Vector3.RIGHT)
-			normals.push_back(Vector3.RIGHT)
-			normals.push_back(Vector3.RIGHT)
-
-			# Left
-			vertices.push_back(Vector3(origin, y, trunk_width) + y_offset)
-			vertices.push_back(Vector3(origin, y, origin) + y_offset)
-			vertices.push_back(Vector3(origin, y1, origin) + y1_offset)
-			vertices.push_back(Vector3(origin, y1, trunk_width) + y1_offset)
-
-			normals.push_back(Vector3.LEFT)
-			normals.push_back(Vector3.LEFT)
-			normals.push_back(Vector3.LEFT)
-			normals.push_back(Vector3.LEFT)
-		
-		var center := Vector3(-origin / 2.0, 0, -origin / 2.0)
-		for i in range(0, vertices.size(), VERTEX_PER_SQUARE):
-	# warning-ignore:integer_division
-			var current_segment := i / VERTEX_PER_SEGMENT
-			var rate := clamp((trunk_segments - (current_segment * trunk_thickness)) / float(trunk_segments), 0.0, 1.0)
-			var segment_center := Vector3(center.x, vertices[i].y, center.z)
-			
-			vertices[i] = vertices[i] + ((vertices[i] - segment_center).normalized() * rate * trunk_base_scale)
-			vertices[i + 1] = vertices[i + 1] + ((vertices[i + 1] - segment_center).normalized() * rate* trunk_base_scale)
-			
-			if i + VERTEX_PER_SEGMENT < vertices.size():
-				var next_segment := current_segment + 1
-				var next_rate := clamp((trunk_segments - (next_segment * trunk_thickness)) / float(trunk_segments), 0.0, 1.0)
-				var next_segment_center := Vector3(center.x, vertices[i + 16].y, center.z)
-				vertices[i + 2] = vertices[i + 2] + ((vertices[i + 2] - next_segment_center).normalized() * next_rate * trunk_base_scale)
-				vertices[i + 3] = vertices[i + 3] + ((vertices[i + 3] - next_segment_center).normalized() * next_rate * trunk_base_scale)
 		
 		var n := 0
 		for _k in range(0, vertices.size(), 4):
@@ -144,12 +145,12 @@ func _generate_trunk(is_collision_only: bool) -> Array:
 		arrays[ArrayMesh.ARRAY_NORMAL] = normals
 		arrays[ArrayMesh.ARRAY_INDEX] = indices
 		
-		var mat := SpatialMaterial.new()
-		mat.albedo_color = trunk_color;
-		mat.vertex_color_use_as_albedo = true
+		if not _cached_trunk_material:
+			_cached_trunk_material = SpatialMaterial.new()
+			_cached_trunk_material.albedo_color = trunk_color;
 		
 		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		new_mesh.surface_set_material(0, mat)
+		new_mesh.surface_set_material(0, _cached_trunk_material)
 	
 	var collision := PoolVector3Array()
 	collision = vertices
@@ -184,12 +185,12 @@ func _generate_leaves() -> Mesh:
 	arrays[ArrayMesh.ARRAY_NORMAL] = normals
 	arrays[ArrayMesh.ARRAY_INDEX] = indices
 	
-	var mat := SpatialMaterial.new()
-	mat.albedo_color = leaves_color;
-	mat.vertex_color_use_as_albedo = true
+	if not _cached_leaves_material:
+		_cached_leaves_material = SpatialMaterial.new()
+		_cached_leaves_material.albedo_color = leaves_color;
 	
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	new_mesh.surface_set_material(0, mat)
+	new_mesh.surface_set_material(0, _cached_leaves_material)
 	
 	return new_mesh
 

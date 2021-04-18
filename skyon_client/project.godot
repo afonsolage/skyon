@@ -383,6 +383,7 @@ run/main_scene="res://scenes/boostrap.tscn"
 [autoload]
 
 Systems="*res://scripts/singletons/systems.gd"
+Consts="*res://scripts/shared/consts.gd"
 
 [gdunit3]
 
