@@ -13,19 +13,25 @@ var _dummy_root: TreeItem
 
 onready var items_tree := $Box/Content/Left/VContainer/ItemsTree
 
+onready var equipment_model_spatial := $ModelVP/Model
+onready var icon_preview := $Box/Content/Mid/VBoxContainer/VBoxContainer/IconPreview
+
 onready var sub_category_value := $Box/Content/Right/VBoxContainer/SubCategory/Value
 onready var category_value := $Box/Content/Right/VBoxContainer/Category/Value
 onready var name_value := $Box/Content/Right/VBoxContainer/Name/Value
 onready var description_value := $Box/Content/Right/VBoxContainer/Description/Value
-onready var model_value := $Box/Content/Right/VBoxContainer/Model/Value/Path
+onready var icon_value := $Box/Content/Right/VBoxContainer/Icon/Value/Path
 onready var max_stack_value := $Box/Content/Right/VBoxContainer/MaxStack/Value
 onready var req_proficiency_value := $Box/Content/Right/VBoxContainer/ReqProficiency/Value
 onready var action_value := $Box/Content/Right/VBoxContainer/Usable/Action/Value
+onready var model_value := $Box/Content/Right/VBoxContainer/Equipment/Model/Value/Path
 onready var slot_value := $Box/Content/Right/VBoxContainer/Equipment/Slot/Value
 onready var skill_list_value := $Box/Content/Right/VBoxContainer/Equipment/SkillList/SkillListBg/Scroll/SkillList/AddSkillPanel/SkillListOpts
 onready var attr_list_value := $Box/Content/Right/VBoxContainer/Equipment/AttributeList/AttrListBg/Scroll/AttrList/AddAttrPanel/AttrListOpts
 
 onready var right_container := $Box/Content/Right/VBoxContainer
+onready var mid_container := $Box/Content/Mid/VBoxContainer
+onready var model_preview_container := $Box/Content/Mid/VBoxContainer/ModelPreview
 onready var equipment_container := $Box/Content/Right/VBoxContainer/Equipment
 onready var usable_container := $Box/Content/Right/VBoxContainer/Usable
 
@@ -42,9 +48,15 @@ onready var attr_list_container := $Box/Content/Right/VBoxContainer/Equipment/At
 
 func _ready() -> void:
 	right_container.visible = false
+	mid_container.visible = false
+	model_preview_container.visible = false
 	
 	_setup_tree()
 	_setup_controls()
+
+
+func _process(delta: float) -> void:
+	equipment_model_spatial.global_rotate(Vector3.UP, 1.0 * delta)
 
 
 func _input(event: InputEvent):
@@ -82,7 +94,9 @@ func _setup_controls() -> void:
 
 func _reset_form() -> void:
 	right_container.visible = true
+	mid_container.visible = true
 	equipment_container.visible = false
+	model_preview_container.visible = false
 	usable_container.visible = false
 	
 	add_skill_opts.selected = 0
@@ -98,11 +112,12 @@ func _reset_form() -> void:
 	category_value.text = "None"
 	sub_category_value.selected = 0
 	name_value.text = ""
+	icon_value.text = ""
 	description_value.text = ""
-	model_value.text = ""
 	max_stack_value.get_line_edit().text = ""
 	req_proficiency_value.selected = 0
 	action_value.selected = 0
+	model_value.text = ""
 	slot_value.selected = 0
 	skill_list_value.selected = 0
 	attr_list_value.selected = 0
@@ -119,14 +134,22 @@ func _load_item(item: ItemResource) -> void:
 		Consts.ItemCategory.EQUIPMENT:
 			_setup_enum_options_control(sub_category_value, Consts.EquipmentCategory)
 			equipment_container.visible = true
+			model_preview_container.visible = true
 			var equipment_item := item as EquipmentItemResource
-			equipment_item.slot = slot_value.selected
+			model_value.text = equipment_item.model_path
+			slot_value.selected = equipment_item.slot
 			
 			for arr in equipment_item.skill_list:
 				_add_skill_list_item(arr[0], int(arr[1]))
 				
 			for arr in equipment_item.attribute_list:
 				_add_attribute_list_item(arr[0], int(arr[1]))
+			
+			if equipment_model_spatial.get_child_count() > 0:
+				equipment_model_spatial.get_child(0).queue_free()
+			
+			if not equipment_item.model_path.empty():
+				equipment_model_spatial.add_child(load(equipment_item.model_path).instance())
 			
 		Consts.ItemCategory.SPECIAL:
 			_setup_enum_options_control(sub_category_value, Consts.SpecialCategory)
@@ -136,10 +159,15 @@ func _load_item(item: ItemResource) -> void:
 	category_value.text = Consts.ItemCategory.keys()[item.category]
 	sub_category_value.selected = item.sub_category
 	name_value.text = item.name
+	icon_value.text = item.icon_path
 	description_value.text = item.description
-	model_value.text = item.model_path
 	max_stack_value.get_line_edit().text = str(item.max_stack_count)
 	req_proficiency_value.selected = item.required_proficiency
+	
+	if item.icon_path.empty():
+		icon_preview.texture = null
+	else:
+		icon_preview.texture = load(item.icon_path)
 
 
 func _setup_enum_options_control(opt: OptionButton, enum_value: Dictionary) -> void:
@@ -224,15 +252,17 @@ func _save_current_item():
 	
 	item_resource.sub_category = sub_category_value.selected
 	item_resource.name = name_value.text
+	item_resource.icon_path = icon_value.text
 	item_resource.description = description_value.text
-	item_resource.model_path = model_value.text
 	item_resource.max_stack_count = int(max_stack_value.get_line_edit().text)
 	item_resource.required_proficiency = req_proficiency_value.selected
 	
 	if item_resource.category == Consts.ItemCategory.USABLE:
 		(item_resource as UsableItemResource).action = action_value.selected
 	elif item_resource.category == Consts.ItemCategory.EQUIPMENT:
-		(item_resource as EquipmentItemResource).slot = slot_value.selected
+		var equipment_item := item_resource as EquipmentItemResource
+		equipment_item.slot = slot_value.selected
+		equipment_item.model_path = model_value.text
 
 	var tree_item := items_tree.get_selected() as TreeItem
 	if tree_item and not item_resource.name.empty():
@@ -241,6 +271,7 @@ func _save_current_item():
 
 func _update_item_tree() -> void:
 	right_container.visible = false
+	mid_container.visible = false
 	
 	items_tree.clear()
 	_setup_tree()
@@ -316,6 +347,7 @@ func _on_ItemsTree_item_selected():
 		_load_item(item_resource)
 	else:
 		right_container.visible = false
+		mid_container.visible = false
 
 func _on_AddSkill_pressed():
 	var selected_skill := add_skill_opts.selected as int
@@ -441,4 +473,28 @@ func _on_LoadBtn_pressed():
 			_items[item_resource.uuid] = item_resource
 	
 	_update_item_tree()
+
+
+func _on_IconFileDialog_file_selected(path: String):
+	var texture := load(path)
+	icon_preview.texture = texture
+
+
+func _on_IconClearPath_pressed():
+	icon_preview.texture = null
+
+
+func _on_ModelFileDialog_file_selected(path: String):
+	var model = load(path).instance()
+	
+	if equipment_model_spatial.get_child_count() > 0:
+		equipment_model_spatial.get_child(0).queue_free()
+	
+	equipment_model_spatial.add_child(model)
+
+
+func _on_ModelClearPath_pressed():
+	if equipment_model_spatial.get_child_count() > 0:
+		equipment_model_spatial.get_child(0).queue_free()
+
 

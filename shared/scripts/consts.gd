@@ -62,9 +62,19 @@ enum ItemActionID {
 }
 
 enum ProficiencyID {
+	NONE,
 	WOOD,
 	STONE,
 	IRON,
+	ONE_HAND_SWORD,
+	TWO_HAND_SWORD,
+	BOW,
+	CROSSBOW,
+	MACE,
+	DAGGER,
+	STAFF,
+	WAND,
+	SHIELD,
 }
 
 enum SkillID {
