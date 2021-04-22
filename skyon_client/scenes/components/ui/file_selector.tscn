@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://scripts/components/ui/file_selector.gd" type="Script" id=1]
+
+[node name="FileSelector" type="HBoxContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="."]
+margin_top = 293.0
+margin_right = 510.0
+margin_bottom = 307.0
+size_flags_horizontal = 3
+text = "Input Name: "
+
+[node name="Value" type="HBoxContainer" parent="."]
+margin_left = 514.0
+margin_right = 1024.0
+margin_bottom = 600.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Path" type="LineEdit" parent="Value"]
+margin_right = 482.0
+margin_bottom = 600.0
+size_flags_horizontal = 3
+editable = false
+
+[node name="ChoosePath" type="Button" parent="Value"]
+margin_left = 486.0
+margin_right = 510.0
+margin_bottom = 600.0
+text = "..."
+
+[node name="FileDialog" type="FileDialog" parent="."]
+margin_left = 177.0
+margin_right = 492.0
+margin_bottom = 130.0
+window_title = "Open a File"
+resizable = true
+mode = 0
+
+[connection signal="pressed" from="Value/ChoosePath" to="." method="_on_ChoosePath_pressed"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_FileDialog_file_selected"]

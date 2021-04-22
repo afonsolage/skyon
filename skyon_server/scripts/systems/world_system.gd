@@ -72,6 +72,11 @@ func _process_player_states(state_snap: Dictionary) -> void:
 	for session_id in state_snap:
 		var state: Dictionary = state_snap[session_id]
 		var player := get_player(session_id)
+		
+		if not player:
+			Log.e("Player not found!")
+			return
+		
 		# TODO: Reject the new state if it's invalid
 		player.set_state(state)
 

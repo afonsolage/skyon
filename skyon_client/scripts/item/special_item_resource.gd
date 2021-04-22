@@ -1,0 +1,3 @@
+class_name SpecialItemResource
+extends ItemResource
+
