@@ -1,7 +1,5 @@
 extends Control
 
-const ITEMS_PATH = "user://resources"
-
 var _items: Dictionary
 
 var _materials_root: TreeItem
@@ -45,6 +43,8 @@ onready var add_attr_amount := $Box/Content/Right/VBoxContainer/Equipment/Attrib
 onready var add_attr_model := $Box/Content/Right/VBoxContainer/Equipment/AttributeList/AttrListBg/Scroll/AttrList/Attrs/Model
 onready var attr_list_container := $Box/Content/Right/VBoxContainer/Equipment/AttributeList/AttrListBg/Scroll/AttrList/Attrs/VBoxContainer
 
+onready var load_dialog := $Box/PanelContainer/Menu/LoadBtn/LoadDialog
+onready var save_dialog := $Box/PanelContainer/Menu/SaveBtn/SaveDialog
 
 func _ready() -> void:
 	right_container.visible = false
@@ -63,8 +63,12 @@ func _input(event: InputEvent):
 	if event is InputEventKey:
 		var key_event := event as InputEventKey
 		
-		if Input.is_key_pressed(KEY_CONTROL) and key_event.pressed and key_event.scancode == KEY_A:
-			_on_AddItemBtn_pressed()
+		if Input.is_key_pressed(KEY_CONTROL) and key_event.pressed:
+			match key_event.scancode:
+				KEY_A:
+					_on_AddItemBtn_pressed()
+				KEY_D:
+					_duplicate_selected_item()
 		
 
 
@@ -214,6 +218,20 @@ func _get_current_item() -> ItemResource:
 	return null
 
 
+func _duplicate_selected_item() -> void:
+	var selected_item = _get_current_item()
+	if not selected_item:
+		return
+	
+	var copy = dict2inst(inst2dict(selected_item)) as ItemResource
+	copy.uuid = UUID.v4()
+	copy.name = "New Item %d" % _items.size()
+	
+	_items[copy.uuid] = copy
+	
+	_add_item_tree(copy)
+
+
 func _add_skill_list_item(skill_id: int, rate: int) -> void:
 	var added_skill := add_skill_model.duplicate()
 	added_skill.get_child(0).text = Consts.SkillID.keys()[skill_id]
@@ -302,6 +320,20 @@ func _add_item_tree(item_resource: ItemResource) -> void:
 	new_item.select(0)
 
 
+func _filter_client_properties(item_dict: Dictionary) -> Dictionary:
+	for key in item_dict.keys():
+		match key:
+			"skill_list":
+				item_dict["skill_list"] = []
+			"attribute_list":
+				item_dict["attribute_list"] = []
+			"action":
+				item_dict["action"] = ""
+		pass
+	
+	return item_dict
+
+
 func _on_AddItemBtn_pressed():
 	var tree_item := items_tree.get_selected() as TreeItem
 	
@@ -332,7 +364,7 @@ func _on_AddItemBtn_pressed():
 		
 	item_resource.category = category
 	item_resource.uuid = UUID.v4()
-	item_resource.name = "New Item"
+	item_resource.name = "New Item %d" % _items.size()
 	
 	_items[item_resource.uuid] = item_resource
 	
@@ -447,34 +479,6 @@ func _on_AutoSave_timeout():
 	_save_current_item()
 
 
-func _on_SaveBtn_pressed():
-	var save_dict := {}
-	for item in _items.values():
-		save_dict[item.uuid] = inst2dict(item)
-
-	FileUtils.ensure_user_path_exists(ITEMS_PATH)
-	var file := File.new()
-	Log.ok(file.open_compressed("%s/items" % ITEMS_PATH, File.WRITE, File.COMPRESSION_ZSTD))
-	file.store_var(save_dict)
-	file.close()
-
-func _on_LoadBtn_pressed():
-	_items.clear()
-	
-	var file := File.new()
-	
-	if file.file_exists("%s/items" % ITEMS_PATH):
-		Log.ok(file.open_compressed("%s/items" % ITEMS_PATH, File.READ, File.COMPRESSION_ZSTD))
-		var load_dict := file.get_var() as Dictionary
-		file.close()
-	
-		for item_dict in load_dict.values():
-			var item_resource := dict2inst(item_dict) as ItemResource
-			_items[item_resource.uuid] = item_resource
-	
-	_update_item_tree()
-
-
 func _on_IconFileDialog_file_selected(path: String):
 	var texture := load(path)
 	icon_preview.texture = texture
@@ -497,4 +501,48 @@ func _on_ModelClearPath_pressed():
 	if equipment_model_spatial.get_child_count() > 0:
 		equipment_model_spatial.get_child(0).queue_free()
 
+
+func _on_LoadBtn_pressed():
+	load_dialog.show()
+	load_dialog.invalidate()
+
+
+func _on_SaveBtn_pressed():
+	save_dialog.show()
+
+
+func _on_LoadDialog_file_selected(path: String) -> void:
+	_items.clear()
+
+	var file := File.new()
+
+	Log.ok(file.open_compressed(path, File.READ, File.COMPRESSION_ZSTD))
+	var loaded_items := file.get_var() as Array
+	file.close()
+
+	for item_dict in loaded_items:
+		var item_resource := dict2inst(item_dict) as ItemResource
+		_items[item_resource.uuid] = item_resource
+
+	_update_item_tree()
+
+
+func _on_SaveDialog_dir_selected(dir):
+	var server_items := []
+	for item in _items.values():
+		server_items.push_back(inst2dict(item))
+	
+	var client_items := []
+	for item in _items.values():
+		client_items.push_back(_filter_client_properties(inst2dict(item)))
+	
+	var file := File.new()
+	Log.ok(file.open_compressed("%s/items.sres" % dir, File.WRITE, File.COMPRESSION_ZSTD))
+	file.store_var(server_items)
+	file.close()
+	
+	file = File.new()
+	Log.ok(file.open_compressed("%s/items.cres" % dir, File.WRITE, File.COMPRESSION_ZSTD))
+	file.store_var(client_items)
+	file.close()
 
