@@ -222,7 +222,7 @@ func _duplicate_selected_item() -> void:
 	if not selected_item:
 		return
 	
-	var copy = dict2inst(inst2dict(selected_item)) as ItemResource
+	var copy = dict2inst(inst2dict(selected_item).duplicate(true)) as ItemResource
 	copy.uuid = UUID.v4()
 	copy.name = "New Item %d" % _items.size()
 	
@@ -509,6 +509,7 @@ func _on_LoadBtn_pressed():
 
 func _on_SaveBtn_pressed():
 	save_dialog.show()
+	save_dialog.invalidate()
 
 
 func _on_LoadDialog_file_selected(path: String) -> void:
