@@ -56,49 +56,17 @@ margin_right = 42.0
 margin_bottom = 20.0
 text = "Load"
 
-[node name="LoadDialog" type="FileDialog" parent="Box/PanelContainer/Menu/LoadBtn"]
-margin_left = 96.0
-margin_top = 50.0
-margin_right = 596.0
-margin_bottom = 400.0
-rect_min_size = Vector2( 500, 350 )
-popup_exclusive = true
-window_title = "Open a File"
-resizable = true
-mode = 0
-access = 2
-filters = PoolStringArray( "*.sres" )
-show_hidden_files = true
-current_dir = "/home/afonsolage/projects"
-current_path = "/home/afonsolage/projects/"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="SaveBtn" type="Button" parent="Box/PanelContainer/Menu"]
 margin_left = 46.0
 margin_right = 87.0
 margin_bottom = 20.0
 text = "Save"
 
-[node name="SaveDialog" type="FileDialog" parent="Box/PanelContainer/Menu/SaveBtn"]
-margin_left = 50.0
-margin_top = 50.0
-margin_right = 550.0
-margin_bottom = 400.0
-rect_min_size = Vector2( 500, 350 )
-popup_exclusive = true
-window_title = "Open a Directory"
-resizable = true
-mode = 2
-access = 2
-filters = PoolStringArray( "*.cres" )
-show_hidden_files = true
-current_dir = "/home/afonsolage/projects/skyon"
-current_path = "/home/afonsolage/projects/skyon/"
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="Settings" type="Button" parent="Box/PanelContainer/Menu"]
+margin_left = 91.0
+margin_right = 154.0
+margin_bottom = 20.0
+text = "Settings"
 
 [node name="Content" type="HBoxContainer" parent="Box"]
 margin_top = 34.0
@@ -818,10 +786,140 @@ margin_bottom = 400.0
 wait_time = 0.5
 autostart = true
 
+[node name="SettingsDialog" type="WindowDialog" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -300.0
+margin_top = -100.0
+margin_right = 300.0
+margin_bottom = 100.0
+rect_min_size = Vector2( 600, 200 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+window_title = "Settings"
+resizable = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PanelContainer" type="PanelContainer" parent="SettingsDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SettingsDialog/PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 593.0
+margin_bottom = 193.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Up" type="VBoxContainer" parent="SettingsDialog/PanelContainer/VBoxContainer"]
+margin_right = 586.0
+margin_bottom = 162.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ServerPath" parent="SettingsDialog/PanelContainer/VBoxContainer/Up" instance=ExtResource( 4 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 586.0
+margin_bottom = 24.0
+
+[node name="Title" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ServerPath" index="0"]
+margin_top = 5.0
+margin_right = 291.0
+margin_bottom = 19.0
+text = "Server resources path: "
+
+[node name="Value" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ServerPath" index="1"]
+margin_left = 295.0
+margin_right = 586.0
+margin_bottom = 24.0
+text = "~/skyon/skyon_server/resources"
+
+[node name="Timer2" type="Timer" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ServerPath/Value" index="0"]
+wait_time = 0.65
+
+[node name="PopupMenu2" type="PopupMenu" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ServerPath/Value" index="1"]
+items = [ "Cut", null, 0, false, false, 0, 268435544, null, "", false, "Copy", null, 0, false, false, 1, 268435523, null, "", false, "Paste", null, 0, false, false, 2, 268435542, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Select All", null, 0, false, false, 4, 268435521, null, "", false, "Clear", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Undo", null, 0, false, false, 5, 268435546, null, "", false, "Redo", null, 0, false, false, 6, 301989978, null, "", false ]
+
+[node name="Timer3" type="Timer" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ServerPath/Value" index="2"]
+wait_time = 0.65
+
+[node name="PopupMenu3" type="PopupMenu" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ServerPath/Value" index="3"]
+items = [ "Cut", null, 0, false, false, 0, 268435544, null, "", false, "Copy", null, 0, false, false, 1, 268435523, null, "", false, "Paste", null, 0, false, false, 2, 268435542, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Select All", null, 0, false, false, 4, 268435521, null, "", false, "Clear", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Undo", null, 0, false, false, 5, 268435546, null, "", false, "Redo", null, 0, false, false, 6, 301989978, null, "", false ]
+
+[node name="ClientPath" parent="SettingsDialog/PanelContainer/VBoxContainer/Up" instance=ExtResource( 4 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 28.0
+margin_right = 586.0
+margin_bottom = 52.0
+
+[node name="Title" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ClientPath" index="0"]
+margin_top = 5.0
+margin_right = 291.0
+margin_bottom = 19.0
+text = "Client resources path: "
+
+[node name="Value" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ClientPath" index="1"]
+margin_left = 295.0
+margin_right = 586.0
+margin_bottom = 24.0
+text = "~/skyon/skyon_client/resources"
+
+[node name="Timer2" type="Timer" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ClientPath/Value" index="0"]
+wait_time = 0.65
+
+[node name="PopupMenu2" type="PopupMenu" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ClientPath/Value" index="1"]
+items = [ "Cut", null, 0, false, false, 0, 268435544, null, "", false, "Copy", null, 0, false, false, 1, 268435523, null, "", false, "Paste", null, 0, false, false, 2, 268435542, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Select All", null, 0, false, false, 4, 268435521, null, "", false, "Clear", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Undo", null, 0, false, false, 5, 268435546, null, "", false, "Redo", null, 0, false, false, 6, 301989978, null, "", false ]
+
+[node name="Timer3" type="Timer" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ClientPath/Value" index="2"]
+wait_time = 0.65
+
+[node name="PopupMenu3" type="PopupMenu" parent="SettingsDialog/PanelContainer/VBoxContainer/Up/ClientPath/Value" index="3"]
+items = [ "Cut", null, 0, false, false, 0, 268435544, null, "", false, "Copy", null, 0, false, false, 1, 268435523, null, "", false, "Paste", null, 0, false, false, 2, 268435542, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Select All", null, 0, false, false, 4, 268435521, null, "", false, "Clear", null, 0, false, false, 3, 0, null, "", false, "", null, 0, false, false, -1, 0, null, "", true, "Undo", null, 0, false, false, 5, 268435546, null, "", false, "Redo", null, 0, false, false, 6, 301989978, null, "", false ]
+
+[node name="Bottom" type="VBoxContainer" parent="SettingsDialog/PanelContainer/VBoxContainer"]
+margin_top = 166.0
+margin_right = 586.0
+margin_bottom = 186.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SettingsDialog/PanelContainer/VBoxContainer/Bottom"]
+margin_right = 586.0
+margin_bottom = 20.0
+
+[node name="Spacer" type="Control" parent="SettingsDialog/PanelContainer/VBoxContainer/Bottom/HBoxContainer"]
+margin_right = 483.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SettingsSaveBtn" type="Button" parent="SettingsDialog/PanelContainer/VBoxContainer/Bottom/HBoxContainer"]
+margin_left = 487.0
+margin_right = 528.0
+margin_bottom = 20.0
+text = "Save"
+
+[node name="SettingsCancelBtn" type="Button" parent="SettingsDialog/PanelContainer/VBoxContainer/Bottom/HBoxContainer"]
+margin_left = 532.0
+margin_right = 586.0
+margin_bottom = 20.0
+text = "Cancel"
+
 [connection signal="pressed" from="Box/PanelContainer/Menu/LoadBtn" to="." method="_on_LoadBtn_pressed"]
-[connection signal="file_selected" from="Box/PanelContainer/Menu/LoadBtn/LoadDialog" to="." method="_on_LoadDialog_file_selected"]
 [connection signal="pressed" from="Box/PanelContainer/Menu/SaveBtn" to="." method="_on_SaveBtn_pressed"]
-[connection signal="dir_selected" from="Box/PanelContainer/Menu/SaveBtn/SaveDialog" to="." method="_on_SaveDialog_dir_selected"]
+[connection signal="pressed" from="Box/PanelContainer/Menu/Settings" to="." method="_on_Settings_pressed"]
 [connection signal="pressed" from="Box/Content/Left/VContainer/HContainer/AddItemBtn" to="." method="_on_AddItemBtn_pressed"]
 [connection signal="item_selected" from="Box/Content/Left/VContainer/ItemsTree" to="." method="_on_ItemsTree_item_selected"]
 [connection signal="pressed" from="Box/Content/Right/VBoxContainer/Icon/Value/ClearPath" to="." method="_on_IconClearPath_pressed"]
@@ -831,6 +929,8 @@ autostart = true
 [connection signal="pressed" from="Box/Content/Right/VBoxContainer/Equipment/SkillList/SkillListBg/Scroll/SkillList/AddSkillPanel/HBoxContainer/AddSkill" to="." method="_on_AddSkill_pressed"]
 [connection signal="pressed" from="Box/Content/Right/VBoxContainer/Equipment/AttributeList/AttrListBg/Scroll/AttrList/AddAttrPanel/HBoxContainer/AddAttr" to="." method="_on_AddAttr_pressed"]
 [connection signal="timeout" from="Box/Content/Right/AutoSave" to="." method="_on_AutoSave_timeout"]
+[connection signal="pressed" from="SettingsDialog/PanelContainer/VBoxContainer/Bottom/HBoxContainer/SettingsSaveBtn" to="." method="_on_SettingsSaveBtn_pressed"]
+[connection signal="pressed" from="SettingsDialog/PanelContainer/VBoxContainer/Bottom/HBoxContainer/SettingsCancelBtn" to="." method="_on_SettingsCancelBtn_pressed"]
 
 [editable path="Box/Content/Right/VBoxContainer/SubCategory"]
 [editable path="Box/Content/Right/VBoxContainer/Name"]
@@ -845,3 +945,5 @@ autostart = true
 [editable path="Box/Content/Right/VBoxContainer/Templates/InputText"]
 [editable path="Box/Content/Right/VBoxContainer/Templates/DropDown"]
 [editable path="Box/Content/Right/VBoxContainer/Templates/FileSelector"]
+[editable path="SettingsDialog/PanelContainer/VBoxContainer/Up/ServerPath"]
+[editable path="SettingsDialog/PanelContainer/VBoxContainer/Up/ClientPath"]

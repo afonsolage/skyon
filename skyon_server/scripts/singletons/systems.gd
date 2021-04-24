@@ -3,6 +3,7 @@ extends Node
 var net : NetSystem
 var channel: ChannelSystem
 var atlas: AtlasSystem
+var item: ItemSystem
 var db: DBSystem
 
 var debug_view: DebugView
@@ -14,6 +15,7 @@ func init_systems() -> void:
 	_init_net_system()
 	_init_atlas_system()
 	_init_channel_system()
+	_init_item_system()
 	_init_debug_view()
 
 # System-wide...systems
@@ -40,6 +42,12 @@ func _init_atlas_system() -> void:
 	atlas = AtlasSystem.new()
 	atlas.name = "AtlasSystem"
 	add_child(atlas)
+
+
+func _init_item_system() -> void:
+	item = ItemSystem.new()
+	item.name = "ItemSystem"
+	add_child(item)
 
 
 func _init_debug_view() -> void:

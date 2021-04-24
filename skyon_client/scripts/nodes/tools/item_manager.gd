@@ -1,5 +1,7 @@
 extends Control
 
+const SETTINGS_PATH = "user://item_tool/"
+
 var _items: Dictionary
 
 var _materials_root: TreeItem
@@ -8,6 +10,9 @@ var _equipment_root: TreeItem
 var _special_root: TreeItem
 
 var _dummy_root: TreeItem
+
+var _server_path: String
+var _client_path: String
 
 onready var items_tree := $Box/Content/Left/VContainer/ItemsTree
 
@@ -43,8 +48,9 @@ onready var add_attr_amount := $Box/Content/Right/VBoxContainer/Equipment/Attrib
 onready var add_attr_model := $Box/Content/Right/VBoxContainer/Equipment/AttributeList/AttrListBg/Scroll/AttrList/Attrs/Model
 onready var attr_list_container := $Box/Content/Right/VBoxContainer/Equipment/AttributeList/AttrListBg/Scroll/AttrList/Attrs/VBoxContainer
 
-onready var load_dialog := $Box/PanelContainer/Menu/LoadBtn/LoadDialog
-onready var save_dialog := $Box/PanelContainer/Menu/SaveBtn/SaveDialog
+onready var settings_dialog := $SettingsDialog
+onready var settings_client_path := $SettingsDialog/PanelContainer/VBoxContainer/Up/ClientPath/Value
+onready var settings_server_path := $SettingsDialog/PanelContainer/VBoxContainer/Up/ServerPath/Value
 
 func _ready() -> void:
 	right_container.visible = false
@@ -53,6 +59,8 @@ func _ready() -> void:
 	
 	_setup_tree()
 	_setup_controls()
+	_load_settings()
+	_on_LoadBtn_pressed()
 
 
 func _process(delta: float) -> void:
@@ -69,6 +77,8 @@ func _input(event: InputEvent):
 					_on_AddItemBtn_pressed()
 				KEY_D:
 					_duplicate_selected_item()
+				KEY_S:
+					_on_SaveBtn_pressed()
 
 
 func _setup_tree() -> void:
@@ -333,6 +343,18 @@ func _filter_client_properties(item_dict: Dictionary) -> Dictionary:
 	return item_dict
 
 
+func _load_settings() -> void:
+	var settings_file := "%s/settings" % SETTINGS_PATH
+	if not FileUtils.exists(settings_file):
+		return
+	
+	var file := File.new()
+	Log.ok(file.open(settings_file, File.READ))
+	_server_path = file.get_var()
+	_client_path = file.get_var()
+	file.close()
+
+
 func _on_AddItemBtn_pressed():
 	var tree_item := items_tree.get_selected() as TreeItem
 	
@@ -503,21 +525,12 @@ func _on_ModelClearPath_pressed():
 
 
 func _on_LoadBtn_pressed():
-	load_dialog.show()
-	load_dialog.invalidate()
-
-
-func _on_SaveBtn_pressed():
-	save_dialog.show()
-	save_dialog.invalidate()
-
-
-func _on_LoadDialog_file_selected(path: String) -> void:
 	_items.clear()
 
 	var file := File.new()
 
-	Log.ok(file.open_compressed(path, File.READ, File.COMPRESSION_ZSTD))
+	var file_path := "%s/items.res" % _server_path
+	Log.ok(file.open_compressed(file_path, File.READ, File.COMPRESSION_ZSTD))
 	var loaded_items := file.get_var() as Array
 	file.close()
 
@@ -528,22 +541,47 @@ func _on_LoadDialog_file_selected(path: String) -> void:
 	_update_item_tree()
 
 
-func _on_SaveDialog_dir_selected(dir):
+func _on_SaveBtn_pressed():
 	var server_items := []
 	for item in _items.values():
 		server_items.push_back(inst2dict(item))
+	
+	var file := File.new()
+	Log.ok(file.open_compressed("%s/items.res" % _server_path, File.WRITE, File.COMPRESSION_ZSTD))
+	file.store_var(server_items)
+	file.close()
 	
 	var client_items := []
 	for item in _items.values():
 		client_items.push_back(_filter_client_properties(inst2dict(item)))
 	
-	var file := File.new()
-	Log.ok(file.open_compressed("%s/items.sres" % dir, File.WRITE, File.COMPRESSION_ZSTD))
-	file.store_var(server_items)
-	file.close()
-	
 	file = File.new()
-	Log.ok(file.open_compressed("%s/items.cres" % dir, File.WRITE, File.COMPRESSION_ZSTD))
+	Log.ok(file.open_compressed("%s/items.res" % _client_path, File.WRITE, File.COMPRESSION_ZSTD))
 	file.store_var(client_items)
 	file.close()
 
+
+func _on_Settings_pressed():
+	settings_server_path.text = _server_path
+	settings_client_path.text = _client_path
+	
+	settings_dialog.show()
+
+
+func _on_SettingsCancelBtn_pressed():
+	settings_dialog.hide()
+
+
+func _on_SettingsSaveBtn_pressed():
+	_server_path = settings_server_path.text
+	_client_path = settings_client_path.text
+	
+	FileUtils.ensure_user_path_exists(SETTINGS_PATH)
+	
+	var file := File.new()
+	Log.ok(file.open("%s/settings" % SETTINGS_PATH, File.WRITE))
+	file.store_var(_server_path)
+	file.store_var(_client_path)
+	file.close()
+	
+	settings_dialog.hide()

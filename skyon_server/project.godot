@@ -229,6 +229,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/resources/item_resource.gd"
 }, {
+"base": "Node",
+"class": "ItemSystem",
+"language": "GDScript",
+"path": "res://scripts/systems/item_system.gd"
+}, {
 "base": "Object",
 "class": "Log",
 "language": "GDScript",
@@ -344,6 +349,7 @@ _global_script_class_icons={
 "HeightMap": "",
 "HeightMapGenerator": "",
 "ItemResource": "",
+"ItemSystem": "",
 "Log": "",
 "LowPolyGenerator": "",
 "LowPolyMap": "",
