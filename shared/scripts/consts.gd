@@ -1,12 +1,5 @@
 extends Node
 
-enum Direction {
-	RIGHT = 0,
-	UP = 1,
-	LEFT = 2,
-	DOWN = 3,
-}
-
 enum ItemCategory {
 	MATERIAL,
 	USABLE,
@@ -17,43 +10,45 @@ enum ItemCategory {
 enum MaterialCategory {
 	WOOD,
 	STONE,
-	IRON,
-	MEAT,
+	ORE,
+	HIDE,
+	FIBER,
+	PLANK,
+	BRICK,
+	METAL,
+	LEATHER,
+	CLOTH,
 }
 
 enum UsableCategory {
 	POTION,
 	LOOTBOX,
-	SCROLL,
+	FOOD,
 }
 
 enum EquipmentCategory {
-	HELM,
-	ARMOR,
-	PANTS,
-	GLOVES,
-	BOOTS,
-	ONE_HAND,
-	TWO_HAND,
-	OFF_HAND,
+	LIGHT,
+	MEDIUM,
+	HEAVY,
+	ONE_H_SWORD,
+	SHIELD,
+	TWO_H_SWORD,
+	BOW,
+	STAFF,
 }
 
 enum SpecialCategory {
-	COIN,
-	QUEST,
+	COIN_BAG,
 }
 
 enum EquipmentSlot {
 	HEAD,
-	TORSO,
+	CHEST,
 	LEGS,
-	ARMS,
-	FOOT,
+	ARM,
+	SHOES,
 	LEFT_HAND,
 	RIGHT_HAND,
-	LEFT_RING,
-	RIGHT_RING,
-	NECKLACE,
 }
 
 enum ItemActionID {
@@ -65,16 +60,22 @@ enum ProficiencyID {
 	NONE,
 	WOOD,
 	STONE,
-	IRON,
-	ONE_HAND_SWORD,
-	TWO_HAND_SWORD,
-	BOW,
-	CROSSBOW,
-	MACE,
-	DAGGER,
-	STAFF,
-	WAND,
+	ORE,
+	HIDE,
+	FIBER,
+	PLANK,
+	BRICK,
+	METAL,
+	LEATHER,
+	CLOTH,
+	LIGHT,
+	MEDIUM,
+	HEAVY,
+	ONE_H_SWORD,
 	SHIELD,
+	TWO_H_SWORD,
+	BOW,
+	STAFF,
 }
 
 enum SkillID {
@@ -94,4 +95,16 @@ enum AttributeID {
 	MAGICAL_DEFENSE,
 }
 
-const DIRS = [Vector2.RIGHT, Vector2.UP, Vector2.LEFT, Vector2.DOWN]
+const DIRS = [
+	Vector2.RIGHT,
+	Vector2.UP,
+	Vector2.LEFT,
+	Vector2.DOWN,
+]
+
+enum Direction {
+	RIGHT = 0,
+	UP = 1,
+	LEFT = 2,
+	DOWN = 3,
+}

@@ -69,7 +69,6 @@ func _input(event: InputEvent):
 					_on_AddItemBtn_pressed()
 				KEY_D:
 					_duplicate_selected_item()
-		
 
 
 func _setup_tree() -> void:
@@ -380,6 +379,7 @@ func _on_ItemsTree_item_selected():
 	else:
 		right_container.visible = false
 		mid_container.visible = false
+
 
 func _on_AddSkill_pressed():
 	var selected_skill := add_skill_opts.selected as int
