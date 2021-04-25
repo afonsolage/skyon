@@ -182,7 +182,7 @@ _global_script_classes=[ {
 "base": "ItemResource",
 "class": "EquipmentItemResource",
 "language": "GDScript",
-"path": "res://scripts/item/equipment_item_resource.gd"
+"path": "res://scripts/shared/item_resource/equipment_item_resource.gd"
 }, {
 "base": "Reference",
 "class": "FileUtils",
@@ -217,7 +217,7 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "ItemResource",
 "language": "GDScript",
-"path": "res://scripts/item/item_resource.gd"
+"path": "res://scripts/shared/item_resource/item_resource.gd"
 }, {
 "base": "Node",
 "class": "LoadingSystem",
@@ -262,7 +262,7 @@ _global_script_classes=[ {
 "base": "ItemResource",
 "class": "MaterialItemResource",
 "language": "GDScript",
-"path": "res://scripts/item/material_item_resource.gd"
+"path": "res://scripts/shared/item_resource/material_item_resource.gd"
 }, {
 "base": "KinematicBody",
 "class": "Mob",
@@ -289,10 +289,15 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/nodes/select_target.gd"
 }, {
+"base": "Node",
+"class": "Serializer",
+"language": "GDScript",
+"path": "res://scripts/shared/serializer.gd"
+}, {
 "base": "ItemResource",
 "class": "SpecialItemResource",
 "language": "GDScript",
-"path": "res://scripts/item/special_item_resource.gd"
+"path": "res://scripts/shared/item_resource/special_item_resource.gd"
 }, {
 "base": "Resource",
 "class": "TerrainGenerationSettings",
@@ -317,7 +322,7 @@ _global_script_classes=[ {
 "base": "ItemResource",
 "class": "UsableItemResource",
 "language": "GDScript",
-"path": "res://scripts/item/usable_item_resource.gd"
+"path": "res://scripts/shared/item_resource/usable_item_resource.gd"
 }, {
 "base": "Node",
 "class": "WorldSystem",
@@ -381,6 +386,7 @@ _global_script_class_icons={
 "PlayerSystem": "",
 "SafeYieldThread": "",
 "SelectTarget": "",
+"Serializer": "",
 "SpecialItemResource": "",
 "TerrainGenerationSettings": "",
 "TreeGenerator": "",

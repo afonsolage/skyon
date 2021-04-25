@@ -122,7 +122,7 @@
 	{
 		"@path": "res://scripts/item/usable_item_resource.gd",
 		"@subpath": "",
-		"action": "",
+		"action": 0,
 		"category": 1,
 		"description": "A simple health potion",
 		"icon_path": "res://assets/icons/items/usable/potion.png",
@@ -135,7 +135,7 @@
 	{
 		"@path": "res://scripts/item/usable_item_resource.gd",
 		"@subpath": "",
-		"action": "",
+		"action": 0,
 		"category": 1,
 		"description": "A simple mana potion",
 		"icon_path": "res://assets/icons/items/usable/potion.png",
@@ -148,7 +148,7 @@
 	{
 		"@path": "res://scripts/item/usable_item_resource.gd",
 		"@subpath": "",
-		"action": "",
+		"action": 0,
 		"category": 1,
 		"description": "A simple stamina potion",
 		"icon_path": "res://assets/icons/items/usable/potion.png",
@@ -173,7 +173,7 @@
 	{
 		"@path": "res://scripts/item/usable_item_resource.gd",
 		"@subpath": "",
-		"action": "",
+		"action": 1,
 		"category": 1,
 		"description": "Contains some special items",
 		"icon_path": "res://assets/icons/items/usable/loot.png",
@@ -187,7 +187,14 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				6,
+				10
+			],
+			[
+				1,
+				5
+			]
 		],
 		"category": 2,
 		"description": "",
@@ -207,7 +214,14 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				6,
+				20
+			],
+			[
+				0,
+				10
+			]
 		],
 		"category": 2,
 		"description": "",
@@ -227,7 +241,14 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				6,
+				15
+			],
+			[
+				0,
+				5
+			]
 		],
 		"category": 2,
 		"description": "",
@@ -247,7 +268,14 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				4,
+				5
+			],
+			[
+				8,
+				5
+			]
 		],
 		"category": 2,
 		"description": "",
@@ -267,7 +295,14 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				9,
+				5
+			],
+			[
+				1,
+				5
+			]
 		],
 		"category": 2,
 		"description": "",
@@ -287,7 +322,18 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				4,
+				10
+			],
+			[
+				8,
+				5
+			],
+			[
+				10,
+				3
+			]
 		],
 		"category": 2,
 		"description": "",
@@ -307,7 +353,18 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				3,
+				6
+			],
+			[
+				10,
+				10
+			],
+			[
+				7,
+				8
+			]
 		],
 		"category": 2,
 		"description": "",
@@ -327,7 +384,18 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				3,
+				5
+			],
+			[
+				7,
+				10
+			],
+			[
+				10,
+				3
+			]
 		],
 		"category": 2,
 		"description": "",
@@ -347,7 +415,18 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				3,
+				12
+			],
+			[
+				7,
+				4
+			],
+			[
+				10,
+				3
+			]
 		],
 		"category": 2,
 		"description": "",
@@ -367,7 +446,14 @@
 		"@path": "res://scripts/item/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
-
+			[
+				5,
+				10
+			],
+			[
+				0,
+				5
+			]
 		],
 		"category": 2,
 		"description": "",

@@ -164,7 +164,7 @@ func _load_item(item: ItemResource) -> void:
 			if not equipment_item.model_path.empty():
 				equipment_model_spatial.add_child(load(equipment_item.model_path).instance())
 			
-		Consts.ItemCategory.SPECIAL:
+		Consts.ItemCategory.SPECIAL, 3:
 			_setup_enum_options_control(sub_category_value, Consts.SpecialCategory)
 		_:
 			Log.e("Invalid category: %d" % item.category)
@@ -530,12 +530,15 @@ func _on_LoadBtn_pressed():
 	var file := File.new()
 
 	var file_path := "%s/items.res" % _server_path
-	Log.ok(file.open_compressed(file_path, File.READ, File.COMPRESSION_ZSTD))
-	var loaded_items := file.get_var() as Array
+#	Log.ok(file.open_compressed(file_path, File.READ, File.COMPRESSION_ZSTD))
+	Log.ok(file.open(file_path, File.READ))
+	var lines = file.get_as_text()
+	var loaded_items := parse_json(lines) as Array
 	file.close()
 
 	for item_dict in loaded_items:
 		var item_resource := dict2inst(item_dict) as ItemResource
+		Serializer.fix_ints(item_resource)
 		_items[item_resource.uuid] = item_resource
 
 	_update_item_tree()
@@ -547,8 +550,9 @@ func _on_SaveBtn_pressed():
 		server_items.push_back(inst2dict(item))
 	
 	var file := File.new()
-	Log.ok(file.open_compressed("%s/items.res" % _server_path, File.WRITE, File.COMPRESSION_ZSTD))
-	file.store_var(server_items)
+#	Log.ok(file.open_compressed("%s/items.res" % _server_path, File.WRITE, File.COMPRESSION_ZSTD))
+	Log.ok(file.open("%s/items.res" % _server_path, File.WRITE))
+	file.store_line(JSON.print(server_items, "\t", true))
 	file.close()
 	
 	var client_items := []
@@ -556,8 +560,9 @@ func _on_SaveBtn_pressed():
 		client_items.push_back(_filter_client_properties(inst2dict(item)))
 	
 	file = File.new()
-	Log.ok(file.open_compressed("%s/items.res" % _client_path, File.WRITE, File.COMPRESSION_ZSTD))
-	file.store_var(client_items)
+#	Log.ok(file.open_compressed("%s/items.res" % _client_path, File.WRITE, File.COMPRESSION_ZSTD))
+	Log.ok(file.open("%s/items.res" % _client_path, File.WRITE))
+	file.store_line(JSON.print(client_items, "\t", true))
 	file.close()
 
 
