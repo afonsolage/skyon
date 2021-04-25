@@ -204,6 +204,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/nodes/debug_view.gd"
 }, {
+"base": "ItemResource",
+"class": "EquipmentItemResource",
+"language": "GDScript",
+"path": "res://scripts/shared/item_resource/equipment_item_resource.gd"
+}, {
 "base": "Reference",
 "class": "FileUtils",
 "language": "GDScript",
@@ -224,10 +229,15 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/shared/procedural/height_map_generator.gd"
 }, {
-"base": "Resource",
+"base": "Reference",
+"class": "ItemComponent",
+"language": "GDScript",
+"path": "res://scripts/components/item_component.gd"
+}, {
+"base": "Reference",
 "class": "ItemResource",
 "language": "GDScript",
-"path": "res://scripts/resources/item_resource.gd"
+"path": "res://scripts/shared/item_resource/item_resource.gd"
 }, {
 "base": "Node",
 "class": "ItemSystem",
@@ -259,6 +269,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/nodes/map_instance.gd"
 }, {
+"base": "ItemResource",
+"class": "MaterialItemResource",
+"language": "GDScript",
+"path": "res://scripts/shared/item_resource/material_item_resource.gd"
+}, {
 "base": "KinematicBody",
 "class": "Mob",
 "language": "GDScript",
@@ -289,6 +304,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/shared/serializer.gd"
 }, {
+"base": "ItemResource",
+"class": "SpecialItemResource",
+"language": "GDScript",
+"path": "res://scripts/shared/item_resource/special_item_resource.gd"
+}, {
 "base": "Resource",
 "class": "TerrainGenerationSettings",
 "language": "GDScript",
@@ -303,6 +323,11 @@ _global_script_classes=[ {
 "class": "UUID",
 "language": "GDScript",
 "path": "res://scripts/shared/uuid.gd"
+}, {
+"base": "ItemResource",
+"class": "UsableItemResource",
+"language": "GDScript",
+"path": "res://scripts/shared/item_resource/usable_item_resource.gd"
 }, {
 "base": "Node",
 "class": "WorldSystem",
@@ -349,10 +374,12 @@ _global_script_class_icons={
 "DBComponent": "",
 "DBSystem": "",
 "DebugView": "",
+"EquipmentItemResource": "",
 "FileUtils": "",
 "GravityComponent": "",
 "HeightMap": "",
 "HeightMapGenerator": "",
+"ItemComponent": "",
 "ItemResource": "",
 "ItemSystem": "",
 "Log": "",
@@ -360,15 +387,18 @@ _global_script_class_icons={
 "LowPolyMap": "",
 "MapComponent": "",
 "MapInstance": "",
+"MaterialItemResource": "",
 "Mob": "",
 "MobSystem": "",
 "NetSystem": "",
 "Player": "",
 "SafeYieldThread": "",
 "Serializer": "",
+"SpecialItemResource": "",
 "TerrainGenerationSettings": "",
 "TreeGenerator": "",
 "UUID": "",
+"UsableItemResource": "",
 "WorldSystem": ""
 }
 
