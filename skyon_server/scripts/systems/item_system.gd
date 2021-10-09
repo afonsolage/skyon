@@ -4,9 +4,11 @@ extends Node
 const ITEMS_PATH := "res://resources/items.res"
 
 var _resources := {}
+var _instances := {}
 
 func _ready() -> void:
 	_load_resources()
+	_load_instances()
 
 
 func find_resource_by_name(name: String) -> ItemResource:
@@ -17,25 +19,25 @@ func find_resource_by_name(name: String) -> ItemResource:
 	return null
 
 
-func new_item(resource_uuid: String, tier: int = 0, quality: int = -1) -> ItemComponent:
+func create_item(resource_uuid: String, tier: int = 0, quality: int = -1) -> ItemInstance:
 	if not _resources.has(resource_uuid):
 		Log.e("Failed to find item with uuid %s" % resource_uuid)
-		return null
+		return null 
 	
-	var item := ItemComponent.new()
-	item.uuid = UUID.v4()
-	item.resource = _resources[resource_uuid]
-	item.stack_count = 1
+	var item_properties = _randomize_item(_resources[resource_uuid], tier, quality)
+	item_properties.resource_uuid = resource_uuid
 	
-	_randomize_item(item, tier, quality)
 	
-	return item
+	return _insert_item(item_properties)
 
 
-func _randomize_item(item: ItemComponent, tier: int, quality: int) -> void:
+func _randomize_item(item_resource: ItemResource, tier: int, quality: int) -> Dictionary:
+	var item = {}
+	item.tier = tier
+	
 	#TODO: Randomize item based on configuration
 	var rnd := RandomNumberGenerator.new()
-	rnd.seed = hash(item.uuid)
+	rnd.randomize()
 	
 	if quality == -1:
 		var r := rnd.randi_range(1, 100)
@@ -51,11 +53,11 @@ func _randomize_item(item: ItemComponent, tier: int, quality: int) -> void:
 	item.quality = quality
 	item.required_proficiency = tier * 10
 	
-	if item.resource.category == Consts.ItemCategory.EQUIPMENT:
+	if item_resource.category == Consts.ItemCategory.EQUIPMENT:
 		item.equipment_max_durability = rnd.randi_range(tier * 10 + 10, tier * 15 + 15)
 		item.equipment_durability = item.equipment_max_durability
 		
-		var equipment_resource = item.resource as EquipmentItemResource
+		var equipment_resource = item_resource as EquipmentItemResource
 		
 		for skill in equipment_resource.skill_list:
 			var skill_id = skill[0]
@@ -78,6 +80,8 @@ func _randomize_item(item: ItemComponent, tier: int, quality: int) -> void:
 			var max_value = int(attribute_value * 1.25)
 			
 			item.equipment_attributes[attribute_id] = rnd.randi_range(min_value, max_value)
+	
+	return item
 
 
 func _load_resources() -> void:
@@ -94,4 +98,46 @@ func _load_resources() -> void:
 		Serializer.fix_ints(item_resource)
 		_resources[item_resource.uuid] = item_resource
 	
-	Log.d("Loaded %d items" % _resources.size())
+	Log.d("Loaded %d item resources" % _resources.size())
+
+
+func _load_instances() -> void:
+	var result := yield(Systems.db.get("/item_instance"), "completed") as Array
+	
+	for line in result:
+		var instance = _parse_item_instance(line)
+		
+		if instance:
+			assert(not _instances.has(instance.id))
+			_instances[instance.id] = instance
+
+	
+	Log.d("Loaded %d item instance" % _instances.size())
+
+
+func _parse_item_instance(json) -> ItemInstance:
+	var instance = ItemInstance.new()
+	
+	for prop in json:
+		if typeof(json[prop]) == TYPE_NIL:
+			continue
+		elif prop == "resource_uuid":
+			if not _resources.has(json[prop]):
+				Log.e("Invalid item resource uuid %s on item instance %d" % [json[prop], json.id])
+				return null
+			else:
+				instance.resource = _resources[json[prop]]
+		else:
+			instance.set(prop, json[prop])
+	
+	return instance
+
+
+func _insert_item(properties: Dictionary) -> ItemInstance:
+	var instance = yield(Systems.db.post("/item_instance", properties), "completed")
+	
+	if typeof(instance) == TYPE_ARRAY:
+		return _parse_item_instance(instance[0])
+	else:
+		return null
+	

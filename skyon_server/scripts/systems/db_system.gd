@@ -11,16 +11,10 @@ func _ready() -> void:
 		Log.e("Failed to start connection with database!")
 	else:
 		Log.i("Database connection started!")
-	
-	yield(get_tree().create_timer(1), "timeout")
-	
-	var result := yield(get("/item_resource"), "completed") as Array
-	
-	for line in result:
-		Log.d(line)
+
 	
 
-func post(endpoint: String, value: Dictionary) -> void:
+func post(endpoint: String, value: Dictionary) -> Array:
 	var cmd := DBCmd.new()
 	cmd.args = {
 		"method": "POST",
@@ -28,7 +22,7 @@ func post(endpoint: String, value: Dictionary) -> void:
 		"value": value,
 	}
 	
-	var _r = yield(_connection.run(cmd), "completed")
+	return yield(_connection.run(cmd), "completed")
 
 
 func get(endpoint: String) -> Array:
@@ -99,6 +93,10 @@ class DBConnection:
 		_queue.push_back(cmd)
 		_mutex.unlock()
 		_semaphore.post()
+		
+		assert(cmd.args.endpoint)
+		assert(cmd.args.endpoint[0] == '/')
+		
 		return yield(cmd, "done")
 	
 	
@@ -122,7 +120,7 @@ class DBConnection:
 		var args := cmd.args
 		match args.method:
 			"POST":
-				result = _request(args.endpoint, HTTPClient.METHOD_POST, [], to_json(args.value))
+				result = _request(args.endpoint, HTTPClient.METHOD_POST, ["Prefer: return=representation"], to_json(args.value))
 			"GET":
 				result = _request(args.endpoint, HTTPClient.METHOD_GET)
 			"DELETE":

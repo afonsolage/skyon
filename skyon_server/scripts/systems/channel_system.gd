@@ -50,7 +50,7 @@ func load_channel_async(channel_id: int, settings: TerrainGenerationSettings = n
 		var channel = _channel_instance_res.instance()
 		channel.name = str(channel_id)
 		
-		var world = channel.get_node("WorldSystem") as Node
+		var world = channel.get_node("WorldSystem") as WorldSystem
 		world.setup_map_instance(map)
 		
 		self.add_child(channel)

@@ -1,7 +1,7 @@
-class_name ItemComponent
+class_name ItemInstance
 extends Reference
 
-var uuid: String
+var id: int
 var resource: ItemResource
 var tier: int
 var quality: int
