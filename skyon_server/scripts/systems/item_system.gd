@@ -19,27 +19,25 @@ func find_resource_by_name(name: String) -> ItemResource:
 	return null
 
 
-func new_item(resource_uuid: String, tier: int = 0, quality: int = -1) -> ItemInstance:
+func create_item(resource_uuid: String, tier: int = 0, quality: int = -1) -> ItemInstance:
 	if not _resources.has(resource_uuid):
 		Log.e("Failed to find item with uuid %s" % resource_uuid)
 		return null 
 	
-	# This needs to be created on database...
+	var item_properties = _randomize_item(_resources[resource_uuid], tier, quality)
+	item_properties.resource_uuid = resource_uuid
 	
-	var item := ItemInstance.new()
-	item.uuid = UUID.v4()
-	item.resource = _resources[resource_uuid]
-	item.stack_count = 1
 	
-	_randomize_item(item, tier, quality)
-	
-	return item
+	return _insert_item(item_properties)
 
 
-func _randomize_item(item: ItemInstance, tier: int, quality: int) -> void:
+func _randomize_item(item_resource: ItemResource, tier: int, quality: int) -> Dictionary:
+	var item = {}
+	item.tier = tier
+	
 	#TODO: Randomize item based on configuration
 	var rnd := RandomNumberGenerator.new()
-	rnd.seed = hash(item.uuid)
+	rnd.randomize()
 	
 	if quality == -1:
 		var r := rnd.randi_range(1, 100)
@@ -55,11 +53,11 @@ func _randomize_item(item: ItemInstance, tier: int, quality: int) -> void:
 	item.quality = quality
 	item.required_proficiency = tier * 10
 	
-	if item.resource.category == Consts.ItemCategory.EQUIPMENT:
+	if item_resource.category == Consts.ItemCategory.EQUIPMENT:
 		item.equipment_max_durability = rnd.randi_range(tier * 10 + 10, tier * 15 + 15)
 		item.equipment_durability = item.equipment_max_durability
 		
-		var equipment_resource = item.resource as EquipmentItemResource
+		var equipment_resource = item_resource as EquipmentItemResource
 		
 		for skill in equipment_resource.skill_list:
 			var skill_id = skill[0]
@@ -82,6 +80,8 @@ func _randomize_item(item: ItemInstance, tier: int, quality: int) -> void:
 			var max_value = int(attribute_value * 1.25)
 			
 			item.equipment_attributes[attribute_id] = rnd.randi_range(min_value, max_value)
+	
+	return item
 
 
 func _load_resources() -> void:
@@ -131,3 +131,13 @@ func _parse_item_instance(json) -> ItemInstance:
 			instance.set(prop, json[prop])
 	
 	return instance
+
+
+func _insert_item(properties: Dictionary) -> ItemInstance:
+	var instance = yield(Systems.db.post("/item_instance", properties), "completed")
+	
+	if typeof(instance) == TYPE_ARRAY:
+		return _parse_item_instance(instance[0])
+	else:
+		return null
+	
