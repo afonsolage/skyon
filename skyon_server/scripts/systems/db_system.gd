@@ -11,13 +11,7 @@ func _ready() -> void:
 		Log.e("Failed to start connection with database!")
 	else:
 		Log.i("Database connection started!")
-	
-	yield(get_tree().create_timer(1), "timeout")
-	
-	var result := yield(get("/item_resource"), "completed") as Array
-	
-	for line in result:
-		Log.d(line)
+
 	
 
 func post(endpoint: String, value: Dictionary) -> void:

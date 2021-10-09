@@ -4,9 +4,11 @@ extends Node
 const ITEMS_PATH := "res://resources/items.res"
 
 var _resources := {}
+var _instances := {}
 
 func _ready() -> void:
 	_load_resources()
+	_load_instances()
 
 
 func find_resource_by_name(name: String) -> ItemResource:
@@ -17,12 +19,14 @@ func find_resource_by_name(name: String) -> ItemResource:
 	return null
 
 
-func new_item(resource_uuid: String, tier: int = 0, quality: int = -1) -> ItemComponent:
+func new_item(resource_uuid: String, tier: int = 0, quality: int = -1) -> ItemInstance:
 	if not _resources.has(resource_uuid):
 		Log.e("Failed to find item with uuid %s" % resource_uuid)
-		return null
+		return null 
 	
-	var item := ItemComponent.new()
+	# This needs to be created on database...
+	
+	var item := ItemInstance.new()
 	item.uuid = UUID.v4()
 	item.resource = _resources[resource_uuid]
 	item.stack_count = 1
@@ -32,7 +36,7 @@ func new_item(resource_uuid: String, tier: int = 0, quality: int = -1) -> ItemCo
 	return item
 
 
-func _randomize_item(item: ItemComponent, tier: int, quality: int) -> void:
+func _randomize_item(item: ItemInstance, tier: int, quality: int) -> void:
 	#TODO: Randomize item based on configuration
 	var rnd := RandomNumberGenerator.new()
 	rnd.seed = hash(item.uuid)
@@ -94,4 +98,36 @@ func _load_resources() -> void:
 		Serializer.fix_ints(item_resource)
 		_resources[item_resource.uuid] = item_resource
 	
-	Log.d("Loaded %d items" % _resources.size())
+	Log.d("Loaded %d item resources" % _resources.size())
+
+
+func _load_instances() -> void:
+	var result := yield(Systems.db.get("/item_instance"), "completed") as Array
+	
+	for line in result:
+		var instance = _parse_item_instance(line)
+		
+		if instance:
+			assert(not _instances.has(instance.id))
+			_instances[instance.id] = instance
+
+	
+	Log.d("Loaded %d item instance" % _instances.size())
+
+
+func _parse_item_instance(json) -> ItemInstance:
+	var instance = ItemInstance.new()
+	
+	for prop in json:
+		if typeof(json[prop]) == TYPE_NIL:
+			continue
+		elif prop == "resource_uuid":
+			if not _resources.has(json[prop]):
+				Log.e("Invalid item resource uuid %s on item instance %d" % [json[prop], json.id])
+				return null
+			else:
+				instance.resource = _resources[json[prop]]
+		else:
+			instance.set(prop, json[prop])
+	
+	return instance
