@@ -98,7 +98,7 @@ class LoadingMapGenerator:
 		done(map_instance)
 	
 	
-	func _t_generate_resources(resources: Dictionary) -> PackedScene:
+	func _t_generate_resources(resources: Dictionary) -> Spatial:
 		var resources_scene := Spatial.new()
 		resources_scene.name = "Resources"
 		
@@ -112,10 +112,9 @@ class LoadingMapGenerator:
 							% [resource.type, resource_position, map_instance])
 					continue
 		
-		var packed_resources := PackedScene.new()
-		Log.ok(packed_resources.pack(resources_scene))
+		Log.d("Generated %d resources" % resources_scene.get_child_count())
 		
-		return packed_resources
+		return resources_scene
 	
 	
 	func _t_generate_tree(position: Vector3, owner: Node) -> void:

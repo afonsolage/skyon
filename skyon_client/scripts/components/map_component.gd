@@ -19,7 +19,7 @@ var resources: Dictionary
 # Client generate attributes
 var terrain_collision: PoolVector3Array
 var terrain_mesh: Mesh
-var resources_scene: PackedScene
+var resources_scene: Spatial
 
 # TODO: Add resources, mob spawn points, npcs and such
 
@@ -36,7 +36,11 @@ func save_to(path: String) -> void:
 	file.close()
 	
 	Log.ok(ResourceSaver.save("%s.mesh" % path, terrain_mesh, ResourceSaver.FLAG_COMPRESS))
-	Log.ok(ResourceSaver.save("%s_res.scn" % path, resources_scene, ResourceSaver.FLAG_COMPRESS))
+	
+	var packed_scene := PackedScene.new()
+	Log.ok(packed_scene.pack(resources_scene))
+	
+	Log.ok(ResourceSaver.save("%s_res.tscn" % path, packed_scene))
 
 
 func load_from(path: String) -> void:
@@ -52,7 +56,8 @@ func load_from(path: String) -> void:
 	file.close()
 	
 	terrain_mesh = load("%s.mesh" % path)
-	resources_scene = load("%s_res.scn" % path)
+	var packed_scene := ResourceLoader.load("%s_res.tscn" % path, "PackedScene", false) as PackedScene
+	resources_scene = packed_scene.instance()
 
 
 func deserialize(buffer: Array) -> void:

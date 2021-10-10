@@ -16,7 +16,9 @@ func _ready() -> void:
 
 
 func _setup_resources() -> void:
-	var resources := map_component.resources_scene.instance()
+	var resources := map_component.resources_scene
+
+	Log.d("Loaded %d resources" % resources.get_child_count())
 	
 	self.add_child(resources)
 

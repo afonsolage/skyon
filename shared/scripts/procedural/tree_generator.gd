@@ -139,18 +139,23 @@ func _generate_trunk(is_collision_only: bool) -> Array:
 			
 			n += 4
 		
+		assert(vertices.size() > 12)
+		assert(indices.size() >= vertices.size())
+		assert(normals.size() == vertices.size())
+		
 		var arrays = []
 		arrays.resize(ArrayMesh.ARRAY_MAX)
 		arrays[ArrayMesh.ARRAY_VERTEX] = vertices
 		arrays[ArrayMesh.ARRAY_NORMAL] = normals
 		arrays[ArrayMesh.ARRAY_INDEX] = indices
 		
+		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		
 		if not _cached_trunk_material:
 			_cached_trunk_material = SpatialMaterial.new()
 			_cached_trunk_material.albedo_color = trunk_color;
-		
-		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 		new_mesh.surface_set_material(0, _cached_trunk_material)
+		
 	
 	var collision := PoolVector3Array()
 	collision = vertices
@@ -177,7 +182,10 @@ func _generate_leaves() -> Mesh:
 		normals.push_back(normal)
 		normals.push_back(normal)
 		normals.push_back(normal)
-		
+	
+	assert(vertices.size() >= 16)
+	assert(indices.size() >= vertices.size())
+	assert(normals.size() == vertices.size())
 	
 	var arrays = []
 	arrays.resize(ArrayMesh.ARRAY_MAX)
@@ -185,13 +193,14 @@ func _generate_leaves() -> Mesh:
 	arrays[ArrayMesh.ARRAY_NORMAL] = normals
 	arrays[ArrayMesh.ARRAY_INDEX] = indices
 	
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
 	if not _cached_leaves_material:
 		_cached_leaves_material = SpatialMaterial.new()
 		_cached_leaves_material.albedo_color = leaves_color;
-	
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
 	new_mesh.surface_set_material(0, _cached_leaves_material)
-	
+
 	return new_mesh
 
 
