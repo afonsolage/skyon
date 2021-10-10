@@ -1,4 +1,4 @@
-class_name LoadingSystem
+class_name LoadingScreen
 extends Node
 
 const MAPS_PATH = "user://maps/"

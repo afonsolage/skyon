@@ -6,7 +6,7 @@ signal channel_data_downloaded(map_instance)
 var channel_id: int = -1
 
 onready var _channel_instance_res := preload("res://scenes/channel_instance.tscn")
-onready var _loading_res := preload("res://scenes/loading.tscn")
+onready var _loading_res := preload("res://scripts/nodes/loading_screen.gd")
 
 func download_channel_data(download_channel_id: int) -> MapInstance:
 	rpc_id(1, "__get_channel_data", download_channel_id)
@@ -36,8 +36,8 @@ remote func __wait_to_join_channel() -> void:
 	channel_id = -1
 	Systems.update_channel_systems(null)
 	
-	var loading_system = _loading_res.instance() as LoadingSystem
-	loading_system.name = "LoadingSystem"
+	var loading_system = _loading_res.instance() as LoadingScreen
+	loading_system.name = "LoadingScreen"
 
 	Systems.add_child(loading_system)
 
@@ -52,12 +52,12 @@ remote func __join_channel(joined_channel_id: int) -> void:
 	channel_id = -1
 	Systems.update_channel_systems(null)
 	
-	var loading_system: LoadingSystem
+	var loading_system: LoadingScreen
 	
-	if Systems.has_node("LoadingSystem"):
-		loading_system = Systems.get_node("LoadingSystem")
+	if Systems.has_node("LoadingScreen"):
+		loading_system = Systems.get_node("LoadingScreen")
 	else:
-		loading_system = _loading_res.instance() as LoadingSystem
+		loading_system = _loading_res.instance() as LoadingScreen
 		Systems.add_child(loading_system)
 	
 	var map_instance: MapInstance = yield(loading_system.start_loading(joined_channel_id), "completed")
