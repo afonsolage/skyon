@@ -6,7 +6,7 @@ signal channel_data_downloaded(map_instance)
 var channel_id: int = -1
 
 onready var _channel_instance_res := preload("res://scenes/channel_instance.tscn")
-onready var _loading_res := preload("res://scripts/nodes/loading_screen.gd")
+onready var _loading_res := preload("res://scenes/loading.tscn")
 
 func download_channel_data(download_channel_id: int) -> MapInstance:
 	rpc_id(1, "__get_channel_data", download_channel_id)
