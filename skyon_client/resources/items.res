@@ -1,6 +1,6 @@
 [
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "A wood log",
@@ -12,7 +12,7 @@
 		"uuid": "f2a55017-3afe-457c-bbf3-ea39afecd0fa"
 	},
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "A raw stone",
@@ -24,7 +24,7 @@
 		"uuid": "3225e9eb-8014-43a7-8e35-57b7d517b01e"
 	},
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "A raw ore",
@@ -36,7 +36,7 @@
 		"uuid": "6f4913b1-0527-4589-82f9-d98b9c364ae2"
 	},
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "An animal hide",
@@ -48,7 +48,7 @@
 		"uuid": "9f753146-46e5-420c-8473-79ed23e2d44c"
 	},
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "A plant fiber",
@@ -60,7 +60,7 @@
 		"uuid": "39dc2ce4-0611-4a21-826a-911a2d14bf93"
 	},
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "Created by processing wood",
@@ -72,7 +72,7 @@
 		"uuid": "ad2dfefc-5ca9-4b24-90b6-8e289bce9e3c"
 	},
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "Created by processing stone",
@@ -84,7 +84,7 @@
 		"uuid": "519a3f17-a063-4e69-a3dd-ddac0e209599"
 	},
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "Created by processing ore",
@@ -96,7 +96,7 @@
 		"uuid": "d9013cd7-c6c0-44a8-919e-ec90c17f6b4b"
 	},
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "Created by processing hide",
@@ -108,7 +108,7 @@
 		"uuid": "2c7cfac7-a54b-4bf0-860c-cd5b98f1a871"
 	},
 	{
-		"@path": "res://scripts/item/material_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
 		"@subpath": "",
 		"category": 0,
 		"description": "Created by processing fiber",
@@ -120,7 +120,7 @@
 		"uuid": "131cabcb-8834-46d4-98ba-cfff5bd7fcd8"
 	},
 	{
-		"@path": "res://scripts/item/usable_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/usable_item_resource.gd",
 		"@subpath": "",
 		"action": "",
 		"category": 1,
@@ -133,7 +133,7 @@
 		"uuid": "0badfe71-1092-4e17-a2ec-928630d14fed"
 	},
 	{
-		"@path": "res://scripts/item/usable_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/usable_item_resource.gd",
 		"@subpath": "",
 		"action": "",
 		"category": 1,
@@ -146,7 +146,7 @@
 		"uuid": "7b86c599-8f88-47a8-8d8c-6a8808d5f255"
 	},
 	{
-		"@path": "res://scripts/item/usable_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/usable_item_resource.gd",
 		"@subpath": "",
 		"action": "",
 		"category": 1,
@@ -159,7 +159,7 @@
 		"uuid": "d1d385d5-aacc-4b73-87fc-dbee8f7a4cd3"
 	},
 	{
-		"@path": "res://scripts/item/special_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/special_item_resource.gd",
 		"@subpath": "",
 		"category": 3,
 		"description": "A small pouch used to store gold coins",
@@ -171,7 +171,7 @@
 		"uuid": "8cf576e8-5b4e-40d1-94ba-d2486eb0e44c"
 	},
 	{
-		"@path": "res://scripts/item/usable_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/usable_item_resource.gd",
 		"@subpath": "",
 		"action": "",
 		"category": 1,
@@ -184,7 +184,7 @@
 		"uuid": "2cbcae4e-283b-4f60-a4af-aca15cb1a07c"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 
@@ -204,7 +204,7 @@
 		"uuid": "b3bc678b-baef-44c1-8939-61d20bae531a"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 
@@ -224,7 +224,7 @@
 		"uuid": "51609d02-7398-4aa3-aaba-eff380bdf32b"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 
@@ -244,7 +244,7 @@
 		"uuid": "0ede9e2c-298c-4f4e-bb46-3566fe82b40b"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 
@@ -264,7 +264,7 @@
 		"uuid": "692d888b-d41e-4e14-ad43-2f25151bc3ea"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 
@@ -284,7 +284,7 @@
 		"uuid": "bfc8567e-1166-46a1-bb62-df6332528536"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 
@@ -304,7 +304,7 @@
 		"uuid": "64f3f21a-b95b-4715-93d0-64d03d248aa2"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 
@@ -324,7 +324,7 @@
 		"uuid": "e543026a-259a-4eab-b112-7e0273fc7f3e"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 
@@ -344,7 +344,7 @@
 		"uuid": "fca38908-2102-40ec-868c-6aa9cbc71d3d"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 
@@ -364,7 +364,7 @@
 		"uuid": "e3509da4-3696-44a8-96fa-30f980ce7786"
 	},
 	{
-		"@path": "res://scripts/item/equipment_item_resource.gd",
+		"@path": "res://scripts/shared/item_resource/equipment_item_resource.gd",
 		"@subpath": "",
 		"attribute_list": [
 

@@ -54,6 +54,8 @@ func _input(event: InputEvent) -> void:
 				
 	elif event.is_action_pressed("attack"):
 		self.emit_signal("attack_pressed")
+	else:
+		var _b = _check_open_window_action(event)
 
 
 func select_target(target: Node, follow_target: bool = false) -> void:
@@ -145,3 +147,18 @@ func _do_ray_cast(target: Vector2) -> Dictionary:
 	var to = from + camera.project_ray_normal(target) * ray_cast_length
 	var space_state := camera.get_world().direct_space_state
 	return space_state.intersect_ray(from, to)
+
+
+func _check_open_window_action(input: InputEvent) -> bool:
+	if input.is_action_pressed("window_inventory"):
+		var window = Systems.ui.Window.INVENTORY
+		
+		if Systems.ui.is_window_shown(window):
+			Systems.ui.close_window(window)
+		else:
+			Systems.ui.show_window(window)
+			
+		return true
+	else:
+		return false
+

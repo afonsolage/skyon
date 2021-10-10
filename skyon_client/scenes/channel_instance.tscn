@@ -45,6 +45,13 @@ script = ExtResource( 6 )
 
 [node name="MainPlayerPortrait" parent="UISystem" instance=ExtResource( 7 )]
 
+[node name="Windows" type="Control" parent="UISystem"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [connection signal="attack_pressed" from="InputSystem" to="CombatSystem" method="_on_InputSystem_attack_pressed"]
 [connection signal="cleared_path" from="InputSystem" to="PlayerSystem" method="_on_InputSystem_cleared_path"]
 [connection signal="cleared_target" from="InputSystem" to="PlayerSystem" method="_on_InputSystem_cleared_target"]

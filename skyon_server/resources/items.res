@@ -1,6 +1,7 @@
 [
 	{
 		"@path": "res://scripts/shared/item_resource/material_item_resource.gd",
+		"@subpath": "",
 		"category": 0,
 		"description": "A wood log",
 		"icon_path": "res://assets/icons/items/material/wood.png",
