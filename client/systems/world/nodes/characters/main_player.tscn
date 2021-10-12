@@ -43,7 +43,7 @@ nodes/run_scale/node = SubResource( 6 )
 nodes/run_scale/position = Vector2( -60, 300 )
 nodes/speed/node = SubResource( 7 )
 nodes/speed/position = Vector2( 180, 220 )
-node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "attack", "idle_scale", 0, "idle_animation", "run_scale", 0, "run_animation", "attack", 0, "speed", "attack", 1, "1h_attack_animation" ]
+node_connections = [ "speed", 0, "idle_scale", "speed", 1, "run_scale", "output", 0, "attack", "idle_scale", 0, "idle_animation", "attack", 0, "speed", "attack", 1, "1h_attack_animation", "run_scale", 0, "run_animation" ]
 
 [sub_resource type="CylinderShape" id=9]
 radius = 0.300838
@@ -88,8 +88,8 @@ transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0, 0, 0
 material/0 = ExtResource( 5 )
 
 [node name="HandRAttachment" type="BoneAttachment" parent="Body/Model/base_character/BodyArmature/Skeleton" index="1"]
-transform = Transform( -0.219501, 0.0434505, 0.974644, 0.969482, 0.12153, 0.212921, -0.109197, 0.991636, -0.0688004, -0.251313, 0.34166, 0.0412209 )
-bone_name = "hand_attachment_r"
+transform = Transform( -0.210024, 0.0472886, 0.976552, 0.961856, 0.189063, 0.197708, -0.175281, 0.980826, -0.0851927, -0.252086, 0.357777, 0.0527606 )
+bone_name = "Hand.Attachment.R"
 
 [node name="1h_sword" parent="Body/Model/base_character/BodyArmature/Skeleton/HandRAttachment" instance=ExtResource( 2 )]
 
@@ -111,6 +111,5 @@ shape = SubResource( 10 )
 
 [node name="DebugCamera" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.896857, 0.44232, 0, -0.44232, 0.896857, 0, 2.32578, 2.32502 )
-visible = false
 
 [editable path="Body/Model/base_character"]
