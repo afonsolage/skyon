@@ -1,0 +1,57 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://commons/shared/terrain_generator.gd" type="Script" id=1]
+[ext_resource path="res://commons/utils/camera_follow.gd" type="Script" id=2]
+[ext_resource path="res://systems/channel/components/map_instance.gd" type="Script" id=3]
+[ext_resource path="res://commons/shared/terrain_generator_settings.gd" type="Script" id=4]
+
+[sub_resource type="Resource" id=1]
+script = ExtResource( 4 )
+is_generate_height_map = false
+is_generate_terrain = true
+is_generate_border = true
+is_generate_connections = true
+is_smooth_connection_border = true
+is_normalize_height = true
+is_generate_mesh_instance = true
+is_generate_collisions = true
+is_save_height_map = false
+is_force_generation = false
+map_scale = 10.0
+size = 512
+octaves = 5
+persistance = 0.2
+period = 20.0
+border_size = 30
+border_thickness = 0.05
+border_montains = true
+border_connection_size = 8
+places_count = 5
+places_path_noise_rate = 40
+places_path_thickness = 5
+height_colors = [  ]
+height_map_seed = 0
+
+[sub_resource type="ArrayMesh" id=2]
+
+[node name="TerrainGenerator" type="Spatial"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0827637, -0.118587, -0.382313 )
+script = ExtResource( 1 )
+__meta__ = {
+"_editor_description_": ""
+}
+settings = SubResource( 1 )
+
+[node name="Camera2" type="Camera" parent="."]
+transform = Transform( 0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, 14, 16, 26 )
+projection = 1
+current = true
+size = 17.0
+far = 200.0
+script = ExtResource( 2 )
+offset = Vector3( 7, -10, -7 )
+
+[node name="MapInstance" type="MeshInstance" parent="."]
+transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0 )
+mesh = SubResource( 2 )
+script = ExtResource( 3 )

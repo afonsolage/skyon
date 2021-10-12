@@ -1,0 +1,98 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://systems/ui/nodes/window/inventory.gd" type="Script" id=1]
+[ext_resource path="res://assets/fonts/Lora-VariableFont_wght.ttf" type="DynamicFontData" id=2]
+
+[sub_resource type="Gradient" id=1]
+colors = PoolColorArray( 0, 0, 0, 0.501961, 0.0156863, 0.0156863, 0.0156863, 0.501961 )
+
+[sub_resource type="GradientTexture" id=2]
+gradient = SubResource( 1 )
+width = 64
+
+[sub_resource type="DynamicFont" id=3]
+size = 8
+font_data = ExtResource( 2 )
+
+[node name="Inventory" type="Control"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -152.0
+margin_top = -212.0
+margin_right = 158.0
+margin_bottom = -12.0
+rect_min_size = Vector2( 310, 350 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BG" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = SubResource( 2 )
+expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="V" type="VBoxContainer" parent="BG"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 5.0
+margin_right = -5.0
+margin_bottom = -5.0
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Top" type="HBoxContainer" parent="BG/V"]
+margin_right = 300.0
+margin_bottom = 18.0
+rect_min_size = Vector2( 0, 10 )
+alignment = 2
+
+[node name="Title" type="Label" parent="BG/V/Top"]
+margin_top = 2.0
+margin_right = 279.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+text = "Inventory"
+align = 1
+
+[node name="CloseBtn" type="Button" parent="BG/V/Top"]
+margin_left = 283.0
+margin_right = 300.0
+margin_bottom = 18.0
+rect_min_size = Vector2( 0, 10 )
+custom_fonts/font = SubResource( 3 )
+text = "X"
+
+[node name="SC" type="ScrollContainer" parent="BG/V"]
+margin_top = 22.0
+margin_right = 300.0
+margin_bottom = 326.0
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="Mid" type="VBoxContainer" parent="BG/V/SC"]
+margin_right = 300.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 0, 32 )
+size_flags_horizontal = 3
+size_flags_vertical = 2
+
+[node name="Bottom" type="HBoxContainer" parent="BG/V"]
+margin_top = 330.0
+margin_right = 300.0
+margin_bottom = 340.0
+rect_min_size = Vector2( 0, 10 )
+alignment = 2
+
+[connection signal="pressed" from="BG/V/Top/CloseBtn" to="." method="_on_CloseBtn_pressed"]

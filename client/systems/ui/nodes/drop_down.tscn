@@ -1,0 +1,25 @@
+[gd_scene format=2]
+
+[node name="DropDown" type="HBoxContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="."]
+margin_top = 293.0
+margin_right = 510.0
+margin_bottom = 307.0
+size_flags_horizontal = 3
+text = "Input Name: "
+
+[node name="Value" type="OptionButton" parent="."]
+margin_left = 514.0
+margin_right = 1024.0
+margin_bottom = 600.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Test 1"
+items = [ "Test 1", null, false, 0, null ]
+selected = 0

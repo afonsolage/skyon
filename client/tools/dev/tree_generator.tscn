@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://commons/shared/procedural/tree_generator.gd" type="Script" id=1]
+
+[node name="TreeGenerator" type="Spatial"]
+script = ExtResource( 1 )
+active = true
+trunk_height_base = 4.0
+trunk_segments = 4
+trunk_width = 0.25
+trunk_color = Color( 0.427451, 0.27451, 0.0823529, 1 )
+trunk_base_scale = 0.340454
+leaves_noise = Vector3( 0.2, 0.8, 0.2 )
+
+[node name="Env" type="Node" parent="."]
+
+[node name="Camera" type="Camera" parent="Env"]
+transform = Transform( 0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, -10.5381, 16, 11.5763 )
+visible = false
+projection = 1
+current = true
+size = 17.0
+far = 200.0
+
+[node name="DirectionalLight" type="DirectionalLight" parent="Env"]
+transform = Transform( -0.999992, 2.91036e-11, 0.00399673, -0.00397858, 0.095203, -0.99545, -0.000380501, -0.995458, -0.0952022, -6.88738, 16.3779, -1.75875 )
+visible = false
+
+[node name="Tree2" type="Spatial" parent="."]
+transform = Transform( -0.236498, 0, 0.971632, 0, 1, 0, -0.971632, 0, -0.236498, 0, 0, 0 )
