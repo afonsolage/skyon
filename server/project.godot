@@ -9,15 +9,10 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Object",
-"class": "AIComponent",
-"language": "GDScript",
-"path": "res://scripts/components/ai_component.gd"
-}, {
 "base": "Node",
 "class": "AtlasSystem",
 "language": "GDScript",
-"path": "res://scripts/systems/atlas_system.gd"
+"path": "res://systems/atlas/atlas_system.gd"
 }, {
 "base": "Node",
 "class": "BTreeNode",
@@ -172,37 +167,32 @@ _global_script_classes=[ {
 "base": "Node",
 "class": "ChannelSystem",
 "language": "GDScript",
-"path": "res://scripts/systems/channel_system.gd"
+"path": "res://systems/channel/channel_system.gd"
 }, {
 "base": "Object",
 "class": "CombatComponent",
 "language": "GDScript",
-"path": "res://scripts/components/combat_component.gd"
+"path": "res://systems/combat/components/combat_component.gd"
 }, {
 "base": "Node",
 "class": "CombatSystem",
 "language": "GDScript",
-"path": "res://scripts/systems/combat_system.gd"
+"path": "res://systems/combat/combat_system.gd"
 }, {
 "base": "Spatial",
 "class": "ConnectionArea",
 "language": "GDScript",
-"path": "res://scripts/nodes/connection_area.gd"
-}, {
-"base": "Object",
-"class": "DBComponent",
-"language": "GDScript",
-"path": "res://scripts/components/db_component.gd"
+"path": "res://systems/atlas/nodes/connection_area.gd"
 }, {
 "base": "Node",
 "class": "DBSystem",
 "language": "GDScript",
-"path": "res://scripts/systems/db_system.gd"
+"path": "res://systems/db/db_system.gd"
 }, {
 "base": "Control",
 "class": "DebugView",
 "language": "GDScript",
-"path": "res://scripts/nodes/debug_view.gd"
+"path": "res://systems/debug/nodes/debug_view.gd"
 }, {
 "base": "ItemResource",
 "class": "EquipmentItemResource",
@@ -217,7 +207,7 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "GravityComponent",
 "language": "GDScript",
-"path": "res://scripts/components/gravity_component.gd"
+"path": "res://systems/world/components/gravity_component.gd"
 }, {
 "base": "Reference",
 "class": "HeightMap",
@@ -232,7 +222,7 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "ItemInstance",
 "language": "GDScript",
-"path": "res://scripts/components/item_instance.gd"
+"path": "res://systems/item/components/item_instance.gd"
 }, {
 "base": "Reference",
 "class": "ItemResource",
@@ -242,7 +232,7 @@ _global_script_classes=[ {
 "base": "Node",
 "class": "ItemSystem",
 "language": "GDScript",
-"path": "res://scripts/systems/item_system.gd"
+"path": "res://systems/item/item_system.gd"
 }, {
 "base": "Object",
 "class": "Log",
@@ -262,12 +252,12 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "MapComponent",
 "language": "GDScript",
-"path": "res://scripts/components/map_component.gd"
+"path": "res://systems/atlas/components/map_component.gd"
 }, {
 "base": "MeshInstance",
 "class": "MapInstance",
 "language": "GDScript",
-"path": "res://scripts/nodes/map_instance.gd"
+"path": "res://systems/atlas/components/map_instance.gd"
 }, {
 "base": "ItemResource",
 "class": "MaterialItemResource",
@@ -277,22 +267,22 @@ _global_script_classes=[ {
 "base": "KinematicBody",
 "class": "Mob",
 "language": "GDScript",
-"path": "res://scripts/nodes/mob.gd"
+"path": "res://systems/mob/nodes/mob.gd"
 }, {
 "base": "Node",
 "class": "MobSystem",
 "language": "GDScript",
-"path": "res://scripts/systems/mob_system.gd"
+"path": "res://systems/mob/mob_system.gd"
 }, {
 "base": "Node",
 "class": "NetSystem",
 "language": "GDScript",
-"path": "res://scripts/systems/net_system.gd"
+"path": "res://systems/net/net_system.gd"
 }, {
 "base": "KinematicBody",
 "class": "Player",
 "language": "GDScript",
-"path": "res://scripts/nodes/player.gd"
+"path": "res://systems/world/nodes/characters/player.gd"
 }, {
 "base": "Node",
 "class": "SafeYieldThread",
@@ -332,10 +322,9 @@ _global_script_classes=[ {
 "base": "Node",
 "class": "WorldSystem",
 "language": "GDScript",
-"path": "res://scripts/systems/world_system.gd"
+"path": "res://systems/world/world_system.gd"
 } ]
 _global_script_class_icons={
-"AIComponent": "",
 "AtlasSystem": "",
 "BTreeNode": "",
 "BTreeNodeComposite": "",
@@ -371,7 +360,6 @@ _global_script_class_icons={
 "CombatComponent": "",
 "CombatSystem": "",
 "ConnectionArea": "",
-"DBComponent": "",
 "DBSystem": "",
 "DebugView": "",
 "EquipmentItemResource": "",
@@ -405,11 +393,11 @@ _global_script_class_icons={
 [application]
 
 config/name="Skyon Server"
-run/main_scene="res://scenes/boostrap.tscn"
+run/main_scene="res://boostrap.tscn"
 
 [autoload]
 
-Systems="*res://scripts/singletons/systems.gd"
+Systems="*res://singletons/systems.gd"
 Consts="*res://commons/shared/consts.gd"
 
 [debug]
@@ -470,4 +458,4 @@ limits/debugger_stdout/max_chars_per_second=20480
 
 [rendering]
 
-environment/default_environment="res://default_env.tres"
+environment/default_environment="res://resources/default_env.tres"
