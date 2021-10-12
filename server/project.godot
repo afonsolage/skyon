@@ -220,9 +220,14 @@ _global_script_classes=[ {
 "path": "res://commons/shared/procedural/height_map_generator.gd"
 }, {
 "base": "Reference",
+"class": "Inventory",
+"language": "GDScript",
+"path": "res://systems/item/inventory.gd"
+}, {
+"base": "Reference",
 "class": "ItemInstance",
 "language": "GDScript",
-"path": "res://systems/item/components/item_instance.gd"
+"path": "res://systems/item/item_instance.gd"
 }, {
 "base": "Reference",
 "class": "ItemResource",
@@ -367,6 +372,7 @@ _global_script_class_icons={
 "GravityComponent": "",
 "HeightMap": "",
 "HeightMapGenerator": "",
+"Inventory": "",
 "ItemInstance": "",
 "ItemResource": "",
 "ItemSystem": "",
