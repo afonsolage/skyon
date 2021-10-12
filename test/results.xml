@@ -1,7 +1,0 @@
-<?xml version="1.0" ?>
-<testsuites failures="0" name="TestXML" tests="1" time="0">
-	<testsuite name="" failures="0"  tests="1" time="0">
-		<testcase name=" our test" time="0"></testcase>
-	</testsuite>
-
-</testsuites>

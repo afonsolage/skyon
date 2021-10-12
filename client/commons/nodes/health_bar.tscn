@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://commons/nodes/health_bar.gd" type="Script" id=1]
+[ext_resource path="res://assets/textures/ui/barHorizontal_green_mid 200.png" type="Texture" id=2]
+
+[node name="HealthBar" type="Spatial"]
+script = ExtResource( 1 )
+
+[node name="Background" type="Sprite3D" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0 )
+modulate = Color( 0.129412, 0.129412, 0.129412, 1 )
+billboard = 1
+double_sided = false
+alpha_cut = 2
+texture = ExtResource( 2 )
+
+[node name="Foreground" type="Sprite3D" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0.001 )
+layers = 2
+billboard = 1
+double_sided = false
+alpha_cut = 2
+texture = ExtResource( 2 )
+region_enabled = true
+region_rect = Rect2( 0, 0, 200, 26 )

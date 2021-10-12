@@ -1,0 +1,2 @@
+#!/bin/bash
+docker exec -i -t db_db_1 pg_dump --create --clean --if-exists --inserts --column-inserts --username "skyon_usr" --no-password --schema-only "skyon_db" > ../infra/sql_scripts/backup/skyon_db.sql

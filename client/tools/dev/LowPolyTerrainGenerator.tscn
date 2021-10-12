@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scripts/shared/procedural/low_poly_terrain_generator.gd" type="Script" id=1]
+[ext_resource path="res://systems/world/nodes/characters/main_player.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scripts/shared/procedural/terrain_generation_settings.gd" type="Script" id=3]
+
+[sub_resource type="Resource" id=1]
+script = ExtResource( 3 )
+is_generate_height_map = false
+is_generate_terrain = true
+is_generate_border = true
+is_generate_connections = true
+is_smooth_connection_border = true
+is_normalize_height = true
+is_generate_mesh_instance = true
+is_generate_collisions = true
+is_save_height_map = false
+is_force_generation = false
+map_scale = 10.0
+size = 512
+octaves = 5
+persistance = 0.2
+period = 20.0
+border_size = 30
+border_thickness = 0.05
+border_montains = true
+border_connection_size = 8
+places_count = 5
+places_path_noise_rate = 40
+places_path_thickness = 5
+height_colors = [  ]
+seed_number = 26704118480
+
+[node name="LowPolyTerrainGenerator" type="Spatial"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.422134, 0.00305748, 0.428574 )
+script = ExtResource( 1 )
+settings = SubResource( 1 )
+extent = 512
+
+[node name="Env" type="Node" parent="."]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="Env"]
+transform = Transform( 0.116712, -0.637852, -0.761265, 0.0215787, -0.764693, 0.644033, -0.992931, -0.0915934, -0.0754847, 22.7095, 89.5966, 83.5327 )
+
+[node name="MainPlayer" parent="Env" instance=ExtResource( 2 )]
+transform = Transform( -0.603138, 0, -0.797637, 0, 1, 0, 0.797637, 0, -0.603138, 33.8404, 7.41996, 39.7209 )

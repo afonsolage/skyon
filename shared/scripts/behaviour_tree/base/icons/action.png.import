@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/action.png-8df4be1f85bd2e42c15da6263266075e.stex"
+path="res://.import/action.png-5f735f1de2b80047b2214ca73ff7af53.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scripts/shared/behaviour_tree/base/icons/action.png"
-dest_files=[ "res://.import/action.png-8df4be1f85bd2e42c15da6263266075e.stex" ]
+source_file="res://commons/shared/behaviour_tree/base/icons/action.png"
+dest_files=[ "res://.import/action.png-5f735f1de2b80047b2214ca73ff7af53.stex" ]
 
 [params]
 
@@ -28,6 +28,7 @@ process/fix_alpha_border=true
 process/premult_alpha=false
 process/HDR_as_SRGB=false
 process/invert_color=false
+process/normal_map_invert_y=false
 stream=false
 size_limit=0
 detect_3d=true
