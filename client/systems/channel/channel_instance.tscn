@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://systems/world/world_system.gd" type="Script" id=1]
 [ext_resource path="res://systems/channel/channel_instance.gd" type="Script" id=2]
@@ -9,6 +9,8 @@
 [ext_resource path="res://systems/input/input_system.gd" type="Script" id=7]
 [ext_resource path="res://systems/ui/ui_system.gd" type="Script" id=8]
 [ext_resource path="res://assets/resources/default_env.tres" type="Environment" id=9]
+[ext_resource path="res://systems/npc/npc_system.gd" type="Script" id=10]
+[ext_resource path="res://systems/item/item_system.gd" type="Script" id=11]
 
 [node name="ChannelInstance" type="Node"]
 script = ExtResource( 2 )
@@ -56,9 +58,16 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="NPCSystem" type="Node" parent="."]
+script = ExtResource( 10 )
+
+[node name="ItemSystem" type="Node" parent="."]
+script = ExtResource( 11 )
+
 [connection signal="attack_pressed" from="InputSystem" to="CombatSystem" method="_on_InputSystem_attack_pressed"]
 [connection signal="cleared_path" from="InputSystem" to="PlayerSystem" method="_on_InputSystem_cleared_path"]
 [connection signal="cleared_target" from="InputSystem" to="PlayerSystem" method="_on_InputSystem_cleared_target"]
 [connection signal="selected_path" from="InputSystem" to="PlayerSystem" method="_on_InputSystem_selected_path"]
 [connection signal="selected_target" from="InputSystem" to="PlayerSystem" method="_on_InputSystem_selected_target"]
+[connection signal="selected_target" from="InputSystem" to="NPCSystem" method="_on_InputSystem_selected_target"]
 [connection signal="health_changed" from="PlayerSystem" to="UISystem" method="_on_PlayerSystem_health_changed"]

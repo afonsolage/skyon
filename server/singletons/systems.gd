@@ -15,7 +15,6 @@ func init_systems() -> void:
 	_init_net_system()
 	_init_atlas_system()
 	_init_channel_system()
-	_init_item_system()
 	_init_debug_view()
 
 # System-wide...systems
@@ -42,12 +41,6 @@ func _init_atlas_system() -> void:
 	atlas = AtlasSystem.new()
 	atlas.name = "AtlasSystem"
 	add_child(atlas)
-
-
-func _init_item_system() -> void:
-	item = ItemSystem.new()
-	item.name = "ItemSystem"
-	add_child(item)
 
 
 func _init_debug_view() -> void:
@@ -83,3 +76,6 @@ func get_mob(channel_id: int) -> MobSystem:
 func get_npc(channel_id: int) -> NPCSystem:
 	return get_node("ChannelSystem/%d/NPCSystem" % channel_id) as NPCSystem
 
+
+func get_item(channel_id: int) -> ItemSystem:
+	return get_node("ChannelSystem/%d/ItemSystem" % channel_id) as ItemSystem

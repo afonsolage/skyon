@@ -1,6 +1,7 @@
 class_name LootBag
 extends KinematicBody
 
+var inventory_id: int
 
 func _to_string() -> String:
 	return self.name

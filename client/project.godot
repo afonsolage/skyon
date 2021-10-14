@@ -215,6 +215,16 @@ _global_script_classes=[ {
 "path": "res://systems/input/input_system.gd"
 }, {
 "base": "Reference",
+"class": "Inventory",
+"language": "GDScript",
+"path": "res://systems/item/inventory.gd"
+}, {
+"base": "Reference",
+"class": "ItemInstance",
+"language": "GDScript",
+"path": "res://systems/item/item_instance.gd"
+}, {
+"base": "Reference",
 "class": "ItemResource",
 "language": "GDScript",
 "path": "res://commons/shared/item_resource/item_resource.gd"
@@ -273,6 +283,11 @@ _global_script_classes=[ {
 "class": "Mob",
 "language": "GDScript",
 "path": "res://systems/world/nodes/mobs/mob.gd"
+}, {
+"base": "Node",
+"class": "NPCSystem",
+"language": "GDScript",
+"path": "res://systems/npc/npc_system.gd"
 }, {
 "base": "Node",
 "class": "NetSystem",
@@ -376,6 +391,8 @@ _global_script_class_icons={
 "HeightMap": "",
 "HeightMapGenerator": "",
 "InputSystem": "",
+"Inventory": "",
+"ItemInstance": "",
 "ItemResource": "",
 "ItemSystem": "",
 "LoadingScreen": "",
@@ -388,6 +405,7 @@ _global_script_class_icons={
 "MapInstance": "",
 "MaterialItemResource": "",
 "Mob": "",
+"NPCSystem": "",
 "NetSystem": "",
 "PlayerSystem": "",
 "SafeYieldThread": "",

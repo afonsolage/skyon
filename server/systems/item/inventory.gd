@@ -4,7 +4,7 @@ extends Reference
 var _items = []
 var _owner_id: int
 var _owner_type: int
-var _db_id: int
+var _id: int
 var _has_limited_slots: bool
 
 func _init(slot_count: int) -> void:
@@ -40,3 +40,14 @@ func find_free_slot() -> int:
 func is_slot_free(index: int) -> bool:
 	return index < _items.size() && not _items[index]
 
+
+func serialize() -> Dictionary:
+	var res := {}
+	
+	res.id = _id
+	res.items = []
+	
+	for item in _items:
+		res.items.push_back(item.serialize())
+	
+	return res

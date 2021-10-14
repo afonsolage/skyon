@@ -58,6 +58,10 @@ func get_mob(id: String) -> Mob:
 	return _mobs.get_node(id) as Mob
 
 
+func get_npc(id: String) -> Spatial:
+	return _npcs.get_node(id) as Spatial
+
+
 func remove_player(session_id: int) -> void:
 	if not _player_states.erase(session_id):
 		return

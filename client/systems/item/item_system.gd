@@ -16,3 +16,6 @@ func _load_resources() -> void:
 	Log.d("Loaded %d item resources" % _resources.size())
 
 
+remote func show_inventory(inventory: Dictionary) -> void:
+	# TODO: Show inventory based on received items
+	pass

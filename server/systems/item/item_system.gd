@@ -11,12 +11,6 @@ var _inventories := {}
 func _ready() -> void:
 	_load_resources()
 	_load_instances()
-	
-	var inventory = yield(create_inventory(1, 1, 10), "completed")
-	var instance = yield(create_item("f2a55017-3afe-457c-bbf3-ea39afecd0fa", inventory, 0), "completed")
-	
-	Log.d(inst2dict(inventory))
-	Log.d(inst2dict(instance))
 
 
 func find_resource_by_name(name: String) -> ItemResource:
@@ -47,20 +41,40 @@ func create_item(resource_uuid: String, inventory: Inventory, slot: int = -1, ti
 	
 	var item_properties = _randomize_item(_resources[resource_uuid], tier, quality)
 	item_properties.resource_uuid = resource_uuid
-	item_properties.inventory_id = inventory._db_id
+	item_properties.inventory_id = inventory._id
 	item_properties.inventory_slot = slot
 	
-	return _persist_item(item_properties)
-
+	var item = yield(_persist_item(item_properties), "completed")
+	
+	if item:
+		inventory.set_at(slot, item)
+	
+	return item
 
 func create_inventory(owner_id: int, owner_type: int, slot_count: int = 0) -> Inventory:
-	var inventory = _persist_inventory({
+	var inventory = yield(_persist_inventory({
 			"owner_id": owner_id,
 			"owner_type": owner_type,
 			"slot_count": slot_count,
-	})
+	}), "completed")
+	
+	_inventories[inventory._id] = inventory
 	
 	return inventory
+
+
+func get_inventory(id: int) -> Inventory:
+	return _inventories[id]
+
+
+func show_inventory(player: Player, id: int) -> void:
+	var inventory := get_inventory(id)
+	
+	if not inventory:
+		Log.w("Unable to find inventory for owner %d" % id)
+		return
+	
+	rpc_id(player.session_id, "show_inventory", inventory.serialize())
 
 
 func _randomize_item(item_resource: ItemResource, tier: int, quality: int) -> Dictionary:
@@ -168,7 +182,7 @@ func _parse_item_instance(json) -> ItemInstance:
 func _parse_inventory(json) -> Inventory:
 	var inventory := Inventory.new(json.slot_count)
 	
-	inventory._db_id = json.id
+	inventory._id = json.id
 	inventory._owner_id = json.owner_id
 	inventory._owner_type = json.owner_type
 	
