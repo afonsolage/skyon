@@ -8,11 +8,13 @@ onready var mob_res := preload("res://systems/mob/nodes/mob.tscn")
 func _ready():
 	_channel_id = Systems.get_current_channel_id(self)
 	
+#	spawn_mob()
+	
 
 func spawn_mob():
 	var mob := mob_res.instance() as Spatial
 	mob.name = "M%d" % mob.get_instance_id()
-	mob.translate(Vector3(30, 10, 30))
+	mob.translate(Vector3(198, 5, 200))
 	mob.add_to_group("StateSync")
 
 	Systems.get_world(_channel_id).add_mob(mob)	
@@ -28,6 +30,9 @@ func _on_CombatSystem_died(killed, _killer):
 		return
 
 	killed.die()
+	
+	Systems.get_npc(_channel_id).spawn_loot_bag(killed.translation)
+	
 	# TODO: Add loot, exp, and such
 	
 	yield(get_tree().create_timer(3), "timeout")

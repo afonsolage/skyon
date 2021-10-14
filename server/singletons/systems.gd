@@ -78,3 +78,8 @@ func get_combat(channel_id: int) -> CombatSystem:
 
 func get_mob(channel_id: int) -> MobSystem:
 	return get_node("ChannelSystem/%d/MobSystem" % channel_id) as MobSystem
+
+
+func get_npc(channel_id: int) -> NPCSystem:
+	return get_node("ChannelSystem/%d/NPCSystem" % channel_id) as NPCSystem
+

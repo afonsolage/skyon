@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://resources/default_env.tres" type="Environment" id=1]
 [ext_resource path="res://systems/world/world_system.gd" type="Script" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://systems/channel/nodes/channel_instance.gd" type="Script" id=5]
 [ext_resource path="res://systems/channel/nodes/fly_by_camera.gd" type="Script" id=6]
 [ext_resource path="res://systems/debug/nodes/axis_gizmo.tscn" type="PackedScene" id=7]
+[ext_resource path="res://systems/npc/npc_system.gd" type="Script" id=8]
 
 [sub_resource type="World" id=1]
 environment = ExtResource( 1 )
@@ -31,6 +32,8 @@ script = ExtResource( 6 )
 
 [node name="Mobs" type="Spatial" parent="WorldSystem"]
 
+[node name="NPCs" type="Spatial" parent="WorldSystem"]
+
 [node name="Gizmo" parent="WorldSystem" instance=ExtResource( 7 )]
 transform = Transform( 20, 0, 0, 0, 20, 0, 0, 0, 20, 0, 0, 0 )
 
@@ -39,5 +42,8 @@ script = ExtResource( 4 )
 
 [node name="MobSystem" type="Node" parent="."]
 script = ExtResource( 3 )
+
+[node name="NPCSystem" type="Node" parent="."]
+script = ExtResource( 8 )
 
 [connection signal="died" from="CombatSystem" to="MobSystem" method="_on_CombatSystem_died"]

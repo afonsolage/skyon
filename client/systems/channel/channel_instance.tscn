@@ -31,6 +31,8 @@ offset = Vector3( 7, -10, -7 )
 
 [node name="Mobs" type="Node" parent="WorldSystem"]
 
+[node name="NPCs" type="Node" parent="WorldSystem"]
+
 [node name="CombatSystem" type="Node" parent="."]
 script = ExtResource( 4 )
 

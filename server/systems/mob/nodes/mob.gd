@@ -9,7 +9,6 @@ onready var ai_root := $AIRoot
 
 var current_action: String = "Idle"
 
-
 func _to_string() -> String:
 	return self.name
 

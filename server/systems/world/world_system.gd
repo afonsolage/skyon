@@ -12,6 +12,7 @@ var _uid_cnt: int = 1
 onready var _player_res = preload("res://systems/world/nodes/characters/player.tscn")
 onready var _players = $Players
 onready var _mobs = $Mobs
+onready var _npcs = $NPCs
 
 func _init() -> void:
 	Log.ok(Systems.net.connect("session_disconnected", self, "_on_session_disconnected"))
@@ -35,6 +36,10 @@ func setup_map_instance(map: MapComponent) -> void:
 
 func add_mob(mob: Spatial) -> void:
 	_mobs.add_child(mob)
+
+
+func add_npc(npc: Spatial) -> void:
+	_npcs.add_child(npc)
 
 
 func has_player(session_id: int) -> bool:
@@ -118,11 +123,14 @@ func _on_session_disconnected(session_id):
 
 
 func _on_player_area_of_interest_entered(body: PhysicsBody, player: Player) -> void:
+	Log.d("%s entered on player %d area of interest" % [body.name, player.session_id])
+	
 	if not body.has_method("get_full_state"):
 		Log.d("Skipping the area entered since %s doesn't have `get_full_state" % body.name)
 		return
 
 	var state: Dictionary = body.get_full_state()
+	
 	
 	if Systems.net.is_session_valid(player.session_id):
 		rpc_id(player.session_id, "__enter_on_area_of_interest", body.name, state)
@@ -158,7 +166,7 @@ remote func __join_world() -> void:
 	
 	var player := _player_res.instance() as Player
 	player.name = "P%d" % session_id
-	player.translate(Vector3(200, 30, 200))
+	player.translate(Vector3(200, 5, 200))
 	player.add_to_group("StateSync")
 	Log.ok(player.connect("area_of_interest_entered", 
 			self, "_on_player_area_of_interest_entered", [player]))
@@ -167,7 +175,7 @@ remote func __join_world() -> void:
 			
 	_players.add_child(player)
 
-	rpc_id(session_id, "__spawn_main_player", Vector3(200, 30, 200), session_id)
+	rpc_id(session_id, "__spawn_main_player", player.translation, session_id)
 	
 	self.emit_signal("player_entered", session_id)
 

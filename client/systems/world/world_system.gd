@@ -10,6 +10,9 @@ var _last_state_time : int = 0
 onready var _mobs: Node = $Mobs
 onready var _mob_res := preload("res://systems/world/nodes/mobs/mob.tscn")
 
+onready var _npcs: Node = $NPCs
+onready var _loot_bag_res := preload("res://systems/world/nodes/items/loot_bag.tscn")
+
 func _ready() -> void:
 	Log.d("Initializing World System")
 	rpc_id(1, "__join_world")
@@ -39,6 +42,8 @@ func get_spatial(id: String) -> Spatial:
 				return null
 		"M":
 			return _mobs.get_node(id) as Spatial
+		"N":
+			return _npcs.get_node(id) as Spatial
 		_:
 			Log.e("Unknown spatial type on id %s" % id)
 
@@ -53,6 +58,8 @@ func has_spatial(id: String) -> bool:
 			pass
 		"M":
 			return _mobs.has_node(id)
+		"N":
+			return _npcs.has_node(id)
 		_:
 			Log.e("Unknown spatial type on id %s" % id)
 
@@ -100,6 +107,8 @@ func _spawn(id: String, state: Dictionary) -> void:
 			pass
 		"M":
 			_spawn_mob(id, state)
+		"N":
+			_spawn_npc(id, state)
 		_:
 			Log.e("Unknown spatial type on id %s" % id)
 
@@ -111,6 +120,16 @@ func _spawn_mob(id: String, state: Dictionary) -> void:
 	_mobs.add_child(mob)
 	
 	mob.set_full_state(state)
+
+
+func _spawn_npc(id: String, state: Dictionary) -> void:
+	# TODO: change this later on to spawn NPC based on some configuration
+	var npc := _loot_bag_res.instance()
+	npc.name = id
+
+	_npcs.add_child(npc)
+	
+	npc.set_full_state(state)
 
 
 remote func __state_sync(states: Dictionary) -> void:
