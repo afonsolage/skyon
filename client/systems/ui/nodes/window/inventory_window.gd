@@ -7,7 +7,7 @@ const SLOT: Resource = preload("res://systems/ui/nodes/item_slot.tscn")
 onready var _mid_container: VBoxContainer = $BG/V/SC/Mid
 
 func _ready():
-	pass
+	set_slot_count(48)
 
 func set_slot_count(count: int) -> void:
 	Log.d("Initializing inventory with %d slots" % count)

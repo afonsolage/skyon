@@ -2,11 +2,11 @@
 
 [ext_resource path="res://systems/ui/nodes/item_slot.gd" type="Script" id=1]
 
-[sub_resource type="Gradient" id=1]
+[sub_resource type="Gradient" id=3]
 colors = PoolColorArray( 0, 0, 0, 0.501961, 0.0156863, 0.0156863, 0.0156863, 0.501961 )
 
 [sub_resource type="GradientTexture" id=2]
-gradient = SubResource( 1 )
+gradient = SubResource( 3 )
 width = 64
 
 [node name="ItemSlot" type="TextureRect"]
