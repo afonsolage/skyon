@@ -5,6 +5,8 @@ const ITEMS_PATH := "res://resources/items.res"
 
 var _resources := {}
 var _instances := {}
+var _inventories := {}
+
 
 func _ready() -> void:
 	_load_resources()
@@ -19,16 +21,60 @@ func find_resource_by_name(name: String) -> ItemResource:
 	return null
 
 
-func create_item(resource_uuid: String, tier: int = 0, quality: int = -1) -> ItemInstance:
+func create_item(resource_uuid: String, inventory: Inventory, slot: int = -1, tier: int = 0, 
+		quality: int = -1) -> ItemInstance:
+	
 	if not _resources.has(resource_uuid):
 		Log.e("Failed to find item with uuid %s" % resource_uuid)
-		return null 
+		return null
+	
+	if slot == -1:
+		slot = inventory.find_free_slot()
+	
+	if slot == -1:
+		Log.e("Inventory is full")
+		return null
+	
+	if not inventory.is_slot_free(slot):
+		Log.e("Inventory slot is already occupied")
+		return null
 	
 	var item_properties = _randomize_item(_resources[resource_uuid], tier, quality)
 	item_properties.resource_uuid = resource_uuid
+	item_properties.inventory_id = inventory._id
+	item_properties.inventory_slot = slot
 	
+	var item = yield(_persist_item(item_properties), "completed")
 	
-	return _insert_item(item_properties)
+	if item:
+		inventory.set_at(slot, item)
+	
+	return item
+
+func create_inventory(owner_id: int, owner_type: int, slot_count: int = 0) -> Inventory:
+	var inventory = yield(_persist_inventory({
+			"owner_id": owner_id,
+			"owner_type": owner_type,
+			"slot_count": slot_count,
+	}), "completed")
+	
+	_inventories[inventory._id] = inventory
+	
+	return inventory
+
+
+func get_inventory(id: int) -> Inventory:
+	return _inventories[id]
+
+
+func show_inventory(player: Player, id: int) -> void:
+	var inventory := get_inventory(id)
+	
+	if not inventory:
+		Log.w("Unable to find inventory for owner %d" % id)
+		return
+	
+	rpc_id(player.session_id, "show_inventory", inventory.serialize())
 
 
 func _randomize_item(item_resource: ItemResource, tier: int, quality: int) -> Dictionary:
@@ -133,11 +179,29 @@ func _parse_item_instance(json) -> ItemInstance:
 	return instance
 
 
-func _insert_item(properties: Dictionary) -> ItemInstance:
+func _parse_inventory(json) -> Inventory:
+	var inventory := Inventory.new(json.slot_count)
+	
+	inventory._id = json.id
+	inventory._owner_id = json.owner_id
+	inventory._owner_type = json.owner_type
+	
+	return inventory
+
+
+func _persist_item(properties: Dictionary) -> ItemInstance:
 	var instance = yield(Systems.db.post("/item_instance", properties), "completed")
 	
 	if typeof(instance) == TYPE_ARRAY:
 		return _parse_item_instance(instance[0])
 	else:
 		return null
-	
+
+
+func _persist_inventory(properties: Dictionary) -> Inventory:
+	var inventory = yield(Systems.db.post("/inventory", properties), "completed")
+
+	if typeof(inventory) == TYPE_ARRAY:
+		return _parse_inventory(inventory[0])
+	else:
+		return null

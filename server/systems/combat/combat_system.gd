@@ -29,7 +29,7 @@ func _attack_target(attacker_node: Spatial, attacked_node: Spatial) -> Dictionar
 
 	var result := _attack_combat(attacker, attacked)
 
-	if attacked.health <= 0:
+	if not result.empty() and attacked.health <= 0:
 		self.emit_signal("died", attacked_node, attacker_node)
 
 	return result

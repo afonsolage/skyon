@@ -33,18 +33,18 @@ material/0 = null
 
 [node name="InteractionArea" type="Area" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.304 )
-monitorable = false
 collision_layer = 0
-collision_mask = 14
+collision_mask = 30
+monitorable = false
 
 [node name="CollisionShape" type="CollisionShape" parent="InteractionArea"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88, -0.5 )
 shape = SubResource( 3 )
 
 [node name="AreaOfInterest" type="Area" parent="."]
-monitorable = false
 collision_layer = 0
-collision_mask = 14
+collision_mask = 30
+monitorable = false
 
 [node name="CollisionShape" type="CollisionShape" parent="AreaOfInterest"]
 shape = SubResource( 4 )

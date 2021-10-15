@@ -52,7 +52,8 @@ class DBCmd:
 	var args: Dictionary
 	
 	func done(result: Array) -> void:
-		Log.d("Cmd done %s = %s" % [self, result])
+		var result_txt = str(result)
+		Log.d("Cmd done %s = %s" % [self, result_txt.left(100)])
 		emit_signal("done", result)
 
 	func _to_string() -> String:
