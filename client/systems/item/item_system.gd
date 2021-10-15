@@ -51,5 +51,5 @@ remote func show_inventory(inventory: Dictionary) -> void:
 	for item in inventory.items:
 		instances.push_back(_parse_item_instance(item))
 
-	var inventory_window = Systems.ui.show_window(Systems.ui.Window.INVENTORY) as InventoryWindow
+	var inventory_window = Systems.ui.create_window(Systems.ui.Window.LOOT_BAG) as LootBagWindow
 	inventory_window.set_items(instances)

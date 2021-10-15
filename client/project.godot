@@ -222,7 +222,7 @@ _global_script_classes=[ {
 "base": "Control",
 "class": "InventoryWindow",
 "language": "GDScript",
-"path": "res://systems/ui/nodes/window/inventory.gd"
+"path": "res://systems/ui/nodes/window/inventory_window.gd"
 }, {
 "base": "Reference",
 "class": "ItemInstance",
@@ -248,6 +248,11 @@ _global_script_classes=[ {
 "class": "Log",
 "language": "GDScript",
 "path": "res://commons/shared/log.gd"
+}, {
+"base": "Control",
+"class": "LootBagWindow",
+"language": "GDScript",
+"path": "res://systems/ui/nodes/window/loot_bag_window.gd"
 }, {
 "base": "Reference",
 "class": "LowPolyGenerator",
@@ -403,6 +408,7 @@ _global_script_class_icons={
 "ItemSystem": "",
 "LoadingScreen": "",
 "Log": "",
+"LootBagWindow": "",
 "LowPolyGenerator": "",
 "LowPolyMap": "",
 "MainPlayer": "",

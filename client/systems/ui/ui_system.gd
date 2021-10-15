@@ -3,10 +3,12 @@ extends Node
 
 enum Window {
 	INVENTORY,
+	LOOT_BAG,
 }
 
 const WINDOWS_RES = {
-	Window.INVENTORY: preload("res://systems/ui/nodes/window/inventory.tscn") 
+	Window.INVENTORY: preload("res://systems/ui/nodes/window/inventory_window.tscn"),
+	Window.LOOT_BAG: preload("res://systems/ui/nodes/window/loot_bag_window.tscn"),
 }
 
 onready var _main_player_portrait: MainPlayerPortrait = $MainPlayerPortrait
@@ -23,6 +25,14 @@ func _on_PlayerSystem_health_changed(health, max_health):
 	_main_player_portrait.update_health(health, max_health)
 
 
+func create_window(window: int) -> Control:
+	assert(WINDOWS_RES.has(window))
+
+	var new_window := WINDOWS_RES[window].instance() as Control
+	_windows_node.add_child(new_window)
+	
+	return new_window
+
 func show_window(window: int) -> Control:
 	assert(WINDOWS_RES.has(window))
 	
@@ -32,8 +42,7 @@ func show_window(window: int) -> Control:
 	
 	Log.d("Showing window %d" % window)
 	
-	var new_window := WINDOWS_RES[window].instance() as Control
-	_windows_node.add_child(new_window)
+	var new_window := create_window(window)
 	_windows[window] = new_window
 
 	return new_window
