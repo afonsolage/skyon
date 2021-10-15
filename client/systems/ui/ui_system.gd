@@ -23,12 +23,12 @@ func _on_PlayerSystem_health_changed(health, max_health):
 	_main_player_portrait.update_health(health, max_health)
 
 
-func show_window(window: int) -> void:
+func show_window(window: int) -> Control:
 	assert(WINDOWS_RES.has(window))
 	
 	if _windows.has(window):
 		Log.w("Window %d is already shown" % window)
-		return
+		return _windows[window]
 	
 	Log.d("Showing window %d" % window)
 	
@@ -36,6 +36,7 @@ func show_window(window: int) -> void:
 	_windows_node.add_child(new_window)
 	_windows[window] = new_window
 
+	return new_window
 
 func close_window(window: int) -> void:
 	assert(WINDOWS_RES.has(window))

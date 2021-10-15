@@ -14,7 +14,7 @@ width = 64
 size = 8
 font_data = ExtResource( 2 )
 
-[node name="Inventory" type="Control"]
+[node name="InventoryWindow" type="Control"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -87,6 +87,9 @@ margin_bottom = 32.0
 rect_min_size = Vector2( 0, 32 )
 size_flags_horizontal = 3
 size_flags_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BG/V/SC/Mid"]
+size_flags_horizontal = 2
 
 [node name="Bottom" type="HBoxContainer" parent="BG/V"]
 margin_top = 330.0

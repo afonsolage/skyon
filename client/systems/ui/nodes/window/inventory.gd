@@ -1,3 +1,4 @@
+class_name InventoryWindow
 extends Control
 
 const SLOT_ROW_COUNT: int = 8
@@ -6,7 +7,6 @@ const SLOT: Resource = preload("res://systems/ui/nodes/item_slot.tscn")
 onready var _mid_container: VBoxContainer = $BG/V/SC/Mid
 
 func _ready():
-	set_slot_count(50)
 	pass
 
 func set_slot_count(count: int) -> void:
@@ -31,6 +31,27 @@ func set_slot_count(count: int) -> void:
 			var slot := SLOT.instance()
 			slot.name = k as String
 			hbox.add_child(slot)
+
+
+func set_items(items: Array) -> void:
+	set_slot_count(items.size())
+	
+	for i in range(items.size()):
+		var instance := items[i] as ItemInstance
+		
+		if not instance:
+			continue
+			
+		var item_node = _get_item_node(i)
+		item_node.set_icon(instance.resource.icon_path)
+
+
+func _get_item_node(index: int) -> Control:
+	var row_idx := index / SLOT_ROW_COUNT
+	var column_idx := index % SLOT_ROW_COUNT
+	
+	var row = _mid_container.get_node("R%d" % row_idx)
+	return row.get_node(str(column_idx))
 
 
 func _on_CloseBtn_pressed():

@@ -219,6 +219,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://systems/item/inventory.gd"
 }, {
+"base": "Control",
+"class": "InventoryWindow",
+"language": "GDScript",
+"path": "res://systems/ui/nodes/window/inventory.gd"
+}, {
 "base": "Reference",
 "class": "ItemInstance",
 "language": "GDScript",
@@ -392,6 +397,7 @@ _global_script_class_icons={
 "HeightMapGenerator": "",
 "InputSystem": "",
 "Inventory": "",
+"InventoryWindow": "",
 "ItemInstance": "",
 "ItemResource": "",
 "ItemSystem": "",
